@@ -78,6 +78,44 @@ Strem release: ~/strem-releases/v0.3.0
 Thesis repository: ~/strem  # do not modify from this project
 ```
 
+### Repository Sync
+
+The two checkouts share one bare repository on Procyon instead of being copied
+by hand:
+
+```text
+origin: procyon:git/driving-scene-data-loop.git   (bare)
+laptop: ~/Documents/driving-scene-data-loop
+procyon: ~/projects/driving-scene-data-loop
+```
+
+Push from the laptop, then fast-forward on Procyon:
+
+```bash
+git push origin main                                   # laptop
+ssh procyon 'cd ~/projects/driving-scene-data-loop && git pull --ff-only'
+```
+
+Sync dependencies on Procyon with `--all-extras`, because the host has the `ml`
+extra installed and a plain `uv sync --all-groups` would uninstall torch:
+
+```bash
+~/.local/bin/uv sync --locked --all-groups --all-extras
+```
+
+Procyon runs the full test suite with no skips, because torch and the pinned
+Strem binary are both present there; the laptop skips those four tests. Run the
+checks on Procyon before trusting a change that touches the GRU, public-Pool
+inference, or the Strem boundary:
+
+```bash
+export STREM_BIN="$HOME/strem-releases/v0.3.0/strem-linux-x86_64"
+~/.local/bin/uv run --no-sync pytest -q
+```
+
+Raw media, features, model weights, and run outputs stay under
+`~/datasets/driving-scene-data-loop` and never enter this repository.
+
 Use Slurm for long CPU jobs when the project account permits it, and keep
 commands observable. The server is suitable for
 metadata processing, Strem mining, Logistic Regression, and GRU training on
