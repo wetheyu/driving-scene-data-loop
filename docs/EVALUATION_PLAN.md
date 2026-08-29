@@ -357,9 +357,15 @@ If another factor changes, Gate C fails and no data-selection conclusion is made
 
 ### Frozen Arm List
 
-The Held-out Test is opened once, so the complete set of scored arms is fixed
-here before any arm is trained. Each arm trains seeds `17, 29, 43`, giving 30
-training runs. Adding an arm after the reveal would require reopening the Test.
+The Held-out Test is opened once, so the complete set of scored arms must be
+fixed before the first Test score — not before the first training run. Every
+arm trains seeds `17, 29, 43`.
+
+Improvement happens on Development, which is what Development is for. A round
+trains its arms, is read on Development, and may motivate a further arm; the
+Test stays sealed throughout. The arms below are the pre-registered set, frozen
+before any label was revealed, and they are reported unchanged whatever later
+rounds add:
 
 | Group | Arm | Added windows |
 | --- | --- | --- |
@@ -378,6 +384,12 @@ Budget-curve arms reuse nested prefixes of the same frozen lists; they do not
 rerun selection. `Mining-300-VLM` reuses the exact `Mining-300-Oracle` IDs and
 changes only the label source. If the VLM stage is dropped for time, the first
 nine arms remain a complete experiment.
+
+A later round may add an improved selector. Such an arm is Development-informed
+by construction and is reported as such, never as a pre-registered result: the
+Random baselines were never tuned, so a Development-informed selector enters the
+comparison with an advantage that has to be stated. Both the pre-registered
+`Mining-300-Oracle` and any improved variant appear in the final tables.
 
 All predictions for every listed arm freeze before the first Test score is
 computed. Scoring the primary comparison first and then deciding to score the
