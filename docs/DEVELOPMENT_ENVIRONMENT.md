@@ -183,11 +183,15 @@ and must not be used as inputs.
 
 ## Strem Environment
 
-Configure the platform release with an environment variable:
+Neither variable is set in the shell profile, so export both per session:
 
 ```bash
 export STREM_BIN="$HOME/strem-releases/v0.3.0/strem-linux-x86_64"
+export STREM_CONVERTER="$HOME/strem-releases/v0.3.0/source/scripts/nuscenes_to_strem.py"
 ```
+
+The converter path is inside the extracted source archive; see
+[Strem Skill](STREM_SKILL.md) for how both artifacts are produced from it.
 
 Accepted releases:
 

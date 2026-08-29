@@ -51,10 +51,36 @@ Path: ~/strem-releases/v0.3.0/strem-linux-x86_64
 SHA-256: 0c031f8d9fd7cf350a5209119fbd5fbddf316bba0219ae4d7c51c9e242c3692c
 ```
 
-Configure it through the environment:
+### Where the Two Artifacts Come From
+
+Both the matcher and the converter are produced from the same pinned source
+archive; neither is taken from the research worktree.
+
+```text
+strem-v0.3.0-source.tar.gz          the pinned archive
+  -> extract
+  -> cargo build --release          -> strem-<platform>   (STREM_BIN)
+  -> source/scripts/                -> nuscenes_to_strem.py (STREM_CONVERTER)
+```
+
+The matcher is a compiled Rust binary. Only the archive's `src/` tree is
+compiled; its experiments, benchmark results, docs, and poster are not part of
+the executable. The result links against the platform C runtime only, so it runs
+from any directory without the archive, Rust, or Cargo present.
+
+The converter is not compiled. It is one 545-line Python file that imports only
+the standard library, so it needs no environment beyond CPython and reads the
+nuScenes JSON tables directly.
+
+A `target/` directory beside the extracted source is local build scratch, not
+archive content, and can be removed once the binary is extracted and its
+SHA-256 verified.
+
+Configure both through the environment:
 
 ```bash
 export STREM_BIN=/path/to/strem-v0.3.0
+export STREM_CONVERTER=/path/to/v0.3.0/source/scripts/nuscenes_to_strem.py
 ```
 
 Do not use `/Users/wetheyu/strem/target/release/strem` or another research
