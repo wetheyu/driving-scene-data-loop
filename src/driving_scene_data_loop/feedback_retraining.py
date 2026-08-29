@@ -22,11 +22,12 @@ class FeedbackRetrainingError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class OracleArm:
-    """One predeclared Oracle-label feedback arm."""
+    """One Oracle-label feedback arm."""
 
     name: str
     method: str
     budget: int
+    pre_registered: bool = True
 
 
 ORACLE_ARMS = (
@@ -40,11 +41,23 @@ ORACLE_ARMS = (
     OracleArm("mining-600-oracle", "mining", 600),
 )
 
+# Designed after round one diagnosed why ORACLE_ARMS found no Mining effect; see
+# docs/FINDINGS.md. Never pre-registered: the Random baselines above were never
+# tuned, so this selector enters any comparison with a stated advantage.
+DEVELOPMENT_INFORMED_ARMS = (
+    OracleArm(
+        "mining-v2-300-score-ranked-oracle",
+        "mining_v2_score_ranked",
+        300,
+        pre_registered=False,
+    ),
+)
+
 
 def get_oracle_arm(name: str) -> OracleArm:
-    """Return one arm from the list frozen before Held-out Test scoring."""
+    """Return one arm, pre-registered or Development-informed, by name."""
 
-    for arm in ORACLE_ARMS:
+    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS:
         if arm.name == name:
             return arm
     raise FeedbackRetrainingError(f"unknown Oracle arm: {name}")

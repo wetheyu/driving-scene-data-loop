@@ -235,6 +235,174 @@ def freeze_random_variance_rankings(
     return report
 
 
+def freeze_score_ranked_rankings(
+    *,
+    pool_rows_path: Path,
+    pool_report_path: Path,
+    output_dir: Path,
+    budgets: tuple[int, ...] = BUDGETS,
+    method: str = "mining_v2_score_ranked",
+) -> JsonObject:
+    """Freeze a Development-informed selector: pure Base-probability ranking.
+
+    Round one measured the frozen `mining` selector against three Random
+    batches and found no effect, then diagnosed three mechanisms behind the
+    null result: the FN-similarity filter was anti-predictive (0.15x lift on
+    the rarest class), MiniBatchKMeans round-robin diluted the one working
+    signal (selections landed at the 23rd-32nd shortlist percentile instead of
+    the top 10%), and the frozen "boundary margin" ranker sits in the far right
+    tail of the probability distribution, so it was doing indirect positive
+    retrieval rather than uncertainty sampling.
+
+    This selector removes all three: no similarity filter, no shortlist, no
+    clustering. Each class is ranked by the Base model's own probability,
+    descending, with only temporal deduplication. It reads no FN bank and no
+    embeddings.
+
+    It must never be reported as pre-registered. The Random baselines were
+    never tuned; this selector was designed after reading revealed Pool labels,
+    so it carries a Development-informed advantage that has to be stated
+    alongside any result.
+    """
+
+    if output_dir.exists():
+        raise SelectionError("output directory must not already exist")
+    if not budgets or tuple(sorted(set(budgets))) != budgets:
+        raise SelectionError("budgets must be positive, unique, and increasing")
+
+    pool_report = _read_json(pool_report_path)
+    scenario_ids = cast(tuple[str, ...], tuple(pool_report["scenario_ids"]))
+    if len(scenario_ids) != 3 or any(
+        budget <= 0 or budget % len(scenario_ids) != 0 for budget in budgets
+    ):
+        raise SelectionError("every budget must split evenly across three classes")
+    thresholds = {
+        scenario_id: float(pool_report["base"]["thresholds"][scenario_id])
+        for scenario_id in scenario_ids
+    }
+    pool_rows = _read_pool_rows(pool_rows_path, len(scenario_ids))
+
+    max_budget = budgets[-1]
+    queues: dict[str, list[_ScoreCandidate]] = {}
+    for class_index, scenario_id in enumerate(scenario_ids):
+        candidates = [
+            _ScoreCandidate(
+                pool_index=index,
+                scenario_id=scenario_id,
+                probability=float(row["base_probabilities"][class_index]),
+                threshold=thresholds[scenario_id],
+            )
+            for index, row in enumerate(pool_rows)
+        ]
+        candidates.sort(
+            key=lambda item: (
+                -item.probability,
+                pool_rows[item.pool_index]["window_id"],
+            )
+        )
+        queues[scenario_id] = _score_temporal_filter(candidates, pool_rows)
+
+    ranking = _merge_score_queues(method, scenario_ids, queues, pool_rows, max_budget)
+
+    output_dir.mkdir(parents=True)
+    filename = f"{method}_ranked.jsonl"
+    _write_jsonl(output_dir / filename, ranking)
+
+    report: JsonObject = {
+        "schema_version": "1.0",
+        "artifact": "score_ranked_selection",
+        "development_informed": True,
+        "diagnosis_source": "oracle-reveal-v1 unbiased-sample analysis; see docs/FINDINGS.md",
+        "scenario_ids": list(scenario_ids),
+        "budgets": list(budgets),
+        "primary_budget": 300 if 300 in budgets else budgets[0],
+        "maximum_ranked_count": max_budget,
+        "public_pool_window_count": len(pool_rows),
+        "policy": {
+            "ranking": "Base probability, descending, per class",
+            "similarity_filter": "none",
+            "diversity_step": "none",
+            "temporal_separation_keyframes": TEMPORAL_SEPARATION,
+            "class_merge": "round-robin in frozen scenario order",
+        },
+        "prefixes": {method: _prefix_summary(ranking, budgets, scenario_ids)},
+        "files": {method: filename},
+    }
+    (output_dir / "score_ranked_report.json").write_text(
+        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return report
+
+
+@dataclass(frozen=True, slots=True)
+class _ScoreCandidate:
+    pool_index: int
+    scenario_id: str
+    probability: float
+    threshold: float
+
+
+def _score_temporal_filter(
+    candidates: list[_ScoreCandidate],
+    pool_rows: list[JsonObject],
+) -> list[_ScoreCandidate]:
+    scene_starts: dict[str, list[int]] = {}
+    result: list[_ScoreCandidate] = []
+    for candidate in candidates:
+        row = pool_rows[candidate.pool_index]
+        if _temporally_allowed(row, scene_starts):
+            _record_start(row, scene_starts)
+            result.append(candidate)
+    return result
+
+
+def _merge_score_queues(
+    method: str,
+    scenario_ids: tuple[str, ...],
+    queues: dict[str, list[_ScoreCandidate]],
+    pool_rows: list[JsonObject],
+    budget: int,
+) -> list[JsonObject]:
+    positions = {scenario_id: 0 for scenario_id in scenario_ids}
+    selected_ids: set[str] = set()
+    scene_starts: dict[str, list[int]] = {}
+    selected: list[JsonObject] = []
+    quota = budget // len(scenario_ids)
+    for _ in range(quota):
+        for scenario_id in scenario_ids:
+            queue = queues[scenario_id]
+            while positions[scenario_id] < len(queue):
+                candidate = queue[positions[scenario_id]]
+                positions[scenario_id] += 1
+                row = pool_rows[candidate.pool_index]
+                if row["window_id"] in selected_ids or not _temporally_allowed(
+                    row, scene_starts
+                ):
+                    continue
+                selected_ids.add(row["window_id"])
+                _record_start(row, scene_starts)
+                selected.append(
+                    {
+                        "rank": len(selected) + 1,
+                        "method": method,
+                        "window_id": row["window_id"],
+                        "scene_token": row["scene_token"],
+                        "scene_name": row["scene_name"],
+                        "log_token": row["log_token"],
+                        "start_frame_index": row["start_frame_index"],
+                        "end_frame_index": row["end_frame_index"],
+                        "query_scenario_id": candidate.scenario_id,
+                        "base_probability": candidate.probability,
+                        "base_threshold": candidate.threshold,
+                    }
+                )
+                break
+            else:
+                raise SelectionError(f"{method} exhausted candidates for {scenario_id}")
+    return selected
+
+
 def _rank_class_candidates(
     *,
     scenario_id: str,
