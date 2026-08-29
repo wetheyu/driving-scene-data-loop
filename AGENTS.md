@@ -13,9 +13,10 @@ Read these documents in order:
 5. `docs/DATA_SPEC.md`
 6. `docs/EVALUATION_PLAN.md`
 7. `docs/BAD_CASE_PROCESS.md`
-8. `docs/ROADMAP.md`
-9. `docs/ALIGNMENT.md`
-10. `docs/DEVELOPMENT_ENVIRONMENT.md`
+8. `docs/FINDINGS.md`
+9. `docs/ROADMAP.md`
+10. `docs/ALIGNMENT.md`
+11. `docs/DEVELOPMENT_ENVIRONMENT.md`
 
 Do not silently change the research question, scenario definitions, data split,
 annotation budget, Strem boundary, or evaluation protocol.

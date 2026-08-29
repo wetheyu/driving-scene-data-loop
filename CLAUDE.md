@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 follow its documentation reading order (`docs/PROJECT_SCOPE.md` →
 `docs/STAGE_PLAN.md` → `docs/ARCHITECTURE.md` → `docs/STREM_SKILL.md` →
 `docs/DATA_SPEC.md` → `docs/EVALUATION_PLAN.md` → `docs/BAD_CASE_PROCESS.md` →
-`docs/ROADMAP.md` → `docs/ALIGNMENT.md` → `docs/DEVELOPMENT_ENVIRONMENT.md`)
+`docs/FINDINGS.md` → `docs/ROADMAP.md` → `docs/ALIGNMENT.md` → `docs/DEVELOPMENT_ENVIRONMENT.md`)
 before touching a stage you have not worked on. Key points that shape every edit:
 
 - This is a one-person, research-first offline research experiment frozen at

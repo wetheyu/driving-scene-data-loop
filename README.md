@@ -194,6 +194,9 @@ uv run python scripts/build_strem_eligible_streams.py \
   --output-dir /path/to/eligible_streams
 ```
 
+[Findings](docs/FINDINGS.md) records what the experiments observed and the
+reasoning built on it, in the order the evidence arrived.
+
 See [Architecture](docs/ARCHITECTURE.md), [Data Spec](docs/DATA_SPEC.md),
 [Evaluation Plan](docs/EVALUATION_PLAN.md), and
 [Stage Plan](docs/STAGE_PLAN.md) for the frozen experiment details.
