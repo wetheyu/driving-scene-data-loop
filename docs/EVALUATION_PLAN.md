@@ -447,6 +447,12 @@ This matches the reveal-stage power estimate exactly: the two methods differed b
 about seven positive windows, and the observed seed spread is `± 0.008` to
 `± 0.021`, while the arms differ by less than `± 0.004`.
 
+A Development-informed selector was designed from this diagnosis and tested
+against the same Random batches; see [Findings](FINDINGS.md) section 8 for the
+full result. It bought 2 to 5 times more positives than the best Random batch
+but produced no clean Macro-AP gain under either protocol, which is recorded as
+evidence against the budget being the sole limiting factor.
+
 ## Metrics
 
 Primary:

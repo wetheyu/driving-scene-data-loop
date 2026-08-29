@@ -195,8 +195,14 @@ Development predictions.
    protocols. Adding 300 windows beat Base, but Mining and the three Random
    batches were indistinguishable, and fine-tuning absorbed the added data
    almost entirely. Reported as observed.
-8. Design and test one improved selector on Development, reported as
-   Development-informed, before any Held-out Test score.
+8. Completed: designed and tested Mining v2, a Development-informed selector
+   that ranks each class by Base probability with no similarity filter and no
+   clustering. It bought 2 to 5 times more positives than the best Random
+   batch at `N=300` but produced no clean Macro-AP gain under either protocol,
+   and its near-zone AP regressed with unusually high seed variance. Reported
+   as Development-informed, not pre-registered.
+9. Decide the next diagnostic round: larger budget, spatial features, or
+   further investigation of the near-zone regression.
 
 Required checks: public-U schema has no Oracle fields, equal budgets, temporal
 separation, frozen selected IDs before reveal, Random variance seeds fixed

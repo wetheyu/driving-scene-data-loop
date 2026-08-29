@@ -19,6 +19,10 @@ data. Each directory name is the private run that produced the file, under
 | `oracle-reveal-v1/label_profile.json` | what each frozen batch bought once its labels were revealed |
 | `feedback-scratch-*/gru_report.json` | round-one arms retrained from scratch on L0 plus 300 |
 | `feedback-finetune-*/gru_report.json` | the same arms fine-tuned from the Base checkpoint |
+| `score-ranked-v2/score_ranked_report.json` | the Development-informed pure-probability selector (Mining v2) |
+| `oracle-reveal-v2-score-ranked/label_profile.json` | what Mining v2 bought once its labels were revealed |
+| `feedback-scratch-mining-v2-300/gru_report.json` | Mining v2 retrained from scratch |
+| `feedback-finetune-mining-v2-300/gru_report.json` | Mining v2 fine-tuned from the Base checkpoint |
 
 ## What these files are not
 

@@ -209,7 +209,86 @@ Diversity machinery is not needed to keep such a batch spread out. Pure ranking
 with the same temporal separation covers 44, 74, and 64 scenes across 17 to 19
 logs per class, comparable to Mining's 130 scenes and 21 logs over all three.
 
-## 8. Open hypotheses
+## 8. A Development-informed selector was built and tested
+
+Section 4 diagnosed three mechanisms and predicted that removing them would
+recover the signal measured in section 7: ranking each class by the Base
+model's own probability, descending, with only temporal deduplication — no
+similarity filter, no shortlist, no clustering. This selector is
+**Development-informed by construction**: it was designed after reading
+revealed Pool labels, so unlike the pre-registered arms it carries a stated
+advantage over Random, which was never tuned. It is reported as such, not as a
+second pre-registered result.
+
+### It fixed the yield gap decisively
+
+Positive labels bought at `N=300`, using the same accounting as section 2 —
+positives across the full selected batch, independent of which class's query
+surfaced a window:
+
+| Class | Mining v1 | Random range | **Mining v2** | v2 vs best Random |
+| --- | ---: | ---: | ---: | ---: |
+| near-zone entry | 12 | 9 – 14 | **24** | +10 |
+| proximity hold | 25 | 17 – 19 | **31** | +12 |
+| corridor entry | 13 | 12 – 16 | **66** | **+50** |
+
+Corridor bought more than five times the best Random batch. Log and scene
+coverage of the positive labels stayed reasonable rather than collapsing to a
+few repeats: 10 to 16 logs and 18 to 44 scenes per class, comparable to the
+spread Random achieved.
+
+### It did not improve Development Macro-AP
+
+Both declared protocols were run, exactly as for round one:
+
+| Protocol | Mining v1 | Random range | **Mining v2** |
+| --- | ---: | ---: | ---: |
+| P1 from scratch | `0.2528 ± 0.0028` | `0.2542 – 0.2569` | `0.2527 ± 0.0024` |
+| P2 fine-tuned | `0.2428 ± 0.0082` | `0.2382 – 0.2425` | `0.2420 ± 0.0107` |
+
+Both Macro-AP figures land inside or below the Random range, indistinguishable
+from round one's result despite the batch containing far more true positives.
+Per class, from scratch:
+
+| Class | Mining v2 AP | Random range | Verdict |
+| --- | ---: | ---: | --- |
+| near-zone entry | `0.1292 ± 0.0557` | `0.1346 – 0.1859` | below range, and below Mining v1's `0.1704` |
+| proximity hold | `0.0899 ± 0.0265` | `0.0595 – 0.0847` | above range, by less than its own seed spread |
+| corridor entry | `0.5391 ± 0.0282` | `0.5228 – 0.5433` | inside range |
+
+The one class where v2 clears the Random range — proximity hold — clears it by
+`0.0052`, smaller than its own `± 0.0265` seed spread. **No class shows a clean
+win.** Near-zone is the sharpest result: despite the largest yield gain of the
+three classes relative to L0, its Development AP fell below every Random batch
+and below Mining v1, with a seed spread nearly three times the typical `± 0.02`
+to `± 0.03` seen elsewhere in this project.
+
+### What this confirms
+
+**Positive yield is a proxy metric, not the outcome.** This was flagged before
+training as a real risk — round one already showed Mining v1 buying more
+proximity-hold positives than Random (25 against 18) while scoring lower on
+that class — and this experiment is a direct, designed test of it, buying up
+to five times more positives with no corresponding Macro-AP gain.
+
+It also sharpens which open hypothesis in the previous section carries more
+weight. Doubling to quintupling the positive count did not move the metric,
+which argues against the budget alone being the limiting factor and for the
+representation being closer to the true ceiling: a selector cannot make the
+encoder resolve an object it cannot resolve, no matter how many correctly
+labeled instances of that object it is shown.
+
+One mechanism for the near-zone regression is plausible but not confirmed: pure
+probability ranking on a weak classifier (Base near-zone AP `0.167`, prevalence
+`2%`) surfaces windows the model is already confident about — the top-100
+queried for this class had a median Base probability of `0.899` — which may
+reinforce an already-learned response rather than teach a new one, while
+shifting the decision boundary enough to raise seed-to-seed variance. This is
+recorded as a hypothesis, not a finding: the evidence is one experiment at one
+budget, and confirming it would need controlled variation of what is selected,
+which round one's timeline did not include.
+
+## 9. Open hypotheses
 
 Two candidate explanations for the null result remain, both pre-declared in
 [Bad-Case Process](BAD_CASE_PROCESS.md) before the result was known, and each is
@@ -217,6 +296,9 @@ directly testable without changing the task, the split, or the labels:
 
 1. **The budget is too small.** At `N=300` the methods differ by seven positive
    windows. Raising the budget scales that difference roughly proportionally.
+   Section 8 weakens this hypothesis somewhat: a selector that bought two to
+   five times more positives than Random still produced no clean win, so a
+   larger budget alone is not guaranteed to close the gap either.
 2. **The representation is the ceiling.** Labels are defined by metric geometry
    in the ego ground plane, while the model input is one 384-dimensional global
    CLS vector per frame from a monocular camera. A pedestrian at 15 to 20 m is
@@ -237,3 +319,10 @@ class, so decile-level rates carry real uncertainty; the round-robin dilution an
 the threshold arithmetic are exact computations and do not. Nothing here shows
 that bad-case similarity is useless in general — only that in this
 representation, with this bank construction, it was anti-predictive.
+
+The Development-informed selector in section 8 is one experiment at one budget
+and three training seeds; the near-zone regression it produced is reported
+because it is what happened, not because a single run at this scale can support
+a confident mechanism. It should not be read as evidence that probability
+ranking is worse than the pre-registered selector in general — only that,
+here, buying more true positives did not produce a better model.

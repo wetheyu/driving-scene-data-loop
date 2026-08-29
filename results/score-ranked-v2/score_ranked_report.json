@@ -1,0 +1,66 @@
+{
+  "artifact": "score_ranked_selection",
+  "budgets": [
+    150,
+    300,
+    600
+  ],
+  "development_informed": true,
+  "diagnosis_source": "oracle-reveal-v1 unbiased-sample analysis; see docs/FINDINGS.md",
+  "files": {
+    "mining_v2_score_ranked": "mining_v2_score_ranked_ranked.jsonl"
+  },
+  "maximum_ranked_count": 600,
+  "policy": {
+    "class_merge": "round-robin in frozen scenario order",
+    "diversity_step": "none",
+    "ranking": "Base probability, descending, per class",
+    "similarity_filter": "none",
+    "temporal_separation_keyframes": 5
+  },
+  "prefixes": {
+    "mining_v2_score_ranked": {
+      "150": {
+        "cluster_profile": {},
+        "count": 150,
+        "log_coverage": 21,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 50,
+          "pedestrian_vehicle_center_proximity_hold": 50,
+          "vehicle_relative_corridor_entry": 50
+        },
+        "unique_windows": 150
+      },
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 24,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 100,
+          "pedestrian_vehicle_center_proximity_hold": 100,
+          "vehicle_relative_corridor_entry": 100
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 25,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 200,
+          "pedestrian_vehicle_center_proximity_hold": 200,
+          "vehicle_relative_corridor_entry": 200
+        },
+        "unique_windows": 600
+      }
+    }
+  },
+  "primary_budget": 300,
+  "public_pool_window_count": 11639,
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0"
+}
