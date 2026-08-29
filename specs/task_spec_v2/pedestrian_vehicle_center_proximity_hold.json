@@ -1,0 +1,61 @@
+{
+  "accepting_states": [
+    "qf"
+  ],
+  "clocks": [
+    "x"
+  ],
+  "initial_states": [
+    "q0"
+  ],
+  "name": "pedestrian_vehicle_center_proximity_hold__candidate-2",
+  "persistent_bindings": [
+    "p",
+    "v"
+  ],
+  "states": [
+    "q0",
+    "q_close",
+    "q_held",
+    "qf"
+  ],
+  "transitions": [
+    {
+      "from": "q0",
+      "reset_clocks": [
+        "x"
+      ],
+      "spatial_guard": "[E(p := [:pedestrian:], v := [:motor_vehicle:])(@dist(p, v) <= 5.0)]",
+      "to": "q_close"
+    },
+    {
+      "from": "q_close",
+      "spatial_guard": "[E(p := [:pedestrian:], v := [:motor_vehicle:])(@dist(p, v) <= 5.0)]",
+      "time_guards": [
+        {
+          "clock": "x",
+          "op": "lt",
+          "threshold": 1.0
+        }
+      ],
+      "to": "q_close"
+    },
+    {
+      "from": "q_close",
+      "spatial_guard": "[E(p := [:pedestrian:], v := [:motor_vehicle:])(@dist(p, v) <= 5.0)]",
+      "time_guards": [
+        {
+          "clock": "x",
+          "op": "ge",
+          "threshold": 1.0
+        }
+      ],
+      "to": "q_held"
+    },
+    {
+      "from": "q_held",
+      "terminal": true,
+      "to": "qf"
+    }
+  ]
+}

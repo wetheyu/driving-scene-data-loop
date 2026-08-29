@@ -1,0 +1,53 @@
+{
+  "accepting_states": [
+    "qf"
+  ],
+  "clocks": [
+    "x"
+  ],
+  "initial_states": [
+    "q0"
+  ],
+  "name": "vehicle_relative_corridor_entry__candidate-1",
+  "persistent_bindings": [
+    "v"
+  ],
+  "states": [
+    "q0",
+    "q_outside",
+    "q_entered",
+    "qf"
+  ],
+  "transitions": [
+    {
+      "from": "q0",
+      "reset_clocks": [
+        "x"
+      ],
+      "spatial_guard": "[E(v := [:motor_vehicle:])(@x_m(v) >= 0.0 & @x_m(v) <= 30.0 & (@y_m(v) >= 3.0 | @y_m(v) <= -3.0))]",
+      "to": "q_outside"
+    },
+    {
+      "from": "q_outside",
+      "spatial_guard": "[E(v := [:motor_vehicle:])(@x_m(v) >= 0.0 & @x_m(v) <= 30.0 & (@y_m(v) > 1.5 | @y_m(v) < -1.5))]",
+      "to": "q_outside"
+    },
+    {
+      "from": "q_outside",
+      "spatial_guard": "[E(v := [:motor_vehicle:])(@x_m(v) >= 0.0 & @x_m(v) <= 30.0 & @y_m(v) >= -1.5 & @y_m(v) <= 1.5)]",
+      "time_guards": [
+        {
+          "clock": "x",
+          "op": "le",
+          "threshold": 2.0
+        }
+      ],
+      "to": "q_entered"
+    },
+    {
+      "from": "q_entered",
+      "terminal": true,
+      "to": "qf"
+    }
+  ]
+}

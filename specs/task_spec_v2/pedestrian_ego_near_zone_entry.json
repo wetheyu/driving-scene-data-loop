@@ -1,0 +1,54 @@
+{
+  "accepting_states": [
+    "qf"
+  ],
+  "clocks": [
+    "x"
+  ],
+  "initial_states": [
+    "q0"
+  ],
+  "name": "pedestrian_ego_near_zone_entry__candidate-2",
+  "persistent_bindings": [
+    "p",
+    "ego"
+  ],
+  "states": [
+    "q0",
+    "q_outside",
+    "q_entered",
+    "qf"
+  ],
+  "transitions": [
+    {
+      "from": "q0",
+      "reset_clocks": [
+        "x"
+      ],
+      "spatial_guard": "[E(p := [:pedestrian:], ego := [:ego:])(@dist(p, ego) >= 20.0)]",
+      "to": "q_outside"
+    },
+    {
+      "from": "q_outside",
+      "spatial_guard": "[E(p := [:pedestrian:], ego := [:ego:])(@dist(p, ego) > 15.0)]",
+      "to": "q_outside"
+    },
+    {
+      "from": "q_outside",
+      "spatial_guard": "[E(p := [:pedestrian:], ego := [:ego:])(@dist(p, ego) <= 15.0)]",
+      "time_guards": [
+        {
+          "clock": "x",
+          "op": "le",
+          "threshold": 2.0
+        }
+      ],
+      "to": "q_entered"
+    },
+    {
+      "from": "q_entered",
+      "terminal": true,
+      "to": "qf"
+    }
+  ]
+}

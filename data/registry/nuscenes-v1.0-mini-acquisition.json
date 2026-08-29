@@ -1,0 +1,48 @@
+{
+  "archive": {
+    "bytes": 4167696325,
+    "local_path": "data/raw/nuscenes/v1.0-mini.tgz",
+    "member_count": 31252,
+    "official_sha256_available": false,
+    "sha256": "943037abbb3b26b3070dc76504a43eb440503b00baf9ac2f1538d9c03fc9298f",
+    "unsafe_path_count": 0
+  },
+  "cleanup": {
+    "archive_path": "data/raw/nuscenes/v1.0-mini.tgz",
+    "dataset_root": "data/raw/nuscenes",
+    "performed": false
+  },
+  "dataset_id": "nuscenes-v1.0-mini",
+  "extraction": {
+    "allocated_kib_excluding_archive": 5317216,
+    "dataroot": "data/raw/nuscenes",
+    "logical_file_bytes": 5374897430,
+    "media_and_map_file_count": 31210,
+    "total_allocated_kib_including_archive": 9396976
+  },
+  "license": {
+    "dataset_license": "CC-BY-NC-SA-4.0 plus Motional Dataset Terms",
+    "devkit_license": "Apache-2.0",
+    "non_commercial_only": true,
+    "terms_accepted_on": "2026-08-16"
+  },
+  "metadata_counts": {
+    "distinct_scene_log_tokens": 8,
+    "log": 8,
+    "map": 4,
+    "sample": 404,
+    "sample_annotation": 18538,
+    "sample_data": 31206,
+    "scene": 10
+  },
+  "observed_at": "2026-08-17",
+  "schema_version": "0.2",
+  "source": {
+    "content_length": 4167696325,
+    "etag": "0e429041111a03d43ec0419e1eb02d5f-497",
+    "etag_is_sha256": false,
+    "http_status": 200,
+    "last_modified": "2021-04-24T01:10:29Z",
+    "url": "https://www.nuscenes.org/data/v1.0-mini.tgz"
+  }
+}

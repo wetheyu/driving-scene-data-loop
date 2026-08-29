@@ -1,117 +1,260 @@
 # Roadmap
 
-Status: Planning
+Specification: Frozen for `v0.8-three-class-loop`
 
-A phase is complete only when its code, tests, measurements, documentation, and
-learning checkpoint are complete.
+This is an accelerated, evidence-oriented personal-project plan. The remaining work
+is organized by evidence needed for scene-mining and the data-loop record, not
+by adding infrastructure. Expect roughly 12 to 14 focused sessions after the
+current foundation; measured DINO CPU speed may move that estimate.
 
-## Phase 0: Definition
+## Completion Standard
 
-- [x] Define the user problem and input/output contract.
-- [x] Define architecture and trust boundaries.
-- [x] Define the Strem-SpTA integration contract.
-- [x] Define data, evaluation, bad-case, learning, and job-alignment plans.
-- [ ] Review and freeze project specification version `0.1`.
+Stop when these results exist:
 
-Exit condition: the first implementation task requires no new product assumptions.
+1. The three Gate-A-frozen Strem labels each receive a documented Gate-B
+   decision.
+2. Whole-log splits and five-frame windows have no known leakage.
+3. A compact data-quality profile explains cleaning, filter reasons, label
+   states, and split distributions.
+4. DINOv2 features feed LastFrame-LR, Mean5-LR, and a PyTorch GRU.
+5. Development false negatives produce one explainable integrated Mining rule.
+6. Mining-Oracle and three independent Random-Oracle batches are retrained
+   fairly with the same primary `N=300` budget.
+7. A remote VLM labels the same frozen Mining-300 IDs, is measured
+   against the Oracle, and supplies one controlled VLM retraining comparison.
+8. Held-out Test metrics, four compact tables, and at least five deep cases are
+   documented.
 
-## Phase 1: Python, Tests, and Data Exploration
+Extra selectors, UI, databases, Agent, SFT, distributed platforms, and
+production engineering do not block completion.
 
-- [x] Inspect the local Python, Git, database, and package-manager environment.
-- [ ] Create the package, dependency lock, lint, type-check, and test configuration.
-- [ ] Implement the first typed scene and query records.
-- [ ] Load a tiny public-data sample without committing raw data.
-- [ ] Produce a data-quality and distribution notebook or report.
-- [ ] Store scene and query metadata in SQLite.
+## Operating Rules
 
-Exit condition: one command validates data and tests from a clean environment.
+- Procyon is the primary private environment; no compute GPU is observed.
+- Raw media, features, weights, runs, and VLM requests/responses stay private
+  and outside Git.
+- Use direct functions and plain files. Add only validation that protects
+  labels, split isolation, model inputs, selector leakage, or fair evaluation.
+- Combine repeated scans and audits. Do not turn one-off analysis into a generic
+  framework.
+- Give the standard answer before connecting it to code.
+- A tie or regression is a valid result; support and metrics are never invented.
+- Finish the Oracle-label causal loop before interpreting the VLM-label result.
 
-## Phase 2: Search Baselines
+## Completed Foundation
 
-- [ ] Define and review the first canonical query set.
-- [ ] Implement TF-IDF and BM25 baselines.
-- [ ] Implement query-level train, development, and test evaluation.
-- [ ] Add hard negatives and inspect ranking failures.
-- [ ] Record Recall@k, MRR, nDCG, index time, and query latency.
+- Python 3.12/uv environments on macOS and Procyon.
+- nuScenes trainval metadata: 850 scenes, 34,149 samples, and 68 logs.
+- Whole-log `split-v1`: TaskDesign/L0/Development/U plus official-val Frozen
+  Test.
+- All 2,747 TaskDesign CAM_FRONT keyframes and the frozen projection/visibility
+  eligibility rule.
+- 850 CAM_FRONT-eligible Strem streams with 120,035 retained target annotations
+  from 859,857 candidates and 45,847 traceable object IDs.
+- Fixed external Strem v0.3.0 boundary with exact timestamps, Schema 2.0,
+  persistent bindings, and real-release semantic tests.
+- All three candidate families pass positive-support prechecks on TaskDesign:
+  pedestrian entry `(20m,15m)` at 16 events/3 logs, vehicle corridor
+  `(3m,1.5m)` at 46/5, and pedestrian-vehicle hold `(5m,1s)` at 16/4.
+- Pedestrian entry and pedestrian-vehicle hold passed compact positive,
+  hard-negative, visual-semantic, and cross-partition audits.
+- The corridor retained 20 hard-negative windows across 4 TaskDesign logs. A
+  24-window review found no systematic defect, cross-partition support passed
+  at `153/13, 74/6, 201/22, 69/15`, and all three rules are frozen in
+  `specs/task_spec_v2`.
+- Full-scene output can aggregate touching symbolic regions. A real five-frame
+  substream check confirmed that the same fixed specification can decide the
+  bounded model-window label.
 
-Exit condition: baseline results are reproducible and every metric is understood.
+Observed negative results remain part of the record: near-zone thresholds ending
+at 3--4m had zero support, the 4m proximity hold had only 10 events/3 logs, a
+receding pedestrian hard-negative rule had zero TaskDesign events, and the first
+proximity hard-negative design yielded only 4 windows.
 
-## Phase 3: Dense, Hybrid, and Reranking
+## Stage 0 — Audit the Third Scenario — Completed
 
-- [ ] Add one embedding model and local vector index.
-- [ ] Add a documented hybrid-fusion method.
-- [ ] Add a pretrained cross-encoder reranker.
-- [ ] Train or fine-tune one small relevance model if labels support it.
-- [ ] Compare quality, latency, memory, and bad cases.
+Target: 1 focused session.
 
-Exit condition: the selected search stack has a measured reason for each component.
+Completed evidence:
 
-## Phase 4: Query Planning and Formal Skill
+1. Kept the already-declared vehicle corridor definition:
+   `0 <= x <= 30m`, `abs(y) >= 3m -> abs(y) <= 1.5m` within two seconds, for the
+   same motor vehicle in each timestamp's ego frame.
+2. Retained 20 difficult-negative windows across 4 TaskDesign logs after
+   positive-overlap exclusion and temporal suppression.
+3. Reviewed 10 positives and 14 negatives; all 88 participating frames had the
+   eligible bound vehicle and no systematic defect was observed.
+4. Passed L0/Development/U/Frozen-Test support thresholds.
+5. Created immutable `task_spec_v2` with all three scenarios.
 
-- [ ] Define a restricted structured-query schema.
-- [ ] Implement a deterministic parser baseline.
-- [ ] Implement and evaluate an LLM structured-output parser.
-- [ ] Implement the fake Strem monitor and adapter tests.
-- [ ] Integrate a pinned Strem-SpTA CLI executable.
-- [ ] Compare retrieval with and without formal verification.
+Key concepts: positive support versus label validity, hard negatives,
+relative ego coordinates, persistent identity, and why this label does not
+prove an active lane change.
 
-Exit condition: valid queries produce evidence-linked monitor results, and all
-failure modes are visible.
+## Stage A — Build Windows and the Data Profile — Completed
 
-## Phase 5: Multimodal Failure Analysis
+Observed formal output:
 
-- [ ] Add selected evidence-frame loading and rendering.
-- [ ] Compare dataset annotations with one perception model or VLM.
-- [ ] Define failure-layer labels and review a small held-out set.
-- [ ] Train a baseline failure classifier if labels are sufficient.
-- [ ] Add conflict records and bad-case regressions.
+- 1,430 complete-scene event groups;
+- 30,749 private five-frame windows across 850 scenes;
+- 11,639 label-free public-U windows;
+- zero Strem errors/timeouts and zero `invalid` labels;
+- zero duplicate private IDs, malformed windows, or public/private U ID
+  mismatches;
+- 739,822 of 859,857 target annotations were removed by the frozen visual
+  eligibility rule before formal event mining; the historical v1 eligibility
+  summary did not retain mutually exclusive rejection-reason counts, and the
+  profile records that limitation.
 
-Exit condition: the system distinguishes retrieval, perception, query, and monitor
-failures on reviewed cases.
+Implemented steps:
 
-## Phase 6: Agent and MCP
+1. Generate complete-scene events and rerun the same Strem specs on
+   event-overlapping five-frame substreams.
+2. Produce positive/negative/ignore/invalid multi-label targets.
+3. Write separate public-U and private-Oracle files.
+4. Produce one data-quality report with join/filter reasons, category and split
+   distributions, label states, log coverage, and later selected-batch yield.
 
-- [ ] Implement a bounded LangGraph workflow.
-- [ ] Expose search, evidence, and formal verification through typed tools.
-- [ ] Wrap the Strem adapter as an MCP tool.
-- [ ] Add code-enforced authorization, limits, retries, and audit records.
-- [ ] Add claim-evidence validation and prompt-injection tests.
+Passed checks: stable binding mapping, bounded interval-to-window mapping, no
+window crosses a scene, no log crosses partitions, all public/private U IDs
+agree, and the single public U schema contains no Strem or label evidence.
 
-Exit condition: the Agent completes held-out tasks without bypassing tool or evidence
-boundaries.
+Key concepts: data cleaning versus deleting source data, Pandas profiling,
+timed intervals versus model windows, masked labels, and label leakage.
 
-## Phase 7: Fine-Tuning and Serving
+## Stage B — DINOv2 and Model Baselines — Completed
 
-- [ ] Build and audit an SFT dataset for query planning or tool calling.
-- [ ] Run a small LoRA experiment.
-- [ ] Compare base and adapted models on held-out tasks.
-- [ ] Serve one model behind a versioned local endpoint.
-- [ ] Measure batching, latency, throughput, memory, and cost.
+Target: 3 focused sessions.
 
-Exit condition: the training and serving experiment is reproducible and includes
-regressions as well as improvements.
+DINO and LR observations:
 
-## Phase 8: Portfolio Release
+- pinned revision `ed25f3a31f01632728cabb09d1542f84ab7b0056`;
+- 518x518 letterbox and normalization verified on real CAM_FRONT images;
+- 58-frame CPU benchmark produced finite `(58,384)` float32 features at
+  10.51 frames/s with batch 8 and 64 threads;
+- the formal `(34149,384)` float32 cache completed in 2,120.6 seconds at 16.10
+  frames/s; no GPU was required;
+- LastFrame-LR and Mean5-LR completed on L0 and Development with Macro-AP
+  `0.1499` and `0.1942` across the three Gate-A classes;
+- the three-class GRU Gate-B run retained near-zone and corridor entry and
+  rejected pedestrian-vehicle proximity hold;
+- the final two-class Base GRU reached Development Macro-AP `0.3636 ± 0.0157`;
+  reversed-input Macro-AP was `0.3328 ± 0.0232`. No U or Frozen-Test labels
+  entered these runs.
 
-- [ ] Move experiment metadata to MySQL and write analysis queries.
-- [ ] Add a minimal UI for query, evidence, intervals, and bad cases.
-- [ ] Add continuous integration and a secret scan.
-- [ ] Publish architecture, evaluation, limitations, and demo documentation.
-- [ ] Prepare role-specific resume bullets and written explanations.
+1. Completed: pin DINOv2-Small, verify preprocessing, and cache each required
+   frame's 384-dimensional global feature once.
+2. Completed: train LastFrame-LR and Mean5-LR and save Development predictions.
+3. Completed: implement `[B,5,384] -> GRU(128) -> Linear(C)` with masked BCE;
+   the real tiny subset was memorized before formal training.
+4. Completed: train seeds `17, 29, 43` and compare LR, GRU, normal order, and
+   same-checkpoint reversed Development input.
+5. Completed: report Gate B as an initial-learnability diagnostic. The
+   three-output Base is the closed-loop model; the old two-output run remains a
+   historical order-sensitivity diagnostic.
 
-Exit condition: a reviewer can install, run, evaluate, and question the project
-using documented evidence.
+Required checks: DINO shape/finite values, train-only class weights, GRU
+shape/loss/gradient/checkpoint reload, and a hand-checkable AP example.
 
-## Later Extensions
+Key concepts: ViT/CLS/self-supervision, frozen encoders, Logistic
+Regression, BCE, imbalance, GRU gates, backpropagation, early stopping, AP, and
+why a more complex model is not automatically better.
 
-- Cross-dataset evaluation
-- Local Spark batch-processing experiment
-- OpenSearch deployment and load testing
-- CARLA or another closed-loop scenario source
-- Multi-agent design only if a measured task requires it
-- Preference training with a defensible label protocol
+## Stage C — Primary Bad-Case-Driven Data Loop
 
-## Next Task
+Target: 3 focused sessions.
 
-Review and freeze project specification version `0.1`, then create the first
-small Python package and environment smoke test.
+Prerequisite now frozen: three-class Base checkpoints, seed-17 thresholds, and
+Development predictions.
+
+1. Completed: rebuilt the FN bank from the three-class Base. It contains
+   `26/21/22` event rows by scenario-table order, 69 total, represented by 61
+   unique windows; every class clears the five-event minimum.
+2. Completed: ran the three-class Base on all 11,639 label-free public Pool
+   windows and cached finite, unit-normalized
+   `L2(concat(mean(f0..f4), f4-f0))` 768-dimensional vectors. The public rows
+   contain no Oracle fields.
+3. Completed: froze 600-row Random and integrated Mining ranked lists. Each
+   Mining class keeps its top 2,000 FN-similar candidates; Mining fits
+   `MiniBatchKMeans(K=30)` per class only after this shortlist and temporal
+   deduplication.
+4. Completed: fixed the first 300 IDs for the primary comparison and nested
+   prefixes `150/300/600` for the Oracle-only Random-versus-Mining
+   budget curve. No Oracle labels were read.
+5. Freeze two further Random batches with seeds `102` and `103` so Random is a
+   distribution rather than one draw. This happens before any reveal and reuses
+   the same public Pool, budget, and temporal rule; `selection-rankings-v3` is
+   not modified.
+6. Reveal private Oracle labels only after IDs freeze; `ignore` consumes budget.
+7. Retrain every arm in the frozen arm list from scratch for seeds `17, 29, 43`.
+
+Required checks: public-U schema has no Oracle fields, equal budgets, temporal
+separation, frozen selected IDs before reveal, Random variance seeds fixed
+before reveal, and identical retraining config.
+
+Key concepts: false negatives, cosine similarity, uncertainty versus
+confidence, active data selection, Oracle simulation, and controlled variables.
+
+## Stage D — VLM Automatic-Label Evaluation
+
+Target: 2 focused sessions.
+
+1. Freeze a remote VLM provider/model, prompt, input preprocessing, and JSON
+   schema.
+2. Send only the already-frozen Mining-300 five-frame images; do not send Strem
+   evidence, 3D boxes, distances, bindings, or Oracle labels.
+3. Collect per-class `positive|negative|uncertain`, evidence frames, confidence,
+   limitations, latency, and cost.
+4. Compare VLM labels with the Oracle on the same IDs.
+5. Retrain Mining-VLM with the same model settings and compare it with
+   Mining-Oracle. Mask `uncertain` labels without replacing windows.
+
+Required checks: schema validity, no Oracle field in requests, exact ID equality
+between Mining-VLM and Mining-Oracle, and no prompt tuning from Frozen Test.
+
+Key concepts: VLM structured output, automatic-label precision/recall,
+hallucination, uncertainty, monocular metric limitations, label noise, and why
+API inference is not SFT.
+
+## Stage E — Frozen Evaluation and Result Delivery
+
+Target: 2 focused sessions.
+
+1. Train every arm in the frozen arm list and freeze every prediction file
+   before the first Held-out Test score. The Test is opened once, for all arms
+   together.
+2. Produce four compact tables:
+   - data cleaning, scenario, event, and window profile;
+   - LastFrame-LR versus Mean5-LR versus GRU, including reversed order;
+   - Base versus the three Random-Oracle batches versus Mining-Oracle, with
+     per-class AP, `AP - prevalence` margin, and Macro-AP;
+   - VLM label quality and Mining-VLM versus Mining-Oracle.
+3. Explain at least five representative cases covering data/label, Base FN,
+   selector behavior, VLM labeling, and retraining outcome.
+4. Finalize reproducible commands, limitations, a resume bullet, and 30-second,
+   3-minute, and detailed written explanations.
+
+No extra tuning occurs after the Held-out Test is opened. If Mining does
+not beat Random or its VLM-label run trails Oracle labels, report and diagnose the result
+instead of changing the protocol until it wins.
+
+## Optional Only After Completion
+
+- extra clustering algorithms or K tuning;
+- optional similarity-only or uncertainty-only ablations;
+- bootstrap analysis;
+- small controlled photometric/low-light/rain augmentation;
+- spatial DINO features;
+- VLM SFT, Agent, UI, workflow systems, vector DB, or distributed platform work;
+- production-scale or online-loop claims.
+
+## Recovery Order
+
+If a class remains weak after feedback, preserve it as a negative result and
+separate data-limited, representation-limited, and label-ambiguity hypotheses.
+If VLM outputs are too unreliable for useful retraining, report their label
+metrics and bad cases without claiming Oracle replacement; the primary
+Random-Oracle versus Mining-Oracle experiment remains valid. Never remove
+whole-log isolation, stable Strem bindings, the public/private U boundary,
+equal-budget from-scratch retraining, Frozen Test discipline, or honest
+negative-result reporting.

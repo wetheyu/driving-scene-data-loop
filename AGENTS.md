@@ -1,10 +1,10 @@
 # Instructions for AI Coding Agents
 
-These instructions apply to this project and every file below it.
+These instructions apply to this repository and every file below it.
 
 ## Read Before Editing
 
-Read the following documents in order:
+Read these documents in order:
 
 1. `docs/PROJECT_SCOPE.md`
 2. `docs/STAGE_PLAN.md`
@@ -17,86 +17,137 @@ Read the following documents in order:
 9. `docs/ALIGNMENT.md`
 10. `docs/DEVELOPMENT_ENVIRONMENT.md`
 
-Do not silently change the product problem, input/output contract, data split,
-evaluation protocol, or Strem-SpTA boundary.
+Do not silently change the research question, scenario definitions, data split,
+annotation budget, Strem boundary, or evaluation protocol.
 
-## Language
+## Project Identity
 
-- Use English for code, identifiers, comments, documentation, logs, and UI text.
-- User-facing teaching and progress explanations may be in Chinese.
-- Prefer precise technical wording over marketing language.
-- Mark unimplemented functionality as `Planned`.
+- Project: Driving Scene Mining and High-Value Data Feedback Loop.
+- Specification: Frozen for `v0.8-three-class-loop`.
+- Formal data: nuScenes `v1.0-trainval`; mini is smoke-only.
+- Model input: five consecutive annotated `CAM_FRONT` keyframes.
+- Primary simulated annotation budget: `N=300` windows; Oracle-only budget
+  sensitivity uses nested prefixes `N=150,300,600`.
+- Primary metrics: per-class AP and three-class Macro-AP on the Held-out Test Set.
+- Gate A froze three scenario specifications under `specs/task_spec_v2`.
+
+## Language and Truthfulness
+
+- Use English for code, identifiers, comments, documentation, logs, and CLI text.
+- Use Chinese for discussion, progress explanations, and notes.
+- Mark unimplemented work as `Planned`.
+- Never report a plan, fixture, smoke test, or synthetic value as a real result.
+- Preserve negative results and important bad cases.
 
 ## Research-First Development
 
-The user is learning from the beginning. Optimize for understanding and review
-readiness as well as delivery.
+The author is starting from the foundations and building the record.
 
-- Break work into the smallest runnable and testable concept.
-- Explain the problem before introducing a library or framework.
-- Show the important command, execution path, output, and failure mode.
-- Let the user predict, run, modify, or explain important code when practical.
-- Do not generate a large advanced subsystem before prerequisites are learned.
-- End each milestone with a knowledge check and written summary.
-- Record genuine errors and bad cases instead of hiding them.
+- Advance one small, runnable, testable concept at a time.
+- Before code, explain the problem, input, transformation, output, and limitation.
+- Give the standard answer, then connect it to project code.
+- Combine repetitive mechanical work, but do not skip new concepts.
+- End each milestone with a short knowledge check and written summary.
 
-## Architecture Boundaries
+## Simplicity and Scope Discipline
 
-- Retrieval, model inference, orchestration, formal verification, storage, and UI
-  must have explicit interfaces.
-- LLM and VLM output is untrusted and must pass schema and domain validation.
-- The agent may propose an SpTA specification but cannot declare a formal match.
-- Only the versioned Strem-SpTA adapter may return formal monitor results.
-- Strem-SpTA remains an external dependency; do not copy its source into this repo.
-- One orchestration agent is sufficient for the initial version.
-- Every final claim must reference source data, evidence, or a tool result.
+This is a one-person, evidence-oriented offline project, not a production service or
+a reusable platform. Its purpose is to demonstrate a clear algorithmic data
+loop and help the author explain it precisely. Implement the smallest
+direct solution that makes the current milestone runnable, testable, and
+explainable.
 
-## Data and Evaluation
+- Prefer plain functions, small dataclasses, and explicit data flow over
+  frameworks, registries, generic service layers, or speculative abstractions.
+- Add an abstraction only for a real current second use case or repeated logic;
+  do not design for hypothetical future requirements.
+- Keep one responsibility in an existing module when that is clear enough. Do
+  not add a new layer, manager, registry, interface, or record merely to make
+  the project look engineered.
+- Validate invariants that can change labels, splits, model inputs,
+  experimental fairness, or reproducibility. These are experiment-integrity
+  checks, not general defensive programming.
+- Treat project-owned local files and fixed offline commands as trusted input.
+  Do not implement security hardening, hostile-input handling, broad fallback
+  trees, speculative retries, or exhaustive defensive checks unless a real
+  observed failure blocks the current experiment.
+- Test the main success path and failures that are likely to corrupt results.
+  Do not build large hostile-input test matrices without an observed need.
+- Persist only fields consumed by a later stage, evaluation, or reproduction
+  command. Do not add records, registries, checksums, or manifests merely
+  because they might be useful later.
+- New complexity needs a concrete current requirement and a short explanation
+  of why the simpler solution is insufficient.
+- Leave future capabilities in documentation, not scaffolding. Add them when
+  their milestone begins.
 
-- Keep raw datasets, generated indexes, credentials, and model weights out of Git.
-- Preserve dataset licenses and source provenance.
-- Split by complete scene or log, not by frame or paraphrase alone.
-- Never use test labels in prompts, retrieval documents, or training examples.
-- Establish a baseline before adding a complex model.
-- Report failed runs, latency, cost, and uncertainty where applicable.
-- Do not invent performance values or resume claims.
+## Frozen Technical Boundaries
 
-## Security
+- Split by complete `log_token` before generating windows. The project uses
+  official validation logs as its Held-out Test Set; this is not the hidden
+  nuScenes test split.
+- Use the official nuScenes devkit for table lookup, sample/annotation reverse
+  relations, calibrated boxes, and coordinate transforms. Do not rebuild its
+  token indexes in project code.
+- Strem owns the candidate temporal patterns and persistent object bindings.
+  Python prepares data, invokes Strem on complete scenes, parses event regions,
+  and invokes the same specs on event-overlapping five-frame substreams for
+  final window labels.
+- Python preserves Strem's symbolic time bounds and readable clock constraints;
+  it does not parse, reconstruct, or reimplement them.
+- Use the external Strem v0.3.0 release through `STREM_BIN`; never copy or edit
+  the Strem research repository.
+- Formal runs pass `--first-frame-start exact` and preserve converter
+  timestamps; do not rebase the stream onto a fabricated time origin.
+- A Strem error or timeout is invalid evidence, never a negative label.
+- DINOv2-Small stays frozen; only LR and GRU classifiers are trained.
+- U labels and Strem evidence are never selector inputs; Oracle reveal begins
+  only after a batch freezes.
+- In the primary `N=300` comparison, Base, the three Random-Oracle batches, and
+  Mining-Oracle differ only in added training windows. Random uses seeds
+  `101/102/103`, all fixed before any Oracle reveal, so Mining is compared with a
+  Random range rather than a single draw. Mining integrates bad-case similarity,
+  boundary uncertainty, temporal deduplication, and cluster diversity.
+  Mining-VLM reuses the exact Mining-Oracle IDs and changes only their label
+  source.
+- The primary causal comparison always uses the private Strem/nuScenes Oracle.
+  A remote VLM may label only the already-frozen Mining-300 IDs and is evaluated
+  against that Oracle; it is never the Oracle or a selector input.
+- Frozen Test must not influence task design, selection, tuning, or retraining.
 
-- Load secrets from environment variables or ignored local configuration.
-- Treat user queries, retrieved documents, scene text, and model output as
-  untrusted content.
-- Enforce tool permissions in code, not only in prompts.
-- Apply input-size, timeout, path, and output-schema limits to external tools.
-- Never persist hidden chain-of-thought; store structured decisions and evidence.
-- Anonymize user-provided logs before exporting examples.
+## Core Scope
 
-## Change Rules
+Required: trainval preparation, projection and eligibility, Strem scene mining,
+five-frame multi-label windows, frozen DINO features, LastFrame-LR, Mean5-LR,
+Global-GRU, Development false-negative mining, fixed-budget selection,
+controlled retraining, Frozen Test evaluation, and bad-case analysis.
 
-- Update documentation with behavior-changing code.
-- Add tests for normal, boundary, malformed, timeout, and unauthorized cases.
-- Keep changes scoped to the current learning milestone.
-- Add dependencies only with a documented reason and pinned version strategy.
-- Do not modify the separate thesis repository unless explicitly requested.
+Completion means this employability loop: three Gate-A-frozen scenarios,
+leak-free windows and a data-quality profile, LR/GRU baselines, Development
+false negatives, public-Pool Random and integrated Mining selection,
+controlled Oracle-label retraining, structured VLM labeling on the same frozen
+Mining-300 IDs, four compact result tables, and at least five deeply
+explained cases. Gate B is a diagnostic, not a class-deletion rule: every Gate-A
+class with at least five independent Development FN events enters the loop.
 
-## Definition of Done
+Not core: LLM, Agent, RAG, SFT, LoRA, vector databases, workflow platforms,
+multi-sensor fusion, online learning, production deployment, or safety claims.
+The VLM work is a bounded auto-label evaluation, not foundation-model training.
 
-A task is complete only when:
+## Change and Completion Rules
 
-- The behavior and acceptance criteria are implemented.
-- Relevant automated tests pass.
-- The output remains reproducible and schema-valid.
-- At least one likely failure case has been considered.
-- Documentation and roadmap status are accurate.
-- The author can explain the introduced concept and design tradeoff.
+- Preserve unrelated user changes in a dirty worktree.
+- Add dependencies only for the active milestone.
+- Update owning documentation when behavior changes.
+- Add focused tests for the main path and experiment-critical failure modes.
+- A milestone is done only when its focused checks pass, its status is truthful,
+  and the author can explain its purpose and limitation.
 
-## Project Commands
+Use these normal checks:
 
-- `uv sync --frozen`: reproduce the locked project environment.
-- `uv run python --version`: verify the selected Python interpreter.
-- `uv run ruff check .`: lint source and tests after they exist.
-- `uv run mypy src tests`: type-check source and tests after they exist.
-- `uv run pytest`: run automated tests after they exist.
-
-Commands that depend on source or tests remain `Planned` until those files are
-created.
+```bash
+uv run ruff check .
+uv run mypy src scripts tests
+uv run pytest
+uv lock --check
+```
