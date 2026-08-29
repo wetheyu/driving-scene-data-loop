@@ -24,6 +24,9 @@ JsonObject = dict[str, object]
 SEEDS = (17, 29, 43)
 HIDDEN_SIZE = 128
 LEARNING_RATE = 1e-3
+# Warm starting from a converged checkpoint at the full rate would step straight
+# off that minimum, so incremental fine-tuning drops to a tenth, as one protocol.
+FINE_TUNE_LEARNING_RATE = 1e-4
 WEIGHT_DECAY = 1e-4
 BATCH_SIZE = 128
 MAX_EPOCHS = 50
@@ -197,13 +200,28 @@ def train_gru_baselines(
     num_threads: int = 16,
     scenario_ids: tuple[str, ...] | None = None,
     run_name: str = "base",
+    warm_start_dir: Path | None = None,
 ) -> JsonObject:
-    """Train three normal-order seeds and diagnose reversed Development order."""
+    """Train three normal-order seeds and diagnose reversed Development order.
+
+    `warm_start_dir` selects the incremental fine-tuning protocol: each seed
+    resumes from that run's own seed-matched checkpoint and trains at
+    `FINE_TUNE_LEARNING_RATE`. The rate is not separately settable, because
+    warm starting at the full rate is not fine-tuning.
+    """
 
     if output_dir.exists():
         raise GruBaselineError("output directory must not already exist")
     if num_threads <= 0:
         raise GruBaselineError("num_threads must be positive")
+    learning_rate = LEARNING_RATE if warm_start_dir is None else FINE_TUNE_LEARNING_RATE
+    warm_start_paths: dict[int, Path] = {}
+    if warm_start_dir is not None:
+        for seed in SEEDS:
+            path = warm_start_dir / f"gru_seed_{seed}.pt"
+            if not path.is_file():
+                raise GruBaselineError(f"warm start checkpoint is missing: {path}")
+            warm_start_paths[seed] = path
     output_dir.mkdir(parents=True)
     torch.set_num_threads(num_threads)
 
@@ -268,6 +286,8 @@ def train_gru_baselines(
             development_mask=development_mask,
             pos_weight=pos_weight,
             checkpoint_path=output_dir / f"gru_seed_{seed}.pt",
+            warm_start_path=warm_start_paths.get(seed),
+            learning_rate=learning_rate,
             scenario_ids=selected_scenarios,
         )
         seed_runs[seed] = seed_run
@@ -352,7 +372,10 @@ def train_gru_baselines(
             "direction": "unidirectional",
             "dropout_after_final_hidden": 0.2,
             "optimizer": "AdamW",
-            "learning_rate": LEARNING_RATE,
+            "learning_rate": learning_rate,
+            "initialization": (
+                "random" if warm_start_dir is None else f"warm_start:{warm_start_dir.name}"
+            ),
             "weight_decay": WEIGHT_DECAY,
             "batch_size": BATCH_SIZE,
             "max_epochs": MAX_EPOCHS,
@@ -400,12 +423,18 @@ def _train_one_seed(
     pos_weight: NDArray[np.float32],
     checkpoint_path: Path,
     scenario_ids: tuple[str, ...],
+    warm_start_path: Path | None = None,
+    learning_rate: float = LEARNING_RATE,
 ) -> SeedRun:
     _set_seed(seed)
     model = GlobalGRU(len(scenario_ids))
+    if warm_start_path is not None:
+        model.load_state_dict(
+            torch.load(warm_start_path, map_location="cpu", weights_only=True)
+        )
     optimizer = torch.optim.AdamW(
         model.parameters(),
-        lr=LEARNING_RATE,
+        lr=learning_rate,
         weight_decay=WEIGHT_DECAY,
     )
     train_inputs = torch.from_numpy(train_sequences)

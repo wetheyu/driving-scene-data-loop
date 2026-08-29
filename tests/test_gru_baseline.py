@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import pytest
+from numpy.typing import NDArray
 
 torch = pytest.importorskip("torch")
 
 from driving_scene_data_loop.gru_baseline import (  # noqa: E402
     GlobalGRU,
+    GruBaselineError,
     SeedRun,
     best_f1_threshold,
     build_sequence_features,
@@ -155,3 +158,72 @@ def test_feedback_training_keeps_l0_pos_weight(
     assert report["feedback_window_count"] == 1
     assert report["training_window_count"] == 3
     assert report["pos_weight_source"] == "l0_only"
+
+
+def test_warm_start_resumes_each_seed_and_lowers_the_learning_rate(tmp_path: Path) -> None:
+    window_data, features = _tiny_window_data()
+    base_dir = tmp_path / "base"
+    base_report = train_gru_baselines(
+        window_data=window_data,
+        frame_features=features,
+        output_dir=base_dir,
+        num_threads=1,
+    )
+    base_config = cast(dict[str, object], base_report["config"])
+    assert base_config["initialization"] == "random"
+    assert base_config["learning_rate"] == pytest.approx(1e-3)
+
+    warm_report = train_gru_baselines(
+        window_data=window_data,
+        frame_features=features,
+        output_dir=tmp_path / "warm",
+        num_threads=1,
+        run_name="warm",
+        warm_start_dir=base_dir,
+    )
+    warm_config = cast(dict[str, object], warm_report["config"])
+    assert warm_config["initialization"] == "warm_start:base"
+    assert warm_config["learning_rate"] == pytest.approx(1e-4)
+
+
+def test_warm_start_requires_every_seed_checkpoint(tmp_path: Path) -> None:
+    window_data, features = _tiny_window_data()
+    base_dir = tmp_path / "base"
+    train_gru_baselines(
+        window_data=window_data,
+        frame_features=features,
+        output_dir=base_dir,
+        num_threads=1,
+    )
+    (base_dir / "gru_seed_29.pt").unlink()
+
+    with pytest.raises(GruBaselineError, match="warm start checkpoint is missing"):
+        train_gru_baselines(
+            window_data=window_data,
+            frame_features=features,
+            output_dir=tmp_path / "warm",
+            num_threads=1,
+            warm_start_dir=base_dir,
+        )
+
+
+def _tiny_window_data() -> tuple[BaselineWindowData, NDArray[np.float32]]:
+    rng = np.random.default_rng(3)
+    features = rng.normal(size=(40, 384)).astype(np.float32)
+    partitions = ["l0"] * 16 + ["development"] * 8
+    labels, masks, indices = [], [], []
+    for row in range(24):
+        indices.append([(row * 5 + step) % 40 for step in range(5)])
+        labels.append([row % 2, (row + 1) % 2, row % 2])
+        masks.append([True, True, True])
+    return (
+        BaselineWindowData(
+            scenario_ids=("a", "b", "c"),
+            window_ids=tuple(f"w-{row:02d}" for row in range(24)),
+            partitions=tuple(partitions),
+            frame_feature_indices=np.asarray(indices, dtype=np.int64),
+            labels=np.asarray(labels, dtype=np.int8),
+            loss_mask=np.asarray(masks, dtype=np.bool_),
+        ),
+        features,
+    )

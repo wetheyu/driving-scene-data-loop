@@ -20,6 +20,11 @@ def main() -> None:
     parser.add_argument("--feature-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--num-threads", type=int, default=16)
+    parser.add_argument(
+        "--warm-start-dir",
+        type=Path,
+        help="Base run to resume from; selects incremental fine-tuning.",
+    )
     parser.add_argument("--scenario-id", action="append", dest="scenario_ids")
     args = parser.parse_args()
 
@@ -37,6 +42,7 @@ def main() -> None:
         frame_features=frame_features,
         output_dir=args.output_dir,
         num_threads=args.num_threads,
+        warm_start_dir=args.warm_start_dir,
         scenario_ids=tuple(args.scenario_ids) if args.scenario_ids else None,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))

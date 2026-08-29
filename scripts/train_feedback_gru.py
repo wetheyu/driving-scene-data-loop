@@ -27,6 +27,11 @@ def main() -> None:
     parser.add_argument("--feature-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--num-threads", type=int, default=16)
+    parser.add_argument(
+        "--warm-start-dir",
+        type=Path,
+        help="Base run to resume from; selects incremental fine-tuning.",
+    )
     args = parser.parse_args()
 
     arm = get_oracle_arm(args.arm)
@@ -48,6 +53,7 @@ def main() -> None:
         frame_features=frame_features,
         output_dir=args.output_dir,
         num_threads=args.num_threads,
+        warm_start_dir=args.warm_start_dir,
         run_name=arm.name,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))
