@@ -191,7 +191,12 @@ Development predictions.
    output the 2,220 selected IDs; rankings were already frozen and were not
    changed. It produced no `invalid` label and refilled no `ignore`. Mining
    exceeded the Random range in positive yield on the proximity-hold class only.
-7. Retrain every arm in the frozen arm list from scratch for seeds `17, 29, 43`.
+7. Completed: round one trained the four frozen batches under both declared
+   protocols. Adding 300 windows beat Base, but Mining and the three Random
+   batches were indistinguishable, and fine-tuning absorbed the added data
+   almost entirely. Reported as observed.
+8. Design and test one improved selector on Development, reported as
+   Development-informed, before any Held-out Test score.
 
 Required checks: public-U schema has no Oracle fields, equal budgets, temporal
 separation, frozen selected IDs before reveal, Random variance seeds fixed

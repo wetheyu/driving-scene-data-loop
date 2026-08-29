@@ -17,6 +17,8 @@ data. Each directory name is the private run that produced the file, under
 | `selection-rankings-v3/selection_report.json` | frozen Random and Mining rankings, budgets, cluster diagnostics |
 | `random-variance-v1/random_variance_report.json` | the extra Random batches used to estimate selection variance |
 | `oracle-reveal-v1/label_profile.json` | what each frozen batch bought once its labels were revealed |
+| `feedback-scratch-*/gru_report.json` | round-one arms retrained from scratch on L0 plus 300 |
+| `feedback-finetune-*/gru_report.json` | the same arms fine-tuned from the Base checkpoint |
 
 ## What these files are not
 

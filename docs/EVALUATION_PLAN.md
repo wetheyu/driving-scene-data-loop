@@ -410,6 +410,43 @@ This comparison estimates label-noise impact. It must not be interpreted as a
 different data-selection strategy. Prompt/schema/model identity freezes before
 the formal batch, and Frozen Test never guides prompt editing.
 
+### Observed Round-One Retraining
+
+Both declared protocols ran on the four frozen batches. Development Macro-AP,
+mean and spread over training seeds `17, 29, 43`:
+
+| Arm | P1 from scratch | P2 fine-tuned |
+| --- | ---: | ---: |
+| Base | `0.2408 ± 0.0088` | — |
+| Base-continued, no added data | — | `0.2422 ± 0.0118` |
+| Mining-300 | `0.2528 ± 0.0028` | `0.2428 ± 0.0082` |
+| Random-300 seed 101 | `0.2542 ± 0.0178` | `0.2382 ± 0.0074` |
+| Random-300 seed 102 | `0.2569 ± 0.0208` | `0.2425 ± 0.0121` |
+| Random-300 seed 103 | `0.2561 ± 0.0188` | `0.2424 ± 0.0093` |
+
+Three results, all reported as observed:
+
+1. **Adding 300 windows helps; choosing them does not.** Under P1 every arm
+   beats Base, `0.2408` against `0.2528` to `0.2569`, while the four arms cannot
+   be told apart. The budget has value; the selection strategy shows none.
+2. **Mining does not beat Random.** Under P1 its Macro-AP is below all three
+   Random batches. Under P2 it exceeds them by `0.0003`, far inside its own
+   `± 0.0082` seed spread. Neither direction is an effect.
+3. **Fine-tuning absorbed the added data.** Every P2 arm sits between `0.2382`
+   and `0.2428`, including `Base-continued`, which added nothing. Resuming a
+   converged checkpoint at a tenth of the rate barely moved the model, so 300
+   windows changed little.
+
+Per-class Development AP shows why a single Random batch would have misled. On
+`pedestrian_ego_near_zone_entry` under P1 the three Random batches scored
+`0.1346`, `0.1831`, and `0.1859` while Mining scored `0.1704`. Against seed 101
+alone Mining would have looked clearly ahead; against the three-batch range it is
+ordinary. Batch-to-batch selection variance exceeds the Mining-versus-Random gap.
+
+This matches the reveal-stage power estimate exactly: the two methods differed by
+about seven positive windows, and the observed seed spread is `± 0.008` to
+`± 0.021`, while the arms differ by less than `± 0.004`.
+
 ## Metrics
 
 Primary:
