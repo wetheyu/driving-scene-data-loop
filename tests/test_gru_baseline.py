@@ -11,12 +11,15 @@ torch = pytest.importorskip("torch")
 
 from driving_scene_data_loop.gru_baseline import (  # noqa: E402
     GlobalGRU,
+    SeedRun,
     best_f1_threshold,
     build_sequence_features,
     calculate_ap_metrics,
     calculate_pos_weight,
     masked_bce_with_logits,
+    train_gru_baselines,
 )
+from driving_scene_data_loop.lr_baselines import BaselineWindowData  # noqa: E402
 
 
 def test_forward_masked_loss_gradient_and_checkpoint(tmp_path: Path) -> None:
@@ -94,3 +97,61 @@ def test_sequence_weight_ap_threshold_and_reverse_contract() -> None:
     )
     assert threshold == pytest.approx(0.7)
     assert f1 == pytest.approx(0.8)
+
+
+def test_feedback_training_keeps_l0_pos_weight(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    labels = np.asarray(
+        [
+            [1, 0, 1],
+            [0, 1, 0],
+            [1, 0, 1],
+            [0, 1, 0],
+            [1, 1, 1],
+        ],
+        dtype=np.int8,
+    )
+    data = BaselineWindowData(
+        scenario_ids=("near", "hold", "corridor"),
+        window_ids=("l0-a", "l0-b", "dev-a", "dev-b", "selected-u"),
+        partitions=("l0", "l0", "development", "development", "feedback"),
+        frame_feature_indices=np.tile(np.arange(5, dtype=np.int64), (5, 1)),
+        labels=labels,
+        loss_mask=np.ones_like(labels, dtype=np.bool_),
+    )
+    observed_weights: list[list[float]] = []
+
+    def fake_train_one_seed(**kwargs: object) -> SeedRun:
+        pos_weight = kwargs["pos_weight"]
+        train_sequences = kwargs["train_sequences"]
+        assert isinstance(pos_weight, np.ndarray)
+        assert isinstance(train_sequences, np.ndarray)
+        observed_weights.append(pos_weight.tolist())
+        assert len(train_sequences) == 3
+        probabilities = np.asarray(
+            [[0.9, 0.1, 0.9], [0.1, 0.9, 0.1]],
+            dtype=np.float64,
+        )
+        return SeedRun(
+            report={"checkpoint": "fixture.pt"},
+            probabilities=probabilities,
+            reversed_probabilities=probabilities,
+        )
+
+    monkeypatch.setattr(
+        "driving_scene_data_loop.gru_baseline._train_one_seed",
+        fake_train_one_seed,
+    )
+    report = train_gru_baselines(
+        window_data=data,
+        frame_features=np.zeros((5, 384), dtype=np.float32),
+        output_dir=tmp_path / "run",
+        run_name="fixture-feedback",
+    )
+
+    assert observed_weights == [[1.0, 1.0, 1.0]] * 3
+    assert report["feedback_window_count"] == 1
+    assert report["training_window_count"] == 3
+    assert report["pos_weight_source"] == "l0_only"

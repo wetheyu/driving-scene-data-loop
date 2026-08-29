@@ -267,5 +267,6 @@ Current facts:
   unique label-free rows and a finite unit-normalized `(11639,768)` matrix with
   no Oracle fields. The 600-row Random and integrated Mining rankings are now
   frozen with nested `150/300/600` prefixes; every list has
-  unique IDs and passes temporal separation. Oracle-revealed batches, VLM
-  labels, feedback retraining, and Held-out Test values do not yet exist.
+  unique IDs and passes temporal separation. Oracle reveal retained 2,220 unique
+  selected windows after the rankings froze; it found no invalid target. VLM
+  labels, feedback-retraining results, and Held-out Test values do not yet exist.

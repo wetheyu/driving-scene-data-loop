@@ -62,7 +62,7 @@ it at a research-worktree build such as `~/strem/target/release/strem`.
 
 ## Pipeline Architecture
 
-Eleven scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
+Thirteen scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
 holds the logic. Stages chain by fixed artifact filenames, so the output directory
 of one stage is the input directory of the next. Every stage refuses to write into an
 existing output path, so a rerun needs a new directory.
@@ -87,6 +87,10 @@ prepare_public_pool.py       --public-windows --base-report --feature-dir --outp
                                                                 -> pool_windows.jsonl, pool_embeddings.npy, pool_report.json
 freeze_selection_rankings.py --pool-dir --fn-dir --output-dir    -> selection_report.json + ranked lists
 freeze_random_variance.py    --pool-dir --output-dir             -> random_seed{102,103}_ranked.jsonl + random_variance_report.json
+reveal_selected_labels.py    --private-windows --ranking ... --output-dir
+                                                                -> revealed_labels.jsonl + label_profile.json
+train_feedback_gru.py        --arm --private-windows --public-windows --oracle-dir
+                             --feature-dir --output-dir           -> gru_report.json + Development predictions
 ```
 
 Stage responsibilities that are easy to get wrong:

@@ -27,8 +27,8 @@ uv lock --check
 These commands verify implemented code only. Separate private run artifacts are
 the evidence for completed formal event mining, feature extraction, model
 training, the Development FN bank, label-free public-Pool inference, and the
-frozen selection rankings. Oracle reveal, feedback retraining, and final
-evaluation remain incomplete.
+frozen selection rankings. Oracle reveal is complete. Feedback retraining and
+final evaluation remain incomplete.
 
 ## Dependencies
 
@@ -149,7 +149,11 @@ The private Procyon data root currently contains:
   `N=300` Random batches is 6, 7, and 9 windows against a uniform-draw
   expectation of `300*300/11639 = 7.7`; their union is 879 distinct windows and
   only one window appears in all three. `selection-rankings-v3` was not
-  modified. No Oracle labels have been revealed.
+  modified;
+- `oracle-reveal-v1`, produced only after all rankings froze, contains labels for
+  2,220 unique selected windows. Its reader parsed all 30,749 private window rows
+  sequentially and retained/output only the selected IDs; it did not select or
+  rerank any window.
 
 All ten downloaded blob archives are still retained privately. Removing them is
 a separate explicit cleanup decision.
@@ -174,6 +178,7 @@ runs/public-pool-inference-v1/                   Pool probabilities and vectors
 runs/selection-rankings-v3/                      frozen Random and Mining lists
 runs/random-variance-v1/                         Random seeds 102/103
 runs/oracle-reveal-v1/                           revealed labels and profile
+runs/feedback-retraining-v1/                     controlled feedback models and Development predictions
 ```
 
 Each run's aggregate report — and only the aggregate report, never its rows,
@@ -281,9 +286,8 @@ Keep credentials and raw media out of Git and model-provider uploads. Before any
 cleanup, confirm the exact project-owned target and preserve experiment inputs
 and outputs that cannot be regenerated cheaply.
 
-Current non-claims: the formal DINO cache, two LR baselines, and the three-class
-Gate-B diagnostic run exist. A historical two-class GRU/FN bank also exists.
-Three-class FN-bank construction, label-free Pool inference, and selection
-ranking are complete. Oracle reveal, VLM annotation, feedback retraining, and
-held-out evaluation do not yet exist. No VLM provider/model is pinned and no
-AWS resource has been created.
+Current non-claims: the formal DINO cache, two LR baselines, three-class Gate-B
+diagnostic, FN bank, label-free Pool inference, selection rankings, and selected
+Oracle-label profile exist. VLM annotation, feedback-retraining results, and
+held-out evaluation do not yet exist. No VLM provider/model is pinned and no AWS
+resource has been created.

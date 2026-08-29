@@ -4,8 +4,8 @@ Specification: Frozen for `v0.8-three-class-loop`
 
 Observed model results: DINO cache, LR baselines, three-class GRU Gate B
 diagnostics, a formal three-class Development FN bank, and label-free public
-Pool inference. Selection, feedback retraining, and held-out scoring remain
-unobserved.
+Pool inference. Selection and Oracle reveal are observed; feedback retraining
+and held-out scoring remain unobserved.
 
 ## Questions
 
@@ -305,11 +305,13 @@ rather than explaining them afterwards:
 
 ### Observed Oracle Reveal
 
-`oracle-reveal-v1` joined the four frozen rankings to the private labels. It read
-2,220 of the 30,749 private windows, or 7.2%; every other Pool window stays
-hidden. No `invalid` label appeared, consistent with the zero Strem failures in
-the window build. Each method holds exactly 300 windows at the primary budget,
-so no `ignore` was refilled.
+`oracle-reveal-v1` joined the four frozen rankings to the private labels. The
+implementation sequentially parsed all 30,749 private window rows, retained and
+output only the 2,220 unique selected IDs, and did not rerank any selection. The
+experimental isolation comes from freezing every ranking before this private
+read, not from physically avoiding unselected rows. No `invalid` label appeared,
+consistent with the zero Strem failures in the window build. Each method holds
+exactly 300 windows at the primary budget, so no `ignore` was refilled.
 
 Positive labels bought at `N=300`, against the L0 positive counts of 294, 317,
 and 450:

@@ -134,7 +134,7 @@ The maintained pipeline intentionally has few modules:
 | `public_pool.py` | run the frozen Base and build label-free selection vectors |
 | `selection.py` | freeze Random and integrated Mining rankings |
 
-The eleven scripts under `scripts/` are direct stage entry points. Historical
+The thirteen scripts under `scripts/` are direct stage entry points. Historical
 gallery builders, candidate-spec generators, archive extractors, and duplicate
 raw-JSON indexers were removed after their results were frozen.
 
@@ -159,10 +159,13 @@ Completed on private nuScenes trainval data:
 - Random and integrated Mining each produced one frozen 600-window ranking with
   nested `150/300/600` prefixes. All IDs are unique, satisfy the five-keyframe
   temporal separation, and contain no Oracle fields.
+- Oracle reveal ran only after all rankings froze and retained labels for 2,220
+  unique selected windows. Mining improved positive yield over the Random range
+  only for the proximity-hold class at `N=300`.
 
-These are Development, data-construction, or label-free selection observations.
-Oracle reveal, feedback retraining, remote-VLM labeling, and Held-out Test
-metrics are not yet completed.
+These are Development, data-construction, selection, or selected-label-profile
+observations. Feedback retraining, remote-VLM labeling, and Held-out Test metrics
+are not yet completed.
 
 ## Environment and Checks
 

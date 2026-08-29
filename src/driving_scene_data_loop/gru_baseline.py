@@ -196,6 +196,7 @@ def train_gru_baselines(
     output_dir: Path,
     num_threads: int = 16,
     scenario_ids: tuple[str, ...] | None = None,
+    run_name: str = "base",
 ) -> JsonObject:
     """Train three normal-order seeds and diagnose reversed Development order."""
 
@@ -221,10 +222,15 @@ def train_gru_baselines(
         frame_features,
         window_data.frame_feature_indices,
     )
-    train_rows = np.asarray(
+    l0_rows = np.asarray(
         [partition == "l0" for partition in window_data.partitions],
         dtype=np.bool_,
     )
+    feedback_rows = np.asarray(
+        [partition == "feedback" for partition in window_data.partitions],
+        dtype=np.bool_,
+    )
+    train_rows = l0_rows | feedback_rows
     development_rows = np.asarray(
         [partition == "development" for partition in window_data.partitions],
         dtype=np.bool_,
@@ -238,7 +244,9 @@ def train_gru_baselines(
     development_sequences = sequences[development_rows]
     development_labels = window_data.labels[development_rows][:, class_indices]
     development_mask = window_data.loss_mask[development_rows][:, class_indices]
-    pos_weight = calculate_pos_weight(train_labels, train_mask)
+    l0_labels = window_data.labels[l0_rows][:, class_indices]
+    l0_mask = window_data.loss_mask[l0_rows][:, class_indices]
+    pos_weight = calculate_pos_weight(l0_labels, l0_mask)
     development_ids = tuple(
         window_id
         for window_id, is_development in zip(
@@ -329,10 +337,13 @@ def train_gru_baselines(
     report: JsonObject = {
         "schema_version": "1.0",
         "model": "global_gru",
+        "run_name": run_name,
         "scenario_ids": list(selected_scenarios),
-        "train_partition": "l0",
+        "train_partitions": ["l0"] + (["feedback"] if feedback_rows.any() else []),
         "evaluation_partition": "development",
-        "l0_window_count": int(train_rows.sum()),
+        "l0_window_count": int(l0_rows.sum()),
+        "feedback_window_count": int(feedback_rows.sum()),
+        "training_window_count": int(train_rows.sum()),
         "development_window_count": int(development_rows.sum()),
         "config": {
             "input_shape": [5, 384],
@@ -352,6 +363,7 @@ def train_gru_baselines(
             "reversed_diagnostic": "same checkpoint, reversed Development time axis",
         },
         "pos_weight": pos_weight.tolist(),
+        "pos_weight_source": "l0_only",
         "runs": {str(seed): seed_runs[seed].report for seed in SEEDS},
         "aggregate": {
             "normal_order": _aggregate_scores(

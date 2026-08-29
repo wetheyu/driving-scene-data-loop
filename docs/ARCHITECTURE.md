@@ -175,9 +175,10 @@ and never rewrites the frozen stage-10 artifact.
 Every stage refuses to write into an existing output directory, so a rerun
 produces a new named artifact instead of silently replacing one.
 
-Planned stages continue the same shape: Oracle reveal joins frozen selected IDs
-to `windows.jsonl`, feedback retraining reuses stage 7, and Frozen-Test scoring
-reads already-written prediction files.
+Oracle reveal now joins frozen selected IDs to `windows.jsonl` without changing
+their ranks. Feedback retraining reuses the stage-7 GRU and changes only the
+added selected windows; later Frozen-Test scoring reads already-written frozen
+prediction files.
 
 One-off TaskDesign galleries and candidate generators are no longer maintained
 code. Their observed conclusions remain documented, while the three accepted
