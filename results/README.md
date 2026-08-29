@@ -16,6 +16,7 @@ data. Each directory name is the private run that produced the file, under
 | `public-pool-inference-v1/pool_report.json` | label-free Pool inference and the selection-vector definition |
 | `selection-rankings-v3/selection_report.json` | frozen Random and Mining rankings, budgets, cluster diagnostics |
 | `random-variance-v1/random_variance_report.json` | the extra Random batches used to estimate selection variance |
+| `oracle-reveal-v1/label_profile.json` | what each frozen batch bought once its labels were revealed |
 
 ## What these files are not
 
@@ -24,9 +25,9 @@ row, no `window_id`, no scene or instance token, no embedding, and no label.
 They cannot be used to reconstruct the dataset, and they are not a substitute
 for nuScenes, which each user must obtain under its own licence.
 
-They are also not a complete result set. Oracle reveal, feedback retraining,
-VLM labelling, and Held-out Test scoring have not run, so no file here contains
-a Held-out Test number. When those stages complete, their reports join this
+They are also not a complete result set. Feedback retraining, VLM labelling, and
+Held-out Test scoring have not run, so no file here contains a Held-out Test
+number. When those stages complete, their reports join this
 directory.
 
 ## Reading them

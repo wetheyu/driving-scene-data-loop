@@ -173,6 +173,7 @@ runs/development-fn-bank-c3-v1/                  three-class Development FN bank
 runs/public-pool-inference-v1/                   Pool probabilities and vectors
 runs/selection-rankings-v3/                      frozen Random and Mining lists
 runs/random-variance-v1/                         Random seeds 102/103
+runs/oracle-reveal-v1/                           revealed labels and profile
 ```
 
 Each run's aggregate report — and only the aggregate report, never its rows,

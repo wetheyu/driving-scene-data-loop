@@ -303,6 +303,45 @@ rather than explaining them afterwards:
   because a class whose Base AP is near prevalence produces a nearly meaningless
   probability ranking, and boundary distance is computed from that ranking.
 
+### Observed Oracle Reveal
+
+`oracle-reveal-v1` joined the four frozen rankings to the private labels. It read
+2,220 of the 30,749 private windows, or 7.2%; every other Pool window stays
+hidden. No `invalid` label appeared, consistent with the zero Strem failures in
+the window build. Each method holds exactly 300 windows at the primary budget,
+so no `ignore` was refilled.
+
+Positive labels bought at `N=300`, against the L0 positive counts of 294, 317,
+and 450:
+
+| Class | Mining | Random 101/102/103 | Mining vs Random range |
+| --- | ---: | ---: | --- |
+| pedestrian ego near-zone entry | 12 | 14 / 9 / 10 | inside |
+| pedestrian-vehicle proximity hold | 25 | 18 / 17 / 19 | above |
+| vehicle relative corridor entry | 13 | 16 / 12 / 16 | inside |
+
+The pre-declared expectations are therefore only partly supported, and this is
+recorded as observed rather than reinterpreted:
+
+- higher Mining positive yield holds for the proximity-hold class alone, where
+  Mining bought 25 positives against a Random range of 17 to 19. On the other two
+  classes Mining falls inside the Random range, so no selection effect is visible
+  in yield. Against the seed-101 batch alone Mining would have appeared to lose
+  two of three classes; the extra batches show those two as ordinary draws;
+- the expected higher Mining `ignore` rate is contradicted on the near-zone
+  class, where Mining took 8 against a Random range of 17 to 23. It holds for
+  proximity hold, 22 against 8 to 12. Total usable labels are close across all
+  four batches, 855 for Mining against 851, 864, and 866;
+- Mining is far more concentrated: 21 logs and 130 scenes against 25 logs and
+  212 to 214 scenes for every Random batch. Cluster diversity spreads a batch
+  inside the FN-similar region; it does not spread it across the Pool.
+
+The largest positive increase any method achieved over L0 is Mining's `+7.9%` on
+proximity hold, and the largest gap between methods is about two percentage
+points of positive count. A large Held-out Test movement is therefore not
+expected from any arm, which is direct evidence for the pre-declared
+budget-too-small hypothesis before any retraining has run.
+
 ## Controlled Retraining
 
 Every feedback run:

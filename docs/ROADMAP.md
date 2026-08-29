@@ -186,7 +186,10 @@ Development predictions.
    Pool, budget, and temporal rule; `selection-rankings-v3` was not modified and
    no Oracle label was read. Observed `N=300` pairwise overlap is 6, 7, and 9
    windows, close to the uniform-draw expectation of 7.7.
-6. Reveal private Oracle labels only after IDs freeze; `ignore` consumes budget.
+6. Completed: revealed private Oracle labels for the four frozen rankings into
+   `oracle-reveal-v1`. It read 2,220 of 30,749 private windows, produced no
+   `invalid` label, and refilled no `ignore`. Mining exceeded the Random range in
+   positive yield on the proximity-hold class only.
 7. Retrain every arm in the frozen arm list from scratch for seeds `17, 29, 43`.
 
 Required checks: public-U schema has no Oracle fields, equal budgets, temporal
