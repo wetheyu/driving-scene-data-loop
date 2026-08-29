@@ -181,10 +181,11 @@ Development predictions.
 4. Completed: fixed the first 300 IDs for the primary comparison and nested
    prefixes `150/300/600` for the Oracle-only Random-versus-Mining
    budget curve. No Oracle labels were read.
-5. Freeze two further Random batches with seeds `102` and `103` so Random is a
-   distribution rather than one draw. This happens before any reveal and reuses
-   the same public Pool, budget, and temporal rule; `selection-rankings-v3` is
-   not modified.
+5. Completed: froze two further Random batches with seeds `102` and `103` so
+   Random is a distribution rather than one draw. Both reuse the same public
+   Pool, budget, and temporal rule; `selection-rankings-v3` was not modified and
+   no Oracle label was read. Observed `N=300` pairwise overlap is 6, 7, and 9
+   windows, close to the uniform-draw expectation of 7.7.
 6. Reveal private Oracle labels only after IDs freeze; `ignore` consumes budget.
 7. Retrain every arm in the frozen arm list from scratch for seeds `17, 29, 43`.
 

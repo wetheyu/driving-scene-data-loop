@@ -141,7 +141,15 @@ The private Procyon data root currently contains:
   unit-normalized `(11639,768)` selection matrix and no Oracle fields.
 - frozen Random and integrated Mining lists,
   each with 600 unique temporally separated IDs and nested `150/300/600`
-  prefixes. No Oracle labels have been revealed.
+  prefixes;
+- two further Random batches with seeds `102` and `103`, frozen on 2026-08-29
+  before any reveal. Each has 600 unique temporally separated IDs, nested
+  `150/300/600` prefixes, and no Oracle fields. At `N=300` each batch covers all
+  25 Simulated Unlabeled Pool logs. Pairwise window overlap between the three
+  `N=300` Random batches is 6, 7, and 9 windows against a uniform-draw
+  expectation of `300*300/11639 = 7.7`; their union is 879 distinct windows and
+  only one window appears in all three. `selection-rankings-v3` was not
+  modified. No Oracle labels have been revealed.
 
 All ten downloaded blob archives are still retained privately. Removing them is
 a separate explicit cleanup decision.
@@ -164,7 +172,7 @@ runs/gru-baseline-v1/                            three-class Base and thresholds
 runs/development-fn-bank-c3-v1/                  three-class Development FN bank
 runs/public-pool-inference-v1/                   Pool probabilities and vectors
 runs/selection-rankings-v3/                      frozen Random and Mining lists
-runs/random-variance-v1/                         Random seeds 102/103 (planned)
+runs/random-variance-v1/                         Random seeds 102/103
 ```
 
 `selection-rankings-v3` is the current formal selection interface. Its Random IDs
