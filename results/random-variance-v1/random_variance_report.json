@@ -1,0 +1,102 @@
+{
+  "artifact": "random_variance_rankings",
+  "budgets": [
+    150,
+    300,
+    600
+  ],
+  "files": {
+    "102": "random_seed102_ranked.jsonl",
+    "103": "random_seed103_ranked.jsonl"
+  },
+  "frozen_random_seed": 101,
+  "policy": {
+    "sampling": "uniform permutation of public Pool window IDs",
+    "temporal_separation_keyframes": 5
+  },
+  "prefixes": {
+    "102": {
+      "150": {
+        "cluster_profile": {},
+        "count": 150,
+        "log_coverage": 23,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 150
+      },
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 25,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 25,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 600
+      }
+    },
+    "103": {
+      "150": {
+        "cluster_profile": {},
+        "count": 150,
+        "log_coverage": 23,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 150
+      },
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 25,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 25,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 600
+      }
+    }
+  },
+  "primary_budget": 300,
+  "public_pool_window_count": 11639,
+  "purpose": "compare the single frozen Mining batch against a Random distribution instead of one Random draw",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "variance_seeds": [
+    102,
+    103
+  ]
+}

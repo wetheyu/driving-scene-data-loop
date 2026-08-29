@@ -1,0 +1,238 @@
+{
+  "event_groups": {
+    "development": {
+      "pedestrian_ego_near_zone_entry": 33,
+      "pedestrian_vehicle_center_proximity_hold": 28,
+      "vehicle_relative_corridor_entry": 74
+    },
+    "frozen_test": {
+      "pedestrian_ego_near_zone_entry": 100,
+      "pedestrian_vehicle_center_proximity_hold": 37,
+      "vehicle_relative_corridor_entry": 69
+    },
+    "l0": {
+      "pedestrian_ego_near_zone_entry": 160,
+      "pedestrian_vehicle_center_proximity_hold": 85,
+      "vehicle_relative_corridor_entry": 153
+    },
+    "task_design": {
+      "pedestrian_ego_near_zone_entry": 16,
+      "pedestrian_vehicle_center_proximity_hold": 16,
+      "vehicle_relative_corridor_entry": 46
+    },
+    "u": {
+      "pedestrian_ego_near_zone_entry": 256,
+      "pedestrian_vehicle_center_proximity_hold": 156,
+      "vehicle_relative_corridor_entry": 201
+    }
+  },
+  "frames": 34149,
+  "label_states": {
+    "development": {
+      "pedestrian_ego_near_zone_entry": {
+        "ignore": 107,
+        "invalid": 0,
+        "negative": 2665,
+        "positive": 54
+      },
+      "pedestrian_vehicle_center_proximity_hold": {
+        "ignore": 83,
+        "invalid": 0,
+        "negative": 2653,
+        "positive": 90
+      },
+      "vehicle_relative_corridor_entry": {
+        "ignore": 150,
+        "invalid": 0,
+        "negative": 2470,
+        "positive": 206
+      }
+    },
+    "frozen_test": {
+      "pedestrian_ego_near_zone_entry": {
+        "ignore": 302,
+        "invalid": 0,
+        "negative": 4954,
+        "positive": 163
+      },
+      "pedestrian_vehicle_center_proximity_hold": {
+        "ignore": 88,
+        "invalid": 0,
+        "negative": 5185,
+        "positive": 146
+      },
+      "vehicle_relative_corridor_entry": {
+        "ignore": 157,
+        "invalid": 0,
+        "negative": 5085,
+        "positive": 177
+      }
+    },
+    "l0": {
+      "pedestrian_ego_near_zone_entry": {
+        "ignore": 526,
+        "invalid": 0,
+        "negative": 7570,
+        "positive": 294
+      },
+      "pedestrian_vehicle_center_proximity_hold": {
+        "ignore": 238,
+        "invalid": 0,
+        "negative": 7835,
+        "positive": 317
+      },
+      "vehicle_relative_corridor_entry": {
+        "ignore": 369,
+        "invalid": 0,
+        "negative": 7571,
+        "positive": 450
+      }
+    },
+    "task_design": {
+      "pedestrian_ego_near_zone_entry": {
+        "ignore": 72,
+        "invalid": 0,
+        "negative": 2372,
+        "positive": 31
+      },
+      "pedestrian_vehicle_center_proximity_hold": {
+        "ignore": 44,
+        "invalid": 0,
+        "negative": 2380,
+        "positive": 51
+      },
+      "vehicle_relative_corridor_entry": {
+        "ignore": 94,
+        "invalid": 0,
+        "negative": 2258,
+        "positive": 123
+      }
+    },
+    "u": {
+      "pedestrian_ego_near_zone_entry": {
+        "ignore": 742,
+        "invalid": 0,
+        "negative": 10465,
+        "positive": 432
+      },
+      "pedestrian_vehicle_center_proximity_hold": {
+        "ignore": 408,
+        "invalid": 0,
+        "negative": 10667,
+        "positive": 564
+      },
+      "vehicle_relative_corridor_entry": {
+        "ignore": 426,
+        "invalid": 0,
+        "negative": 10677,
+        "positive": 536
+      }
+    }
+  },
+  "logs_by_partition": {
+    "development": 7,
+    "frozen_test": 18,
+    "l0": 13,
+    "task_design": 5,
+    "u": 25
+  },
+  "public_u_allowed_fields": [
+    "window_id",
+    "scene_token",
+    "scene_name",
+    "log_token",
+    "partition",
+    "start_frame_index",
+    "end_frame_index",
+    "sample_tokens",
+    "timestamps_s",
+    "frame_refs"
+  ],
+  "public_u_windows": 11639,
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "scene_counts": {
+    "development": 78,
+    "frozen_test": 150,
+    "l0": 232,
+    "task_design": 68,
+    "u": 322
+  },
+  "schema_version": "1.0",
+  "strem_failures": {
+    "development": {
+      "pedestrian_ego_near_zone_entry": 0,
+      "pedestrian_vehicle_center_proximity_hold": 0,
+      "vehicle_relative_corridor_entry": 0
+    },
+    "frozen_test": {
+      "pedestrian_ego_near_zone_entry": 0,
+      "pedestrian_vehicle_center_proximity_hold": 0,
+      "vehicle_relative_corridor_entry": 0
+    },
+    "l0": {
+      "pedestrian_ego_near_zone_entry": 0,
+      "pedestrian_vehicle_center_proximity_hold": 0,
+      "vehicle_relative_corridor_entry": 0
+    },
+    "task_design": {
+      "pedestrian_ego_near_zone_entry": 0,
+      "pedestrian_vehicle_center_proximity_hold": 0,
+      "vehicle_relative_corridor_entry": 0
+    },
+    "u": {
+      "pedestrian_ego_near_zone_entry": 0,
+      "pedestrian_vehicle_center_proximity_hold": 0,
+      "vehicle_relative_corridor_entry": 0
+    }
+  },
+  "visual_cleaning": {
+    "filter_reason_counts": null,
+    "filter_reason_note": "The existing full-trainval v1 eligibility summary records total retention, not mutually exclusive rejection-reason counts.",
+    "filtered_annotations": 739822,
+    "summary": {
+      "class_normalization": {
+        "bus": "motor_vehicle",
+        "car": "motor_vehicle",
+        "construction_vehicle": "motor_vehicle",
+        "trailer": "motor_vehicle",
+        "truck": "motor_vehicle"
+      },
+      "eligible_annotations": 120035,
+      "eligible_by_category": {
+        "bus": 4171,
+        "car": 61334,
+        "construction_vehicle": 2307,
+        "pedestrian": 33652,
+        "trailer": 3564,
+        "truck": 15007
+      },
+      "filter": {
+        "camera_channel": "CAM_FRONT",
+        "minimum_clipped_area_fraction": 0.5,
+        "minimum_letterbox_height_px": 16.0,
+        "visibility_tokens": [
+          "2",
+          "3",
+          "4"
+        ]
+      },
+      "frames": 34149,
+      "schema_version": "1.0",
+      "streams": 850,
+      "target_annotations": 859857
+    }
+  },
+  "window_counts": {
+    "development": 2826,
+    "frozen_test": 5419,
+    "l0": 8390,
+    "task_design": 2475,
+    "u": 11639
+  },
+  "window_size": 5,
+  "window_stride": 1
+}

@@ -1,0 +1,27 @@
+{
+  "batch_size": 8,
+  "dtype": "float32",
+  "elapsed_seconds": 2120.63119,
+  "feature_dimension": 384,
+  "frame_count": 34149,
+  "frames_per_second": 16.103224,
+  "input": {
+    "camera": "CAM_FRONT",
+    "letterbox_fill_rgb": [
+      124,
+      116,
+      104
+    ],
+    "letterbox_size": 518,
+    "processor_center_crop": false,
+    "processor_normalization": true,
+    "processor_resize": false,
+    "processor_use_fast": false
+  },
+  "limited_smoke": false,
+  "model_id": "facebook/dinov2-small",
+  "model_output": "pooler_output_cls",
+  "model_revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056",
+  "num_threads": 64,
+  "schema_version": "1.0"
+}

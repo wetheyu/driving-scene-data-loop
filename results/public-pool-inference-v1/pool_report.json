@@ -1,0 +1,32 @@
+{
+  "artifact": "public_pool_base_inference",
+  "base": {
+    "checkpoint": "gru_seed_17.pt",
+    "run": "gru-baseline-v1",
+    "seed": 17,
+    "thresholds": {
+      "pedestrian_ego_near_zone_entry": 0.8854645490646362,
+      "pedestrian_vehicle_center_proximity_hold": 0.5383577942848206,
+      "vehicle_relative_corridor_entry": 0.6379876732826233
+    }
+  },
+  "embedding": {
+    "dimension": 768,
+    "dtype": "float32",
+    "formula": "L2(concat(mean(f0..f4), f4-f0))",
+    "model_id": "facebook/dinov2-small",
+    "model_revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056"
+  },
+  "files": {
+    "embeddings": "pool_embeddings.npy",
+    "rows": "pool_windows.jsonl"
+  },
+  "partition": "u",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "window_count": 11639
+}

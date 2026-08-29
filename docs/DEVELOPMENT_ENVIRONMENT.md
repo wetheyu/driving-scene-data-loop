@@ -58,7 +58,7 @@ sentence-transformers, BGE, and TinyBERT are not project dependencies.
 Observed on 2026-08-22:
 
 ```text
-Host: procyon.fos.kuis.kyoto-u.ac.jp
+Host: shared university CPU host, reached by the SSH alias `procyon`
 OS: Linux 6.8.0-111-generic x86_64
 CPU: 256 logical CPUs
 Memory: 1.0 TiB
@@ -174,6 +174,10 @@ runs/public-pool-inference-v1/                   Pool probabilities and vectors
 runs/selection-rankings-v3/                      frozen Random and Mining lists
 runs/random-variance-v1/                         Random seeds 102/103
 ```
+
+Each run's aggregate report — and only the aggregate report, never its rows,
+embeddings, or labels — is mirrored into the repository under `results/`, so a
+documented number can be checked without access to this data root.
 
 `selection-rankings-v3` is the current formal selection interface. Its Random IDs
 match the earlier Random list and its Mining IDs match the earlier integrated

@@ -1,0 +1,380 @@
+{
+  "aggregate": {
+    "normal_order": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "mean_average_precision": 0.18150028891697145,
+          "standard_deviation": 0.005630598486975789
+        },
+        "vehicle_relative_corridor_entry": {
+          "mean_average_precision": 0.5457250881110769,
+          "standard_deviation": 0.028859457205880457
+        }
+      },
+      "macro_average_precision_mean": 0.3636126885140241,
+      "macro_average_precision_standard_deviation": 0.015736677212635997
+    },
+    "reversed_order": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "mean_average_precision": 0.15501291042277365,
+          "standard_deviation": 0.038216049768226804
+        },
+        "vehicle_relative_corridor_entry": {
+          "mean_average_precision": 0.5105823930867666,
+          "standard_deviation": 0.041384850278495255
+        }
+      },
+      "macro_average_precision_mean": 0.3327976517547701,
+      "macro_average_precision_standard_deviation": 0.023236806985721507
+    }
+  },
+  "base_seed": 17,
+  "base_thresholds": {
+    "pedestrian_ego_near_zone_entry": {
+      "f1": 0.23880597014925373,
+      "threshold": 0.9500234127044678
+    },
+    "vehicle_relative_corridor_entry": {
+      "f1": 0.6422764227642277,
+      "threshold": 0.8814406394958496
+    }
+  },
+  "config": {
+    "batch_size": 128,
+    "checkpoint_metric": "development_macro_average_precision",
+    "direction": "unidirectional",
+    "dropout_after_final_hidden": 0.2,
+    "hidden_size": 128,
+    "input_shape": [
+      5,
+      384
+    ],
+    "layers": 1,
+    "learning_rate": 0.001,
+    "max_epochs": 50,
+    "num_threads": 16,
+    "optimizer": "AdamW",
+    "patience": 5,
+    "reversed_diagnostic": "same checkpoint, reversed Development time axis",
+    "seeds": [
+      17,
+      29,
+      43
+    ],
+    "weight_decay": 0.0001
+  },
+  "development_window_count": 2826,
+  "evaluation_partition": "development",
+  "gate_b": {
+    "pedestrian_ego_near_zone_entry": {
+      "development_prevalence": 0.01986024273630011,
+      "margin": 0.16164004618067135,
+      "mean_average_precision": 0.18150028891697145,
+      "passed": true,
+      "required_margin": 0.05
+    },
+    "vehicle_relative_corridor_entry": {
+      "development_prevalence": 0.07698056801195814,
+      "margin": 0.46874452009911877,
+      "mean_average_precision": 0.5457250881110769,
+      "passed": true,
+      "required_margin": 0.05
+    }
+  },
+  "l0_window_count": 8390,
+  "model": "global_gru",
+  "pos_weight": [
+    25.74829864501953,
+    16.824443817138672
+  ],
+  "retained_classes": [
+    "pedestrian_ego_near_zone_entry",
+    "vehicle_relative_corridor_entry"
+  ],
+  "runs": {
+    "17": {
+      "best_epoch": 5,
+      "checkpoint": "gru_seed_17.pt",
+      "epochs_trained": 10,
+      "history": [
+        {
+          "development_macro_average_precision": 0.30156847128726233,
+          "epoch": 1,
+          "train_loss": 0.8894630831125437
+        },
+        {
+          "development_macro_average_precision": 0.34424395015350306,
+          "epoch": 2,
+          "train_loss": 0.520711572210782
+        },
+        {
+          "development_macro_average_precision": 0.36115696723079993,
+          "epoch": 3,
+          "train_loss": 0.33871727837662974
+        },
+        {
+          "development_macro_average_precision": 0.35754822064274994,
+          "epoch": 4,
+          "train_loss": 0.2176503093954824
+        },
+        {
+          "development_macro_average_precision": 0.38510672732517703,
+          "epoch": 5,
+          "train_loss": 0.18326793327566435
+        },
+        {
+          "development_macro_average_precision": 0.36276638628847707,
+          "epoch": 6,
+          "train_loss": 0.1426599813804035
+        },
+        {
+          "development_macro_average_precision": 0.35248824447383176,
+          "epoch": 7,
+          "train_loss": 0.15920511997900821
+        },
+        {
+          "development_macro_average_precision": 0.32228322471358384,
+          "epoch": 8,
+          "train_loss": 0.10351291007726099
+        },
+        {
+          "development_macro_average_precision": 0.31422148025853985,
+          "epoch": 9,
+          "train_loss": 0.0912750774137922
+        },
+        {
+          "development_macro_average_precision": 0.3381581738122756,
+          "epoch": 10,
+          "train_loss": 0.09779141276024181
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.18386519619188077,
+            "prevalence": 0.01986024273630011
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5863482584584733,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.38510672732517703
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.14909175051250467,
+            "prevalence": 0.01986024273630011
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.567745094695855,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.35841842260417983
+      }
+    },
+    "29": {
+      "best_epoch": 4,
+      "checkpoint": "gru_seed_29.pt",
+      "epochs_trained": 9,
+      "history": [
+        {
+          "development_macro_average_precision": 0.2746033027928004,
+          "epoch": 1,
+          "train_loss": 0.9141669306734054
+        },
+        {
+          "development_macro_average_precision": 0.31047930383111644,
+          "epoch": 2,
+          "train_loss": 0.5608092022384905
+        },
+        {
+          "development_macro_average_precision": 0.3321989802366343,
+          "epoch": 3,
+          "train_loss": 0.36567477238677304
+        },
+        {
+          "development_macro_average_precision": 0.34786874643238636,
+          "epoch": 4,
+          "train_loss": 0.261451508766606
+        },
+        {
+          "development_macro_average_precision": 0.3399416742898052,
+          "epoch": 5,
+          "train_loss": 0.20255425464986893
+        },
+        {
+          "development_macro_average_precision": 0.3043389504660554,
+          "epoch": 6,
+          "train_loss": 0.14992338217042098
+        },
+        {
+          "development_macro_average_precision": 0.3068172253739588,
+          "epoch": 7,
+          "train_loss": 0.1246928188880641
+        },
+        {
+          "development_macro_average_precision": 0.32102323221072815,
+          "epoch": 8,
+          "train_loss": 0.09128580915785302
+        },
+        {
+          "development_macro_average_precision": 0.3118374255610769,
+          "epoch": 9,
+          "train_loss": 0.07814667633809982
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.17373293822883243,
+            "prevalence": 0.01986024273630011
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5220045546359403,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.34786874643238636
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.111450328524707,
+            "prevalence": 0.01986024273630011
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4928812034677445,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.30216576599622574
+      }
+    },
+    "43": {
+      "best_epoch": 10,
+      "checkpoint": "gru_seed_43.pt",
+      "epochs_trained": 15,
+      "history": [
+        {
+          "development_macro_average_precision": 0.2968644025789125,
+          "epoch": 1,
+          "train_loss": 0.8970255310894898
+        },
+        {
+          "development_macro_average_precision": 0.3066819381923402,
+          "epoch": 2,
+          "train_loss": 0.5371280181565523
+        },
+        {
+          "development_macro_average_precision": 0.31467157810169133,
+          "epoch": 3,
+          "train_loss": 0.33913070534361506
+        },
+        {
+          "development_macro_average_precision": 0.3257469121764282,
+          "epoch": 4,
+          "train_loss": 0.254850153185528
+        },
+        {
+          "development_macro_average_precision": 0.32579742658138633,
+          "epoch": 5,
+          "train_loss": 0.18863017024682835
+        },
+        {
+          "development_macro_average_precision": 0.33919248439872357,
+          "epoch": 6,
+          "train_loss": 0.15443189399077115
+        },
+        {
+          "development_macro_average_precision": 0.29751639293145604,
+          "epoch": 7,
+          "train_loss": 0.11171493470706316
+        },
+        {
+          "development_macro_average_precision": 0.33373631226704303,
+          "epoch": 8,
+          "train_loss": 0.08084426362068634
+        },
+        {
+          "development_macro_average_precision": 0.3019214099674814,
+          "epoch": 9,
+          "train_loss": 0.1039455865820249
+        },
+        {
+          "development_macro_average_precision": 0.35786259178450913,
+          "epoch": 10,
+          "train_loss": 0.06947733816117058
+        },
+        {
+          "development_macro_average_precision": 0.27662174206133083,
+          "epoch": 11,
+          "train_loss": 0.07002666309114744
+        },
+        {
+          "development_macro_average_precision": 0.320112933186024,
+          "epoch": 12,
+          "train_loss": 0.08253663882828936
+        },
+        {
+          "development_macro_average_precision": 0.2927776153158152,
+          "epoch": 13,
+          "train_loss": 0.04667790265379226
+        },
+        {
+          "development_macro_average_precision": 0.29410072832988354,
+          "epoch": 14,
+          "train_loss": 0.07472889347234668
+        },
+        {
+          "development_macro_average_precision": 0.3122509088020591,
+          "epoch": 15,
+          "train_loss": 0.07792353698884705
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.1869027323302012,
+            "prevalence": 0.01986024273630011
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5288224512388171,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.35786259178450913
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.20449665223110927,
+            "prevalence": 0.01986024273630011
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4711208810967002,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.33780876666390475
+      }
+    }
+  },
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "tiny_overfit_smoke": {
+    "all_valid_labels_correct": true,
+    "final_loss": 6.427537300623953e-05,
+    "initial_loss": 0.7699520587921143,
+    "parameter_changed": true,
+    "steps": 400,
+    "window_count": 12
+  },
+  "train_partition": "l0"
+}

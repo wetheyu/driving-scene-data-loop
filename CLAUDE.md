@@ -149,5 +149,8 @@ private artifacts, so treat any change as a protocol change:
 - `data/`, `models/`, `artifacts/`, `dist/`, and all run outputs are gitignored.
   Private media, features, checkpoints, and run artifacts never enter Git or a
   model-provider upload.
+- `results/` holds the committed aggregate report JSON for each private run, and
+  is the source for every number quoted in the docs. Add a report there when a
+  stage completes; never add its rows, embeddings, or labels.
 - `specs/task_spec_v2/` holds the three immutable Gate-A scenario automata; they
   are frozen inputs, not code to edit.

@@ -1,0 +1,102 @@
+{
+  "baselines": {
+    "last_frame_lr": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "average_precision": 0.038142986610654336,
+          "development_negative": 2665,
+          "development_positive": 54,
+          "development_prevalence": 0.01986024273630011,
+          "iterations": 176,
+          "l0_negative": 7570,
+          "l0_positive": 294,
+          "positive_weight": 25.74829931972789
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "average_precision": 0.060337732924717176,
+          "development_negative": 2653,
+          "development_positive": 90,
+          "development_prevalence": 0.03281079110462997,
+          "iterations": 186,
+          "l0_negative": 7835,
+          "l0_positive": 317,
+          "positive_weight": 24.71608832807571
+        },
+        "vehicle_relative_corridor_entry": {
+          "average_precision": 0.35128594665809737,
+          "development_negative": 2470,
+          "development_positive": 206,
+          "development_prevalence": 0.07698056801195814,
+          "iterations": 163,
+          "l0_negative": 7571,
+          "l0_positive": 450,
+          "positive_weight": 16.824444444444445
+        }
+      },
+      "logistic_regression": {
+        "C": 1.0,
+        "class_weight_ratio_source": "l0_only",
+        "max_iter": 1000,
+        "regularization": "L2 (scikit-learn default)",
+        "solver": "lbfgs"
+      },
+      "macro_average_precision": 0.14992222206448963,
+      "standard_scaler_fit_partition": "l0"
+    },
+    "mean5_lr": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "average_precision": 0.09296529748065983,
+          "development_negative": 2665,
+          "development_positive": 54,
+          "development_prevalence": 0.01986024273630011,
+          "iterations": 163,
+          "l0_negative": 7570,
+          "l0_positive": 294,
+          "positive_weight": 25.74829931972789
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "average_precision": 0.06713910451500213,
+          "development_negative": 2653,
+          "development_positive": 90,
+          "development_prevalence": 0.03281079110462997,
+          "iterations": 183,
+          "l0_negative": 7835,
+          "l0_positive": 317,
+          "positive_weight": 24.71608832807571
+        },
+        "vehicle_relative_corridor_entry": {
+          "average_precision": 0.4226000928518622,
+          "development_negative": 2470,
+          "development_positive": 206,
+          "development_prevalence": 0.07698056801195814,
+          "iterations": 133,
+          "l0_negative": 7571,
+          "l0_positive": 450,
+          "positive_weight": 16.824444444444445
+        }
+      },
+      "logistic_regression": {
+        "C": 1.0,
+        "class_weight_ratio_source": "l0_only",
+        "max_iter": 1000,
+        "regularization": "L2 (scikit-learn default)",
+        "solver": "lbfgs"
+      },
+      "macro_average_precision": 0.1942348316158414,
+      "standard_scaler_fit_partition": "l0"
+    }
+  },
+  "development_window_count": 2826,
+  "evaluation_partition": "development",
+  "feature_dimension": 384,
+  "l0_window_count": 8390,
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "seed": 17,
+  "train_partition": "l0"
+}

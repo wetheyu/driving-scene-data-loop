@@ -40,7 +40,7 @@ f1833b3a2ed6ed91d2a701a0e66695c5f92d2e05375d23e1043c8522828aa952
 macOS arm64:
 
 ```text
-Path: /Users/wetheyu/strem-releases/v0.3.0/strem-darwin-arm64
+Path: ~/strem-releases/v0.3.0/strem-darwin-arm64
 SHA-256: df656e0a8d020ffc268973812e8167867098b62b1215fd92b924ba84692d923c
 ```
 
@@ -83,12 +83,13 @@ export STREM_BIN=/path/to/strem-v0.3.0
 export STREM_CONVERTER=/path/to/v0.3.0/source/scripts/nuscenes_to_strem.py
 ```
 
-Do not use `/Users/wetheyu/strem/target/release/strem` or another research
+Do not use `~/strem/target/release/strem` or another research
 worktree binary. Its contents are not the release contract.
 
 The semantic audit for this milestone read the pinned v0.3.0 source archive.
-The user's `/Users/wetheyu/strem` research worktree was dirty and was treated as
-read-only context, never as release evidence and never modified.
+The author's `~/strem` research worktree was dirty and was treated as read-only
+context, never as release evidence and never modified. Its build differs from the
+pinned release, and the adapter refuses it on the SHA-256 check.
 
 The three version numbers above describe different interfaces. Strem `0.3.0`
 still accepts input streams whose top-level `version` is `0.2.1`; only the timed

@@ -195,6 +195,45 @@ See [Architecture](docs/ARCHITECTURE.md), [Data Spec](docs/DATA_SPEC.md),
 [Evaluation Plan](docs/EVALUATION_PLAN.md), and
 [Stage Plan](docs/STAGE_PLAN.md) for the frozen experiment details.
 
+## What You Can Run
+
+This repository holds code, specifications, documentation, and aggregate result
+reports. It holds no dataset, no image, no model weight, and no label. Four
+things are therefore possible, and they are not equally possible.
+
+**Read the code and the reported results.** Nothing is needed. Every number
+quoted in these documents comes from a JSON file under
+[`results/`](results/README.md), so a claim can be checked against the report
+that produced it.
+
+**Run the tests.** Clone, then:
+
+```bash
+uv sync --locked --all-groups --all-extras
+uv run pytest
+```
+
+The suite passes without any dataset. Four tests are skipped unless `STREM_BIN`
+points at the pinned matcher; installing the `ml` extra, as above, is what lets
+the GRU and public-Pool tests run.
+
+**Run one pipeline stage.** This needs nuScenes, which is not redistributable:
+register at [nuscenes.org](https://www.nuscenes.org/) and accept its licence.
+`v1.0-mini` is enough for a smoke run of the split and window stages; the formal
+experiment uses `v1.0-trainval`. Only the metadata and the `CAM_FRONT` images
+are read, so the full sensor download is unnecessary.
+
+**Reproduce the experiment.** Not currently possible outside the author's
+environment. Scene mining calls Strem v0.3.0, an external research project whose
+repository is not public, so the stages that produce labels — the converter,
+eligibility streams, and window labels — cannot run without it. The stages after
+labelling are ordinary PyTorch and scikit-learn and need only the dataset.
+
+That boundary is a property of the dependency, not a missing file: `STREM_BIN`
+and `STREM_CONVERTER` are pinned by SHA-256 precisely so that a substituted
+build cannot silently change what a label means. See
+[Strem Skill](docs/STREM_SKILL.md) for the release contract.
+
 ## Scope Boundary
 
 Core: scene mining, data cleaning, five-frame classification, bad-case mining,
