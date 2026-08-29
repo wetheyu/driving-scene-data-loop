@@ -196,6 +196,8 @@ uv run python scripts/build_strem_eligible_streams.py \
 
 [Findings](docs/FINDINGS.md) records what the experiments observed and the
 reasoning built on it, in the order the evidence arrived.
+[中文说明](docs/NOTES_CN.md) is the Chinese companion covering how to
+present that record and the questions it invites.
 
 See [Architecture](docs/ARCHITECTURE.md), [Data Spec](docs/DATA_SPEC.md),
 [Evaluation Plan](docs/EVALUATION_PLAN.md), and
