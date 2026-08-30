@@ -164,8 +164,15 @@ Completed on private nuScenes trainval data:
   only for the proximity-hold class at `N=300`.
 
 These are Development, data-construction, selection, or selected-label-profile
-observations. Feedback retraining, remote-VLM labeling, and Held-out Test metrics
-are not yet completed.
+observations.
+
+**The Held-out Test has since been opened, once.** Under the criterion declared
+before opening, bad-case driven selection shows no measurable advantage over
+random selection on held-out data: `+0.0033 ± 0.0101` on the corridor class,
+against `+0.0247 ± 0.0066` on Development. That negative finding, together with
+the diagnostic chain that produced and then bounded it, is the project's result;
+[Findings](docs/FINDINGS.md) section 13 holds the full table. Remote-VLM
+labeling has not run.
 
 ## Environment and Checks
 
