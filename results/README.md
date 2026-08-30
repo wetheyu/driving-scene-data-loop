@@ -25,6 +25,7 @@ data. Each directory name is the private run that produced the file, under
 | `feedback-finetune-mining-v2-300/gru_report.json` | Mining v2 fine-tuned from the Base checkpoint |
 | `n12-*/gru_report.json` | the rebuilt measurement: every arm under `narrow-fast` at twelve seeds, including the L0 learning curve (`n12-lc*`) and the 150/300/600 dose-response |
 | `learning-curve-v1/manifest.json` | which whole-log L0 subsets the learning curve trained on |
+| `frozen-test/frozen_test_scores.json` | the one Held-out Test opening: ten arms, twelve seeds, per-seed AP and every seed-paired contrast |
 
 ## What these files are not
 
@@ -33,10 +34,11 @@ row, no `window_id`, no scene or instance token, no embedding, and no label.
 They cannot be used to reconstruct the dataset, and they are not a substitute
 for nuScenes, which each user must obtain under its own licence.
 
-They are also not a complete result set. Feedback retraining, VLM labelling, and
-Held-out Test scoring have not run, so no file here contains a Held-out Test
-number. When those stages complete, their reports join this
-directory.
+They are also not a complete result set. VLM labelling has not run. The
+Held-out Test has now been opened exactly once, and
+`frozen-test/frozen_test_scores.json` is that reading; it will not be
+regenerated, because reopening it would void the discipline that makes it
+meaningful.
 
 ## Reading them
 

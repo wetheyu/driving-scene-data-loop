@@ -414,6 +414,66 @@ Status: the measurement protocol was selected after round one, by pre-declared
 criteria, so everything in this section is Development-informed. The arbiter is
 the Held-out Test, opened once, after all predictions freeze.
 
+## 13. The Held-out Test: the effect did not transfer
+
+Opened once, after all 650,280 prediction rows were frozen and verified to
+carry only window ID, partition, and probabilities. Ten arms, twelve seeds
+each, scored by the pre-declared rule: the corridor-class seed-paired
+difference between Mining v1 and the mean of the three Random batches.
+
+| Arm | Macro | near-zone | proximity hold | corridor |
+| --- | ---: | ---: | ---: | ---: |
+| Base | `0.2054 ± 0.0145` | `0.1785` | `0.0683` | `0.3696` |
+| Random-300 seed 101 | `0.2211 ± 0.0185` | `0.1888` | `0.0866` | `0.3878` |
+| Random-300 seed 102 | `0.2033 ± 0.0197` | `0.1844` | `0.0591` | `0.3662` |
+| Random-300 seed 103 | `0.2084 ± 0.0137` | `0.1725` | `0.0699` | `0.3828` |
+| Mining v1-300 | `0.2131 ± 0.0202` | `0.1999` | `0.0572` | `0.3822` |
+| Mining v2-300 | `0.2229 ± 0.0200` | `0.1935` | `0.0891` | `0.3860` |
+
+**Primary criterion: `+0.0033 ± 0.0101` (0.3σ). The Development corridor
+effect did not transfer.** Against Base it is `+0.0127 ± 0.0113` (1.1σ), also
+not significant. Broken out by batch the sign is not even stable: `−0.0056`,
+`+0.0160`, `−0.0005` against seeds 101, 102, and 103.
+
+This is not a power failure. The pre-opening estimate said the standard error
+would be about `0.0068` and a transferred effect would read near 3.6σ; the
+realised standard error is `0.0101`, so an effect of the Development size
+(`+0.0247`) would still have shown at about 2.4σ. What is observed is
+`+0.0033` — roughly a seventh of it. The effect is absent, not merely blurred.
+
+Everything else is reported as it came out, none of it a pre-declared
+criterion. Macro is flat (`+0.0022 ± 0.0042`). near-zone moves `+0.0180 ±
+0.0100` (1.8σ), the largest Mining-favouring number on the Test and one that
+Development did not predict. proximity hold moves `−0.0147 ± 0.0034` (4.4σ)
+against Mining — the sharpest single number in the whole table, on the class
+whose learning curve is flat and whose Test support is thinnest at 37 events.
+v2 reads `+0.0071 ± 0.0098` on corridor, and the budget points give `+0.0088`,
+`−0.0056`, `+0.0052` at 150, 300, and 600 — no dose structure survives.
+
+### What this establishes
+
+The corridor effect was real on Development and survived five robustness
+checks there, including a leave-dominant-log-out split. It did not survive the
+move to eighteen unseen logs. The two facts together are the result, and the
+honest reading is the one the protocol was built to force: **a
+Development-informed finding, however well defended on Development, is not a
+finding until a held-out set agrees.**
+
+Two candidate explanations are available and this experiment cannot separate
+them. Development's corridor events concentrate 58% in a single log while the
+Test spreads 69 events over fifteen logs at a 14% maximum share, so the
+Development effect may have been specific to a traffic pattern that the
+leave-one-log-out check could not detect because both halves came from the same
+seven logs. Alternatively the measurement protocol, selected after seeing round
+one, may have been tuned into a Development-specific optimum — the exact risk
+the Development-informed label was attached to record.
+
+No further arm was trained, no threshold moved, and no criterion was revised
+after this table was produced. The pre-registered question — does bad-case
+driven selection beat random selection at a fixed budget — is answered for this
+dataset, representation, and budget: **no measurable advantage on held-out
+data.**
+
 ## Claim boundary
 
 These are Development and selection observations on one dataset, one
@@ -428,9 +488,9 @@ The Development-informed selector in section 8 is one experiment at one budget;
 its near-zone regression is reported because it happened, not because one run
 can support a confident mechanism. Sections 10-12 supersede the three-seed
 readings quoted in sections 2, 3, and 8 wherever they disagree: the three-seed
-spreads were unreliable, and the corridor effect in section 12 is the current
-best estimate of what selection achieves here. That estimate is
-Development-only and Development-informed; it beats the strongest single Random
-batch by an insignificant margin on its own, and its final test is the one
-Held-out Test opening. Nothing yet shows the effect transfers off Development,
-and the `N=600` downturn is unexplained.
+spreads were unreliable. Section 13 in turn bounds section 12: the corridor
+effect is a Development result that did not reproduce on held-out data, so it
+must never be quoted as the project's outcome. The outcome is the negative one
+in section 13, and the value of sections 4 through 12 is the diagnostic chain,
+not the effect they located. The `N=600` downturn remains unexplained, and the
+two explanations offered for the failed transfer are untested alternatives.

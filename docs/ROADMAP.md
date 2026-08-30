@@ -210,8 +210,13 @@ Development predictions.
    corridor advantage of `+0.025` AP over the Random mean (3.7σ seed-paired,
    2.3σ with batch variance folded in, `+0.035` over Base) with a consistent
    sign across budgets. Recorded as Development-informed.
-10. Freeze every prediction, then open the Held-out Test once for all arms:
-    the corridor effect is the primary confirmation target.
+10. Completed: froze 650,280 prediction rows across ten arms, verified they
+    carry no label field, and opened the Held-out Test once. The pre-declared
+    criterion reads `+0.0033 ± 0.0101` (0.3σ): the Development corridor effect
+    did not transfer. The realised standard error, `0.0101`, would still have
+    shown a Development-sized effect at about 2.4σ, so this is absence rather
+    than lost power. Reported unchanged; no arm, threshold, or criterion was
+    revised afterwards.
 
 Required checks: public-U schema has no Oracle fields, equal budgets, temporal
 separation, frozen selected IDs before reveal, Random variance seeds fixed
