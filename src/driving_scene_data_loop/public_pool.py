@@ -74,8 +74,11 @@ def prepare_public_pool(
             frame_indices,
         )
 
-    model = GlobalGRU(len(scenario_ids))
     state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    # Derive the head's width from the checkpoint rather than assuming the
+    # default, so a Base trained under a different config still loads correctly.
+    hidden_size = int(state["classifier.weight"].shape[1])
+    model = GlobalGRU(len(scenario_ids), hidden_size)
     model.load_state_dict(state)
     probabilities = _predict(model, sequences, batch_size)
 

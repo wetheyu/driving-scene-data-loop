@@ -12,9 +12,11 @@ from numpy.typing import NDArray
 torch = pytest.importorskip("torch")
 
 from driving_scene_data_loop.gru_baseline import (  # noqa: E402
+    FROZEN_CONFIG,
     GlobalGRU,
     GruBaselineError,
     SeedRun,
+    TrainingConfig,
     best_f1_threshold,
     build_sequence_features,
     calculate_ap_metrics,
@@ -227,3 +229,51 @@ def _tiny_window_data() -> tuple[BaselineWindowData, NDArray[np.float32]]:
         ),
         features,
     )
+
+
+def test_frozen_config_is_the_original_protocol() -> None:
+    # Every run recorded before the training review used these values. If this
+    # drifts, those artifacts stop being reproducible.
+    assert FROZEN_CONFIG.hidden_size == 128
+    assert FROZEN_CONFIG.dropout == pytest.approx(0.2)
+    assert FROZEN_CONFIG.learning_rate == pytest.approx(1e-3)
+    assert FROZEN_CONFIG.patience == 5
+    assert FROZEN_CONFIG.smoothing_window == 1
+
+
+def test_smoothing_window_of_one_keeps_the_original_argmax_rule(tmp_path: Path) -> None:
+    window_data, features = _tiny_window_data()
+    frozen = train_gru_baselines(
+        window_data=window_data,
+        frame_features=features,
+        output_dir=tmp_path / "frozen",
+        num_threads=1,
+    )
+    explicit = train_gru_baselines(
+        window_data=window_data,
+        frame_features=features,
+        output_dir=tmp_path / "explicit",
+        num_threads=1,
+        config=TrainingConfig(name="explicit-default"),
+    )
+
+    frozen_agg = cast(dict[str, object], frozen["aggregate"])
+    explicit_agg = cast(dict[str, object], explicit["aggregate"])
+    assert frozen_agg == explicit_agg
+
+
+def test_a_narrower_config_changes_the_head_width(tmp_path: Path) -> None:
+    window_data, features = _tiny_window_data()
+    report = train_gru_baselines(
+        window_data=window_data,
+        frame_features=features,
+        output_dir=tmp_path / "narrow",
+        num_threads=1,
+        config=TrainingConfig(name="narrow", hidden_size=16, smoothing_window=3),
+    )
+
+    recorded = cast(dict[str, object], report["training_config"])
+    assert recorded["hidden_size"] == 16
+    assert recorded["smoothing_window"] == 3
+    state = torch.load(tmp_path / "narrow" / "gru_seed_17.pt", weights_only=True)
+    assert state["classifier.weight"].shape[1] == 16

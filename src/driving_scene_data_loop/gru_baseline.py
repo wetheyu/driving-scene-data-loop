@@ -6,6 +6,7 @@ import json
 import random
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import torch  # type: ignore[import-not-found,unused-ignore]
@@ -34,6 +35,51 @@ PATIENCE = 5
 GATE_B_MARGIN = 0.05
 
 
+@dataclass(frozen=True, slots=True)
+class TrainingConfig:
+    """One declared training protocol.
+
+    The frozen v1 runs peaked on Development within 2 to 6 epochs while train
+    loss fell to 0.14, and their Development curve swung about 0.036 between
+    adjacent epochs -- an order of magnitude larger than the between-arm
+    differences the experiment tries to measure. Because early stopping takes
+    the argmax of that curve, the reported score partly measures which epoch
+    happened to land high. These fields exist so a quieter protocol can be
+    declared and compared, not so hyperparameters can be tuned for score.
+
+    `smoothing_window` averages the last N Development scores before comparing,
+    so a single lucky epoch cannot define the checkpoint. At 1 it is exactly the
+    original argmax rule.
+    """
+
+    name: str
+    hidden_size: int = HIDDEN_SIZE
+    dropout: float = 0.2
+    learning_rate: float = LEARNING_RATE
+    weight_decay: float = WEIGHT_DECAY
+    batch_size: int = BATCH_SIZE
+    max_epochs: int = MAX_EPOCHS
+    patience: int = PATIENCE
+    smoothing_window: int = 1
+
+    def to_json(self) -> JsonObject:
+        return {
+            "name": self.name,
+            "hidden_size": self.hidden_size,
+            "dropout": self.dropout,
+            "learning_rate": self.learning_rate,
+            "weight_decay": self.weight_decay,
+            "batch_size": self.batch_size,
+            "max_epochs": self.max_epochs,
+            "patience": self.patience,
+            "smoothing_window": self.smoothing_window,
+        }
+
+
+# Reproduces every run recorded before the training review, bit for bit.
+FROZEN_CONFIG = TrainingConfig(name="v1-frozen")
+
+
 class GruBaselineError(ValueError):
     """Raised when the GRU experiment cannot follow its frozen protocol."""
 
@@ -41,16 +87,21 @@ class GruBaselineError(ValueError):
 class GlobalGRU(nn.Module):  # type: ignore[misc,unused-ignore]
     """One ordered GRU followed by explicit dropout and a multi-label head."""
 
-    def __init__(self, class_count: int) -> None:
+    def __init__(
+        self,
+        class_count: int,
+        hidden_size: int = HIDDEN_SIZE,
+        dropout: float = 0.2,
+    ) -> None:
         super().__init__()
         self.gru = nn.GRU(
             input_size=384,
-            hidden_size=HIDDEN_SIZE,
+            hidden_size=hidden_size,
             num_layers=1,
             batch_first=True,
         )
-        self.dropout = nn.Dropout(0.2)
-        self.classifier = nn.Linear(HIDDEN_SIZE, class_count)
+        self.dropout = nn.Dropout(dropout)
+        self.classifier = nn.Linear(hidden_size, class_count)
 
     def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         _, hidden = self.gru(inputs)
@@ -202,6 +253,7 @@ def train_gru_baselines(
     run_name: str = "base",
     warm_start_dir: Path | None = None,
     feature_cache: JsonObject | None = None,
+    config: TrainingConfig = FROZEN_CONFIG,
 ) -> JsonObject:
     """Train three normal-order seeds and diagnose reversed Development order.
 
@@ -215,7 +267,9 @@ def train_gru_baselines(
         raise GruBaselineError("output directory must not already exist")
     if num_threads <= 0:
         raise GruBaselineError("num_threads must be positive")
-    learning_rate = LEARNING_RATE if warm_start_dir is None else FINE_TUNE_LEARNING_RATE
+    learning_rate = (
+        config.learning_rate if warm_start_dir is None else FINE_TUNE_LEARNING_RATE
+    )
     warm_start_paths: dict[int, Path] = {}
     if warm_start_dir is not None:
         for seed in SEEDS:
@@ -289,6 +343,7 @@ def train_gru_baselines(
             checkpoint_path=output_dir / f"gru_seed_{seed}.pt",
             warm_start_path=warm_start_paths.get(seed),
             learning_rate=learning_rate,
+            config=config,
             scenario_ids=selected_scenarios,
         )
         seed_runs[seed] = seed_run
@@ -360,6 +415,7 @@ def train_gru_baselines(
         "model": "global_gru",
         "run_name": run_name,
         "feature_cache": feature_cache,
+        "training_config": config.to_json(),
         "scenario_ids": list(selected_scenarios),
         "train_partitions": ["l0"] + (["feedback"] if feedback_rows.any() else []),
         "evaluation_partition": "development",
@@ -427,9 +483,10 @@ def _train_one_seed(
     scenario_ids: tuple[str, ...],
     warm_start_path: Path | None = None,
     learning_rate: float = LEARNING_RATE,
+    config: TrainingConfig = FROZEN_CONFIG,
 ) -> SeedRun:
     _set_seed(seed)
-    model = GlobalGRU(len(scenario_ids))
+    model = GlobalGRU(len(scenario_ids), config.hidden_size, config.dropout)
     if warm_start_path is not None:
         model.load_state_dict(
             torch.load(warm_start_path, map_location="cpu", weights_only=True)
@@ -437,7 +494,7 @@ def _train_one_seed(
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=learning_rate,
-        weight_decay=WEIGHT_DECAY,
+        weight_decay=config.weight_decay,
     )
     train_inputs = torch.from_numpy(train_sequences)
     train_targets = torch.from_numpy(np.where(train_mask, train_labels, 0).astype(np.float32))
@@ -447,7 +504,7 @@ def _train_one_seed(
     generator = torch.Generator().manual_seed(seed)
     loader = DataLoader(
         TensorDataset(train_inputs, train_targets, train_masks),
-        batch_size=BATCH_SIZE,
+        batch_size=config.batch_size,
         shuffle=True,
         generator=generator,
         num_workers=0,
@@ -457,7 +514,7 @@ def _train_one_seed(
     best_epoch = 0
     epochs_without_improvement = 0
     history: list[JsonObject] = []
-    for epoch in range(1, MAX_EPOCHS + 1):
+    for epoch in range(1, config.max_epochs + 1):
         model.train()
         loss_sum = 0.0
         valid_count = 0
@@ -489,17 +546,25 @@ def _train_one_seed(
                 "development_macro_average_precision": metrics.macro_average_precision,
             }
         )
-        if metrics.macro_average_precision > best_score:
-            best_score = metrics.macro_average_precision
+        # Compare a short trailing mean rather than one epoch, so a single lucky
+        # epoch on a noisy curve cannot define the checkpoint. At window 1 this
+        # is exactly the original argmax rule.
+        window = [
+            float(cast(float, item["development_macro_average_precision"]))
+            for item in history[-config.smoothing_window :]
+        ]
+        smoothed = sum(window) / len(window)
+        if smoothed > best_score:
+            best_score = smoothed
             best_epoch = epoch
             epochs_without_improvement = 0
             torch.save(model.state_dict(), checkpoint_path)
         else:
             epochs_without_improvement += 1
-            if epochs_without_improvement >= PATIENCE:
+            if epochs_without_improvement >= config.patience:
                 break
 
-    best_model = GlobalGRU(len(scenario_ids))
+    best_model = GlobalGRU(len(scenario_ids), config.hidden_size, config.dropout)
     state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
     best_model.load_state_dict(state)
     probabilities = _predict(best_model, development_inputs, reversed_order=False)
@@ -514,10 +579,22 @@ def _train_one_seed(
         development_mask,
         reversed_probabilities,
     )
+    # How unstable was the curve the checkpoint was chosen from, and what would
+    # a selection-free estimate have been? Both quantify the measurement itself.
+    curve = [
+        float(cast(float, item["development_macro_average_precision"]))
+        for item in history
+    ]
+    steps = [abs(curve[i] - curve[i - 1]) for i in range(1, len(curve))]
     return SeedRun(
         report={
             "best_epoch": best_epoch,
             "epochs_trained": len(history),
+            "development_curve_mean_absolute_step": (
+                sum(steps) / len(steps) if steps else 0.0
+            ),
+            "development_curve_range": (max(curve) - min(curve)) if curve else 0.0,
+            "final_three_epoch_mean_ap": sum(curve[-3:]) / len(curve[-3:]),
             "normal_order": normal_metrics.to_json(scenario_ids),
             "reversed_order": reversed_metrics.to_json(scenario_ids),
             "history": history,
