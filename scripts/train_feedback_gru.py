@@ -13,7 +13,11 @@ from driving_scene_data_loop.feedback_retraining import (
     get_oracle_arm,
     load_feedback_windows,
 )
-from driving_scene_data_loop.gru_baseline import train_gru_baselines
+from driving_scene_data_loop.gru_baseline import (
+    TRAINING_CONFIGS,
+    get_training_config,
+    train_gru_baselines,
+)
 from driving_scene_data_loop.lr_baselines import (
     load_frame_features,
     validate_formal_feature_manifest,
@@ -33,6 +37,11 @@ def main() -> None:
     parser.add_argument("--feature-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--num-threads", type=int, default=16)
+    parser.add_argument(
+        "--training-config",
+        choices=sorted(TRAINING_CONFIGS),
+        default="v1-frozen",
+    )
     parser.add_argument(
         "--warm-start-dir",
         type=Path,
@@ -62,6 +71,7 @@ def main() -> None:
         frame_features=frame_features,
         output_dir=args.output_dir,
         num_threads=args.num_threads,
+        config=get_training_config(args.training_config),
         warm_start_dir=args.warm_start_dir,
         feature_cache=feature_cache,
         run_name=arm.name,

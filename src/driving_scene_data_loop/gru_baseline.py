@@ -79,6 +79,55 @@ class TrainingConfig:
 # Reproduces every run recorded before the training review, bit for bit.
 FROZEN_CONFIG = TrainingConfig(name="v1-frozen")
 
+# Candidates for the training review, declared in code rather than typed on a
+# command line so a run's protocol is part of the repository, not of shell
+# history. The selection criterion is stated before any of them is run: pick the
+# one with the smallest seed-to-seed spread on Base whose Development curve does
+# not peak in the first three epochs. Highest Macro-AP is explicitly not the
+# criterion -- this tunes the measurement, not the score.
+TRAINING_CONFIGS: dict[str, TrainingConfig] = {
+    config.name: config
+    for config in (
+        FROZEN_CONFIG,
+        # Isolates learning rate and checkpoint smoothing at unchanged capacity.
+        TrainingConfig(
+            name="slow-wide",
+            learning_rate=3e-4,
+            patience=10,
+            smoothing_window=3,
+        ),
+        # Isolates capacity at the original rate and rule.
+        TrainingConfig(name="narrow-fast", hidden_size=48),
+        # Both, plus stronger dropout.
+        TrainingConfig(
+            name="narrow-slow",
+            hidden_size=48,
+            dropout=0.3,
+            learning_rate=3e-4,
+            patience=10,
+            smoothing_window=3,
+        ),
+        # The most aggressive capacity cut worth trying at 384-d inputs.
+        TrainingConfig(
+            name="tiny-slow",
+            hidden_size=32,
+            dropout=0.3,
+            learning_rate=3e-4,
+            patience=10,
+            smoothing_window=3,
+        ),
+    )
+}
+
+
+def get_training_config(name: str) -> TrainingConfig:
+    """Return one declared training protocol by name."""
+
+    try:
+        return TRAINING_CONFIGS[name]
+    except KeyError:
+        raise GruBaselineError(f"unknown training config: {name}") from None
+
 
 class GruBaselineError(ValueError):
     """Raised when the GRU experiment cannot follow its frozen protocol."""
