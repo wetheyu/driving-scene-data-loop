@@ -23,6 +23,8 @@ data. Each directory name is the private run that produced the file, under
 | `oracle-reveal-v2-score-ranked/label_profile.json` | what Mining v2 bought once its labels were revealed |
 | `feedback-scratch-mining-v2-300/gru_report.json` | Mining v2 retrained from scratch |
 | `feedback-finetune-mining-v2-300/gru_report.json` | Mining v2 fine-tuned from the Base checkpoint |
+| `n12-*/gru_report.json` | the rebuilt measurement: every arm under `narrow-fast` at twelve seeds, including the L0 learning curve (`n12-lc*`) and the 150/300/600 dose-response |
+| `learning-curve-v1/manifest.json` | which whole-log L0 subsets the learning curve trained on |
 
 ## What these files are not
 

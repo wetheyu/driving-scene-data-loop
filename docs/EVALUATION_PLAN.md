@@ -453,6 +453,17 @@ full result. It bought 2 to 5 times more positives than the best Random batch
 but produced no clean Macro-AP gain under either protocol, which is recorded as
 evidence against the budget being the sole limiting factor.
 
+### Measurement revision
+
+The three-seed numbers above were later shown to carry unreliable spreads:
+twelve seeds under the declared `narrow-fast` protocol put the true seed
+variance at two to three times the three-seed estimates, withdraw the
+"adding data helps" reading (Random minus Base becomes `+0.0036 ± 0.0060`),
+and reveal a corridor-class advantage for the pre-registered Mining selector
+that the old instrument could not resolve. [Findings](FINDINGS.md) sections
+10-12 hold the full revision; the tables above stand as what was observed
+under the frozen protocol at the time.
+
 ## Metrics
 
 Primary:

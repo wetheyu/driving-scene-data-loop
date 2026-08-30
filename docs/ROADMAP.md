@@ -201,8 +201,17 @@ Development predictions.
    batch at `N=300` but produced no clean Macro-AP gain under either protocol,
    and its near-zone AP regressed with unusually high seed variance. Reported
    as Development-informed, not pre-registered.
-9. Decide the next diagnostic round: larger budget, spatial features, or
-   further investigation of the near-zone regression.
+9. Completed: rebuilt the measurement — `narrow-fast` config chosen by
+   pre-declared criteria, twelve seeds per arm with `17, 29, 43` as a nested
+   prefix, seed-paired statistics, a whole-log L0 learning curve, and a budget
+   dose-response over the already-revealed 150/300/600 prefixes. Outcome: the
+   three-seed spreads were unreliable; proximity hold is information-limited
+   (flat learning curve); and the pre-registered Mining selector shows a
+   corridor advantage of `+0.025` AP over the Random mean (3.7σ seed-paired,
+   2.3σ with batch variance folded in, `+0.035` over Base) with a consistent
+   sign across budgets. Recorded as Development-informed.
+10. Freeze every prediction, then open the Held-out Test once for all arms:
+    the corridor effect is the primary confirmation target.
 
 Required checks: public-U schema has no Oracle fields, equal budgets, temporal
 separation, frozen selected IDs before reveal, Random variance seeds fixed

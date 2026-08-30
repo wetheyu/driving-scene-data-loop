@@ -310,6 +310,102 @@ The second is the deeper limitation, and it caps what any selection method can
 demonstrate here: adding windows containing an object the encoder cannot resolve
 cannot help. Reporting this is more useful than reporting an unexplained gain.
 
+## 10. The measurement itself was the largest error source
+
+A review of the training curves found Base peaking on Development at epoch 2
+while train loss fell from 0.96 to 0.14, with the Development curve swinging
+about 0.036 between adjacent epochs — an order of magnitude above the
+between-arm differences under test. The response was a declared protocol
+change, selected by a criterion stated before any candidate ran: smallest
+seed-to-seed spread on Base whose curve does not peak within three epochs,
+with highest Macro-AP explicitly not the criterion. The winner, `narrow-fast`
+(hidden 48, otherwise unchanged), was then run at twelve seeds per arm, keeping
+`17, 29, 43` as a nested prefix.
+
+Twelve seeds exposed how unreliable the three-seed spreads had been:
+
+| Arm | 3-seed std (same runs, first three seeds) | 12-seed std |
+| --- | ---: | ---: |
+| Base | 0.0096 | 0.0263 |
+| Random-300 seed 101 | 0.0391 | 0.0247 |
+| Random-300 seed 102 | **0.0001** | **0.0194** |
+| Random-300 seed 103 | 0.0054 | 0.0178 |
+
+Three samples cannot estimate a standard deviation; every earlier `± 0.005`
+was noise about noise. Two earlier readings are therefore corrected:
+
+- **"Adding 300 windows helps" is withdrawn.** With twelve seeds and
+  seed-paired statistics (same seed shares initialization and 97% of training
+  data; observed correlation between arms `+0.37` to `+0.75`, pairing shrinks
+  the standard error 1.4x), Random minus Base is `+0.0036 ± 0.0060` — nothing.
+- **"The arms cannot be told apart" was a statement about the instrument**, not
+  about the arms, as section 12 shows.
+
+## 11. The learning curve: which classes can respond to data at all
+
+Base was retrained on whole-log subsets of L0 (hash-ordered, guarded at twenty
+or more positives per class), twelve seeds each:
+
+| L0 | windows | near-zone | proximity hold | corridor |
+| --- | ---: | ---: | ---: | ---: |
+| 25% | 1,931 | 0.1040 | 0.0464 | 0.3677 |
+| 50% | 3,812 | 0.0975 | 0.0452 | 0.4045 |
+| 75% | 6,475 | 0.1164 | 0.0462 | 0.4573 |
+| 100% | 8,390 | 0.1471 | 0.0586 | 0.4958 |
+
+Corridor rises `+0.128` end to end at a steady `+0.02` AP per thousand windows
+and is still climbing at 100%: the model remains data-hungry on the one class
+it is competent at. Proximity hold is flat across a 4.3x data range — the
+learning-curve confirmation of what Gate B diagnosed: the class is
+information-limited in this input, and no selector can change that. Near-zone
+is noisy with a rising tail. The curve also calibrates expectations: 300 extra
+windows should move Macro-AP by roughly `+0.006`, exactly the size of the
+Random-minus-Base reading above.
+
+## 12. With the instrument fixed, the pre-registered selector works — where active learning says it should
+
+The full twelve-seed grid, seed-paired against the mean of the three Random
+batches:
+
+| Contrast | Macro | near-zone | proximity hold | corridor |
+| --- | ---: | ---: | ---: | ---: |
+| Mining v1 − Random | `+0.0114 ± 0.0044` | `+0.0106 ± 0.0111` | `−0.0011 ± 0.0042` | **`+0.0247 ± 0.0066` (3.7σ)** |
+| Mining v2 − Random | `+0.0003 ± 0.0047` | `−0.0131 ± 0.0123` | `+0.0032 ± 0.0029` | `+0.0107 ± 0.0125` |
+
+The corridor effect survives every robustness check run against it: it beats
+each Random batch separately (`+0.0376` at 4.2σ, `+0.0279` at 3.7σ, `+0.0085`
+at 0.9σ against the strongest batch), stays at 2.3σ when the batch-to-batch
+variance of the three Random draws is folded into the error, beats Base itself
+(`+0.0350 ± 0.0116`, 3.0σ — Mining reaches 0.5308 against Base's 0.4958), and
+holds at `+0.0239` (2.9σ) on the nine seeds added after the original three.
+Across the already-revealed budget prefixes the sign is consistent —
+`+0.0245 / +0.0376 / +0.0245` at 150/300/600 — though the curve is not
+monotone and the 150/600 points have only the seed-101 batch as control.
+
+Where it works is exactly where the textbook says uncertainty sampling should:
+corridor is the one class whose Base is competent (AP 0.50, so its uncertainty
+is meaningful) and whose learning curve is still steep (so data still buys
+improvement). Near-zone fails the first condition, proximity hold fails both.
+And Mining v1 bought only 13 corridor positives against Random's 12 to 16 —
+the advantage is the training value of near-threshold windows, largely hard
+negatives, not positive count.
+
+Two honest corrections come with this result. First, the section-4 diagnosis
+judged v1's ranker by positive yield — the exact proxy this project later named
+as a trap. By that metric v1 looked inferior to direct probability retrieval;
+by training value, v1's boundary sampling is the only component that works, and
+v2, built to maximise the proxy, delivers nothing. The diagnostic fell into the
+trap before the experiment did. Second, an unexplained phenomenon is recorded
+rather than smoothed over: at `N=600` both arms fall back to or below Base
+(Random-600 lands 0.025 under it). A candidate mechanism — added windows are
+overwhelmingly negative while `pos_weight` stays fixed to L0, diluting the
+positives, compounded by Mining's ranks 301-600 sitting further from the
+boundary — is a hypothesis, not a finding.
+
+Status: the measurement protocol was selected after round one, by pre-declared
+criteria, so everything in this section is Development-informed. The arbiter is
+the Held-out Test, opened once, after all predictions freeze.
+
 ## Claim boundary
 
 These are Development and selection observations on one dataset, one
@@ -320,9 +416,13 @@ the threshold arithmetic are exact computations and do not. Nothing here shows
 that bad-case similarity is useless in general — only that in this
 representation, with this bank construction, it was anti-predictive.
 
-The Development-informed selector in section 8 is one experiment at one budget
-and three training seeds; the near-zone regression it produced is reported
-because it is what happened, not because a single run at this scale can support
-a confident mechanism. It should not be read as evidence that probability
-ranking is worse than the pre-registered selector in general — only that,
-here, buying more true positives did not produce a better model.
+The Development-informed selector in section 8 is one experiment at one budget;
+its near-zone regression is reported because it happened, not because one run
+can support a confident mechanism. Sections 10-12 supersede the three-seed
+readings quoted in sections 2, 3, and 8 wherever they disagree: the three-seed
+spreads were unreliable, and the corridor effect in section 12 is the current
+best estimate of what selection achieves here. That estimate is
+Development-only and Development-informed; it beats the strongest single Random
+batch by an insignificant margin on its own, and its final test is the one
+Held-out Test opening. Nothing yet shows the effect transfers off Development,
+and the `N=600` downturn is unexplained.

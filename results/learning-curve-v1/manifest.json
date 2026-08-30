@@ -1,0 +1,31 @@
+{
+  "25": {
+    "l0_positives": [
+      92,
+      47,
+      58
+    ],
+    "l0_windows": 1931,
+    "logs": 3
+  },
+  "50": {
+    "l0_positives": [
+      132,
+      136,
+      140
+    ],
+    "l0_windows": 3812,
+    "logs": 6
+  },
+  "75": {
+    "l0_positives": [
+      250,
+      252,
+      343
+    ],
+    "l0_windows": 6475,
+    "logs": 10
+  },
+  "guard": "every class >= 20 L0 positives, else extend by one log",
+  "ordering": "sha256('learning-curve-v1\\0'+log_token)"
+}

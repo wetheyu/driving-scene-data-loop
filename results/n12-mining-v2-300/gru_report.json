@@ -1,0 +1,1511 @@
+{
+  "aggregate": {
+    "normal_order": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "mean_average_precision": 0.13563840297967025,
+          "standard_deviation": 0.05189149216719378
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "mean_average_precision": 0.060750568338066996,
+          "standard_deviation": 0.010511688012502038
+        },
+        "vehicle_relative_corridor_entry": {
+          "mean_average_precision": 0.5168314777504732,
+          "standard_deviation": 0.04554807807308683
+        }
+      },
+      "macro_average_precision_mean": 0.2377401496894035,
+      "macro_average_precision_standard_deviation": 0.01752070025685308
+    },
+    "reversed_order": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "mean_average_precision": 0.12212991623658932,
+          "standard_deviation": 0.04428588796923701
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "mean_average_precision": 0.06433236200675038,
+          "standard_deviation": 0.016233412357357705
+        },
+        "vehicle_relative_corridor_entry": {
+          "mean_average_precision": 0.4884801195825543,
+          "standard_deviation": 0.039714774076547645
+        }
+      },
+      "macro_average_precision_mean": 0.224980799275298,
+      "macro_average_precision_standard_deviation": 0.015082046690720117
+    }
+  },
+  "base_seed": 17,
+  "base_thresholds": {
+    "pedestrian_ego_near_zone_entry": {
+      "f1": 0.1927710843373494,
+      "threshold": 0.8908136487007141
+    },
+    "pedestrian_vehicle_center_proximity_hold": {
+      "f1": 0.11851851851851852,
+      "threshold": 0.23377861082553864
+    },
+    "vehicle_relative_corridor_entry": {
+      "f1": 0.6150442477876106,
+      "threshold": 0.929628849029541
+    }
+  },
+  "config": {
+    "batch_size": 128,
+    "checkpoint_metric": "development_macro_average_precision",
+    "direction": "unidirectional",
+    "dropout_after_final_hidden": 0.2,
+    "hidden_size": 128,
+    "initialization": "random",
+    "input_shape": [
+      5,
+      384
+    ],
+    "layers": 1,
+    "learning_rate": 0.001,
+    "max_epochs": 50,
+    "num_threads": 32,
+    "optimizer": "AdamW",
+    "patience": 5,
+    "reversed_diagnostic": "same checkpoint, reversed Development time axis",
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      79,
+      97,
+      113,
+      131,
+      149,
+      167,
+      181,
+      199
+    ],
+    "weight_decay": 0.0001
+  },
+  "development_window_count": 2826,
+  "evaluation_partition": "development",
+  "feature_cache": {
+    "feature_dimension": 384,
+    "frame_count": 34149,
+    "model_id": "facebook/dinov2-small",
+    "model_output": "pooler_output_cls",
+    "model_revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056"
+  },
+  "feedback_window_count": 300,
+  "gate_b": {
+    "pedestrian_ego_near_zone_entry": {
+      "development_prevalence": 0.01986024273630011,
+      "margin": 0.11577816024337015,
+      "mean_average_precision": 0.13563840297967025,
+      "passed": true,
+      "required_margin": 0.05
+    },
+    "pedestrian_vehicle_center_proximity_hold": {
+      "development_prevalence": 0.03281079110462997,
+      "margin": 0.027939777233437026,
+      "mean_average_precision": 0.060750568338066996,
+      "passed": false,
+      "required_margin": 0.05
+    },
+    "vehicle_relative_corridor_entry": {
+      "development_prevalence": 0.07698056801195814,
+      "margin": 0.4398509097385151,
+      "mean_average_precision": 0.5168314777504732,
+      "passed": true,
+      "required_margin": 0.05
+    }
+  },
+  "gate_b_passed_classes": [
+    "pedestrian_ego_near_zone_entry",
+    "vehicle_relative_corridor_entry"
+  ],
+  "l0_window_count": 8390,
+  "loop_classes": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "model": "global_gru",
+  "pos_weight": [
+    25.74829864501953,
+    24.716089248657227,
+    16.824443817138672
+  ],
+  "pos_weight_source": "l0_only",
+  "run_name": "mining-v2-300-score-ranked-oracle",
+  "runs": {
+    "113": {
+      "best_epoch": 9,
+      "checkpoint": "gru_seed_113.pt",
+      "development_curve_mean_absolute_step": 0.015260727172712188,
+      "development_curve_range": 0.08213297679175133,
+      "epochs_trained": 14,
+      "final_three_epoch_mean_ap": 0.25028743343307164,
+      "history": [
+        {
+          "development_macro_average_precision": 0.1809154614041145,
+          "epoch": 1,
+          "train_loss": 1.1145667503660326
+        },
+        {
+          "development_macro_average_precision": 0.21760173540301134,
+          "epoch": 2,
+          "train_loss": 0.8497316390593345
+        },
+        {
+          "development_macro_average_precision": 0.21159027263359356,
+          "epoch": 3,
+          "train_loss": 0.6823669498142493
+        },
+        {
+          "development_macro_average_precision": 0.22576287860554514,
+          "epoch": 4,
+          "train_loss": 0.5608388934553482
+        },
+        {
+          "development_macro_average_precision": 0.23400445270864675,
+          "epoch": 5,
+          "train_loss": 0.4566691220417497
+        },
+        {
+          "development_macro_average_precision": 0.24730462608020423,
+          "epoch": 6,
+          "train_loss": 0.3876079830947338
+        },
+        {
+          "development_macro_average_precision": 0.24870277247544456,
+          "epoch": 7,
+          "train_loss": 0.31512278781075936
+        },
+        {
+          "development_macro_average_precision": 0.24477202172592238,
+          "epoch": 8,
+          "train_loss": 0.2754110622411036
+        },
+        {
+          "development_macro_average_precision": 0.2630484381958658,
+          "epoch": 9,
+          "train_loss": 0.2389411160233789
+        },
+        {
+          "development_macro_average_precision": 0.21714737935322082,
+          "epoch": 10,
+          "train_loss": 0.21722489647123824
+        },
+        {
+          "development_macro_average_precision": 0.23289508281991156,
+          "epoch": 11,
+          "train_loss": 0.19904986272065944
+        },
+        {
+          "development_macro_average_precision": 0.24198070472754926,
+          "epoch": 12,
+          "train_loss": 0.1966387530650969
+        },
+        {
+          "development_macro_average_precision": 0.2588333218326229,
+          "epoch": 13,
+          "train_loss": 0.14917548131002317
+        },
+        {
+          "development_macro_average_precision": 0.2500482737390428,
+          "epoch": 14,
+          "train_loss": 0.13084808295627923
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.2476359865155696,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.08752418799064444,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4539851400813834,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2630484381958658
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.20468087781822836,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.10313810535271457,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.42792146452923907,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.24524681590006067
+      }
+    },
+    "131": {
+      "best_epoch": 9,
+      "checkpoint": "gru_seed_131.pt",
+      "development_curve_mean_absolute_step": 0.010061938099505676,
+      "development_curve_range": 0.06527905569982073,
+      "epochs_trained": 14,
+      "final_three_epoch_mean_ap": 0.22818787415156427,
+      "history": [
+        {
+          "development_macro_average_precision": 0.1666252060963653,
+          "epoch": 1,
+          "train_loss": 1.1398325867890133
+        },
+        {
+          "development_macro_average_precision": 0.18511543727801308,
+          "epoch": 2,
+          "train_loss": 0.8596417124653793
+        },
+        {
+          "development_macro_average_precision": 0.19659436881962508,
+          "epoch": 3,
+          "train_loss": 0.6689076845797677
+        },
+        {
+          "development_macro_average_precision": 0.22921146528930314,
+          "epoch": 4,
+          "train_loss": 0.535724750685643
+        },
+        {
+          "development_macro_average_precision": 0.2278194081932495,
+          "epoch": 5,
+          "train_loss": 0.4385439067347201
+        },
+        {
+          "development_macro_average_precision": 0.22983634431438546,
+          "epoch": 6,
+          "train_loss": 0.35570584429985735
+        },
+        {
+          "development_macro_average_precision": 0.22280863766729983,
+          "epoch": 7,
+          "train_loss": 0.31100682418410025
+        },
+        {
+          "development_macro_average_precision": 0.2186098909273805,
+          "epoch": 8,
+          "train_loss": 0.2574823833314839
+        },
+        {
+          "development_macro_average_precision": 0.23190426179618603,
+          "epoch": 9,
+          "train_loss": 0.22496325996081334
+        },
+        {
+          "development_macro_average_precision": 0.2218793281820174,
+          "epoch": 10,
+          "train_loss": 0.20849339378990123
+        },
+        {
+          "development_macro_average_precision": 0.2233792540841956,
+          "epoch": 11,
+          "train_loss": 0.17724706630812329
+        },
+        {
+          "development_macro_average_precision": 0.231595009882312,
+          "epoch": 12,
+          "train_loss": 0.15431143266885786
+        },
+        {
+          "development_macro_average_precision": 0.2213383730471734,
+          "epoch": 13,
+          "train_loss": 0.17326861011249212
+        },
+        {
+          "development_macro_average_precision": 0.23163023952520745,
+          "epoch": 14,
+          "train_loss": 0.14479383110541344
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.05501473199716157,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.05592075996900442,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.584777293422392,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.23190426179618603
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.04116153826230909,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.05828860618502567,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5406950397860019,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2133817280777789
+      }
+    },
+    "149": {
+      "best_epoch": 11,
+      "checkpoint": "gru_seed_149.pt",
+      "development_curve_mean_absolute_step": 0.01054052458383062,
+      "development_curve_range": 0.07179868280570897,
+      "epochs_trained": 16,
+      "final_three_epoch_mean_ap": 0.2368049253605278,
+      "history": [
+        {
+          "development_macro_average_precision": 0.18897983936975968,
+          "epoch": 1,
+          "train_loss": 1.1189045877250279
+        },
+        {
+          "development_macro_average_precision": 0.21012149603195043,
+          "epoch": 2,
+          "train_loss": 0.837007391487762
+        },
+        {
+          "development_macro_average_precision": 0.22376955806115864,
+          "epoch": 3,
+          "train_loss": 0.6580100244649453
+        },
+        {
+          "development_macro_average_precision": 0.23058960262948303,
+          "epoch": 4,
+          "train_loss": 0.5374660556559173
+        },
+        {
+          "development_macro_average_precision": 0.22039777664087343,
+          "epoch": 5,
+          "train_loss": 0.44201017229382555
+        },
+        {
+          "development_macro_average_precision": 0.229718865313518,
+          "epoch": 6,
+          "train_loss": 0.36520633452568524
+        },
+        {
+          "development_macro_average_precision": 0.2241930118895589,
+          "epoch": 7,
+          "train_loss": 0.3219419844062009
+        },
+        {
+          "development_macro_average_precision": 0.22567054285755642,
+          "epoch": 8,
+          "train_loss": 0.264013132306127
+        },
+        {
+          "development_macro_average_precision": 0.23674927071351778,
+          "epoch": 9,
+          "train_loss": 0.23811728317894335
+        },
+        {
+          "development_macro_average_precision": 0.23130909783111883,
+          "epoch": 10,
+          "train_loss": 0.21822653475314796
+        },
+        {
+          "development_macro_average_precision": 0.26077852217546865,
+          "epoch": 11,
+          "train_loss": 0.19837222201455873
+        },
+        {
+          "development_macro_average_precision": 0.2421944465944145,
+          "epoch": 12,
+          "train_loss": 0.17342765961892304
+        },
+        {
+          "development_macro_average_precision": 0.24910171977417495,
+          "epoch": 13,
+          "train_loss": 0.16347495092279882
+        },
+        {
+          "development_macro_average_precision": 0.2415241876100714,
+          "epoch": 14,
+          "train_loss": 0.13322960502804415
+        },
+        {
+          "development_macro_average_precision": 0.23316339188156218,
+          "epoch": 15,
+          "train_loss": 0.12544648015905854
+        },
+        {
+          "development_macro_average_precision": 0.2357271965899498,
+          "epoch": 16,
+          "train_loss": 0.12774379895748886
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.15575280440494826,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.06926031066222355,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5573224514592341,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.26077852217546865
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.11863787915555236,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.07839468946060553,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5184490902779605,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.23849388629803947
+      }
+    },
+    "167": {
+      "best_epoch": 6,
+      "checkpoint": "gru_seed_167.pt",
+      "development_curve_mean_absolute_step": 0.009172676561170847,
+      "development_curve_range": 0.04535279474120085,
+      "epochs_trained": 11,
+      "final_three_epoch_mean_ap": 0.22678605328358667,
+      "history": [
+        {
+          "development_macro_average_precision": 0.1953405597677915,
+          "epoch": 1,
+          "train_loss": 1.1621981818389602
+        },
+        {
+          "development_macro_average_precision": 0.21703318170277708,
+          "epoch": 2,
+          "train_loss": 0.8548209527362578
+        },
+        {
+          "development_macro_average_precision": 0.23585479799321485,
+          "epoch": 3,
+          "train_loss": 0.6620638572445819
+        },
+        {
+          "development_macro_average_precision": 0.22554879934291142,
+          "epoch": 4,
+          "train_loss": 0.5523651627352042
+        },
+        {
+          "development_macro_average_precision": 0.2302933776221019,
+          "epoch": 5,
+          "train_loss": 0.45020190910147456
+        },
+        {
+          "development_macro_average_precision": 0.24069335450899235,
+          "epoch": 6,
+          "train_loss": 0.3665721165884999
+        },
+        {
+          "development_macro_average_precision": 0.23402312311751905,
+          "epoch": 7,
+          "train_loss": 0.30709572938859875
+        },
+        {
+          "development_macro_average_precision": 0.22997886632287567,
+          "epoch": 8,
+          "train_loss": 0.275071794991851
+        },
+        {
+          "development_macro_average_precision": 0.23357376937414853,
+          "epoch": 9,
+          "train_loss": 0.22506540194971214
+        },
+        {
+          "development_macro_average_precision": 0.22466320343497412,
+          "epoch": 10,
+          "train_loss": 0.2126632289777508
+        },
+        {
+          "development_macro_average_precision": 0.2221211870416373,
+          "epoch": 11,
+          "train_loss": 0.18623034544901435
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.15966102928690545,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.06617840050942567,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.496240633730646,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.24069335450899235
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.15242094598467099,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.06946571780640332,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4764077536530608,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2327648058147117
+      }
+    },
+    "17": {
+      "best_epoch": 9,
+      "checkpoint": "gru_seed_17.pt",
+      "development_curve_mean_absolute_step": 0.010580194757651649,
+      "development_curve_range": 0.05013593960023763,
+      "epochs_trained": 14,
+      "final_three_epoch_mean_ap": 0.21408178098833966,
+      "history": [
+        {
+          "development_macro_average_precision": 0.17434187205550236,
+          "epoch": 1,
+          "train_loss": 1.1190332703923258
+        },
+        {
+          "development_macro_average_precision": 0.1941827755150588,
+          "epoch": 2,
+          "train_loss": 0.8481134674257151
+        },
+        {
+          "development_macro_average_precision": 0.19064160263633356,
+          "epoch": 3,
+          "train_loss": 0.6738138136620144
+        },
+        {
+          "development_macro_average_precision": 0.20207133221955223,
+          "epoch": 4,
+          "train_loss": 0.5453941096318802
+        },
+        {
+          "development_macro_average_precision": 0.20014088799387286,
+          "epoch": 5,
+          "train_loss": 0.4475280580324974
+        },
+        {
+          "development_macro_average_precision": 0.20444345082850082,
+          "epoch": 6,
+          "train_loss": 0.3608738863896467
+        },
+        {
+          "development_macro_average_precision": 0.20694269727279294,
+          "epoch": 7,
+          "train_loss": 0.31448817459296524
+        },
+        {
+          "development_macro_average_precision": 0.21905101128360374,
+          "epoch": 8,
+          "train_loss": 0.286053430028381
+        },
+        {
+          "development_macro_average_precision": 0.22447781165574,
+          "epoch": 9,
+          "train_loss": 0.2300243326639653
+        },
+        {
+          "development_macro_average_precision": 0.19664368026414278,
+          "epoch": 10,
+          "train_loss": 0.20348457048919544
+        },
+        {
+          "development_macro_average_precision": 0.20881737944886988,
+          "epoch": 11,
+          "train_loss": 0.18129655842345968
+        },
+        {
+          "development_macro_average_precision": 0.19864947079214892,
+          "epoch": 12,
+          "train_loss": 0.17998087002354526
+        },
+        {
+          "development_macro_average_precision": 0.22284432059079942,
+          "epoch": 13,
+          "train_loss": 0.1722229896232672
+        },
+        {
+          "development_macro_average_precision": 0.2207515515820706,
+          "epoch": 14,
+          "train_loss": 0.16809075446156008
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.13895402014147487,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.06109421879370548,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.47338519603203955,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.22447781165574
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.12581141557624462,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.07576056739903816,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4265966588040348,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.20938954725977252
+      }
+    },
+    "181": {
+      "best_epoch": 9,
+      "checkpoint": "gru_seed_181.pt",
+      "development_curve_mean_absolute_step": 0.014574847854403298,
+      "development_curve_range": 0.0868354242562707,
+      "epochs_trained": 14,
+      "final_three_epoch_mean_ap": 0.2505836872884752,
+      "history": [
+        {
+          "development_macro_average_precision": 0.17230420705199392,
+          "epoch": 1,
+          "train_loss": 1.1408633151530778
+        },
+        {
+          "development_macro_average_precision": 0.1816545457969357,
+          "epoch": 2,
+          "train_loss": 0.8507383916724204
+        },
+        {
+          "development_macro_average_precision": 0.19840761737600912,
+          "epoch": 3,
+          "train_loss": 0.6814298344996037
+        },
+        {
+          "development_macro_average_precision": 0.2022152720266893,
+          "epoch": 4,
+          "train_loss": 0.5507364284102089
+        },
+        {
+          "development_macro_average_precision": 0.20497020031733185,
+          "epoch": 5,
+          "train_loss": 0.44834480971913576
+        },
+        {
+          "development_macro_average_precision": 0.21926423894657354,
+          "epoch": 6,
+          "train_loss": 0.37582105387758125
+        },
+        {
+          "development_macro_average_precision": 0.22632574242812997,
+          "epoch": 7,
+          "train_loss": 0.3065840543263816
+        },
+        {
+          "development_macro_average_precision": 0.2249560446327797,
+          "epoch": 8,
+          "train_loss": 0.26030412495138655
+        },
+        {
+          "development_macro_average_precision": 0.2591396313082646,
+          "epoch": 9,
+          "train_loss": 0.2295023959308356
+        },
+        {
+          "development_macro_average_precision": 0.2150324418185381,
+          "epoch": 10,
+          "train_loss": 0.2191360545898324
+        },
+        {
+          "development_macro_average_precision": 0.24676463352963182,
+          "epoch": 11,
+          "train_loss": 0.20269085094257838
+        },
+        {
+          "development_macro_average_precision": 0.25628483667784496,
+          "epoch": 12,
+          "train_loss": 0.17693959103480789
+        },
+        {
+          "development_macro_average_precision": 0.2537200064209739,
+          "epoch": 13,
+          "train_loss": 0.15158186190335432
+        },
+        {
+          "development_macro_average_precision": 0.2417462187666067,
+          "epoch": 14,
+          "train_loss": 0.14943272848720793
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.20744391948519353,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.05113632253777618,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5188386519018241,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2591396313082646
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.16532134642170163,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.05085146135329477,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4930752232802307,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.23641601035174234
+      }
+    },
+    "199": {
+      "best_epoch": 9,
+      "checkpoint": "gru_seed_199.pt",
+      "development_curve_mean_absolute_step": 0.015232759569171406,
+      "development_curve_range": 0.07376366623782832,
+      "epochs_trained": 14,
+      "final_three_epoch_mean_ap": 0.20802801549084357,
+      "history": [
+        {
+          "development_macro_average_precision": 0.1572443979876221,
+          "epoch": 1,
+          "train_loss": 1.1411459184040744
+        },
+        {
+          "development_macro_average_precision": 0.17312524492123357,
+          "epoch": 2,
+          "train_loss": 0.862454066417208
+        },
+        {
+          "development_macro_average_precision": 0.18419517050849477,
+          "epoch": 3,
+          "train_loss": 0.6825360802107386
+        },
+        {
+          "development_macro_average_precision": 0.18075882601746862,
+          "epoch": 4,
+          "train_loss": 0.5517377060397628
+        },
+        {
+          "development_macro_average_precision": 0.20044573499394638,
+          "epoch": 5,
+          "train_loss": 0.451641119573726
+        },
+        {
+          "development_macro_average_precision": 0.19339789476956418,
+          "epoch": 6,
+          "train_loss": 0.3692394040747432
+        },
+        {
+          "development_macro_average_precision": 0.18950610204102303,
+          "epoch": 7,
+          "train_loss": 0.32912171621062586
+        },
+        {
+          "development_macro_average_precision": 0.20569425787625395,
+          "epoch": 8,
+          "train_loss": 0.2706192712538429
+        },
+        {
+          "development_macro_average_precision": 0.23100806422545042,
+          "epoch": 9,
+          "train_loss": 0.22514053650976776
+        },
+        {
+          "development_macro_average_precision": 0.21499749484860106,
+          "epoch": 10,
+          "train_loss": 0.2022542348803371
+        },
+        {
+          "development_macro_average_precision": 0.23099414520677275,
+          "epoch": 11,
+          "train_loss": 0.1843697405509884
+        },
+        {
+          "development_macro_average_precision": 0.1921699543213671,
+          "epoch": 12,
+          "train_loss": 0.19919460301382128
+        },
+        {
+          "development_macro_average_precision": 0.21506529517672224,
+          "epoch": 13,
+          "train_loss": 0.17012793183600994
+        },
+        {
+          "development_macro_average_precision": 0.21684879697444137,
+          "epoch": 14,
+          "train_loss": 0.13924401503062125
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.0895787261384561,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.05461953963736228,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5488259269005329,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.23100806422545042
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.1118327565105494,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.052192874505197516,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5305635696231127,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.23152973354628656
+      }
+    },
+    "29": {
+      "best_epoch": 14,
+      "checkpoint": "gru_seed_29.pt",
+      "development_curve_mean_absolute_step": 0.009131417598332579,
+      "development_curve_range": 0.05610634322027211,
+      "epochs_trained": 19,
+      "final_three_epoch_mean_ap": 0.20681737533862019,
+      "history": [
+        {
+          "development_macro_average_precision": 0.16436987861455774,
+          "epoch": 1,
+          "train_loss": 1.15435896737636
+        },
+        {
+          "development_macro_average_precision": 0.1818315183504768,
+          "epoch": 2,
+          "train_loss": 0.8862411769856519
+        },
+        {
+          "development_macro_average_precision": 0.1860901963954512,
+          "epoch": 3,
+          "train_loss": 0.7023571070183494
+        },
+        {
+          "development_macro_average_precision": 0.19179848863097074,
+          "epoch": 4,
+          "train_loss": 0.5676977254915327
+        },
+        {
+          "development_macro_average_precision": 0.19286988437715835,
+          "epoch": 5,
+          "train_loss": 0.45774522545190793
+        },
+        {
+          "development_macro_average_precision": 0.19861141540248886,
+          "epoch": 6,
+          "train_loss": 0.3751727487802534
+        },
+        {
+          "development_macro_average_precision": 0.18492489025241435,
+          "epoch": 7,
+          "train_loss": 0.3085755574984915
+        },
+        {
+          "development_macro_average_precision": 0.18711261028314471,
+          "epoch": 8,
+          "train_loss": 0.27047319786727697
+        },
+        {
+          "development_macro_average_precision": 0.21240941118562526,
+          "epoch": 9,
+          "train_loss": 0.23326409398977652
+        },
+        {
+          "development_macro_average_precision": 0.2026470476176304,
+          "epoch": 10,
+          "train_loss": 0.20123164907474492
+        },
+        {
+          "development_macro_average_precision": 0.20453344007934068,
+          "epoch": 11,
+          "train_loss": 0.176401437181649
+        },
+        {
+          "development_macro_average_precision": 0.20710577530425214,
+          "epoch": 12,
+          "train_loss": 0.1925729504721569
+        },
+        {
+          "development_macro_average_precision": 0.20897960297052923,
+          "epoch": 13,
+          "train_loss": 0.1597050606051054
+        },
+        {
+          "development_macro_average_precision": 0.22047622183482984,
+          "epoch": 14,
+          "train_loss": 0.14764200380176123
+        },
+        {
+          "development_macro_average_precision": 0.2080162058929315,
+          "epoch": 15,
+          "train_loss": 0.15414253973278907
+        },
+        {
+          "development_macro_average_precision": 0.216181160983596,
+          "epoch": 16,
+          "train_loss": 0.12200391087600959
+        },
+        {
+          "development_macro_average_precision": 0.1977609632981492,
+          "epoch": 17,
+          "train_loss": 0.1098773727882226
+        },
+        {
+          "development_macro_average_precision": 0.2026139720239962,
+          "epoch": 18,
+          "train_loss": 0.0996281509421835
+        },
+        {
+          "development_macro_average_precision": 0.22007719069371512,
+          "epoch": 19,
+          "train_loss": 0.10364478981130684
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.08505023172056689,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.053712982383383207,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5226654514005394,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.22047622183482984
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.051355078100512624,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.050151715281305916,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5065930579183475,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2026999504333887
+      }
+    },
+    "43": {
+      "best_epoch": 6,
+      "checkpoint": "gru_seed_43.pt",
+      "development_curve_mean_absolute_step": 0.007084828497945258,
+      "development_curve_range": 0.037746977040839874,
+      "epochs_trained": 11,
+      "final_three_epoch_mean_ap": 0.24577442871319655,
+      "history": [
+        {
+          "development_macro_average_precision": 0.21583857184342595,
+          "epoch": 1,
+          "train_loss": 1.1950689296493795
+        },
+        {
+          "development_macro_average_precision": 0.2316250897247214,
+          "epoch": 2,
+          "train_loss": 0.9243233509684224
+        },
+        {
+          "development_macro_average_precision": 0.2406583044553645,
+          "epoch": 3,
+          "train_loss": 0.7400078275831011
+        },
+        {
+          "development_macro_average_precision": 0.23294594554217152,
+          "epoch": 4,
+          "train_loss": 0.5911080869204342
+        },
+        {
+          "development_macro_average_precision": 0.24734033708294098,
+          "epoch": 5,
+          "train_loss": 0.4839909825479563
+        },
+        {
+          "development_macro_average_precision": 0.2535855488842658,
+          "epoch": 6,
+          "train_loss": 0.38875923057017936
+        },
+        {
+          "development_macro_average_precision": 0.24678384001869888,
+          "epoch": 7,
+          "train_loss": 0.3330917540173082
+        },
+        {
+          "development_macro_average_precision": 0.24926507367426465,
+          "epoch": 8,
+          "train_loss": 0.2930903448904221
+        },
+        {
+          "development_macro_average_precision": 0.2498094383445769,
+          "epoch": 9,
+          "train_loss": 0.251557109868709
+        },
+        {
+          "development_macro_average_precision": 0.24315800107293595,
+          "epoch": 10,
+          "train_loss": 0.20760580694560946
+        },
+        {
+          "development_macro_average_precision": 0.24435584672207677,
+          "epoch": 11,
+          "train_loss": 0.1851425231996013
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.1544328406416818,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.05735690329625516,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5489669027148605,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2535855488842658
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.15085354397659118,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.05430716787878733,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5238114017025486,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.24299070451930904
+      }
+    },
+    "61": {
+      "best_epoch": 5,
+      "checkpoint": "gru_seed_61.pt",
+      "development_curve_mean_absolute_step": 0.01474019628379162,
+      "development_curve_range": 0.08658643596477397,
+      "epochs_trained": 10,
+      "final_three_epoch_mean_ap": 0.2303440852625156,
+      "history": [
+        {
+          "development_macro_average_precision": 0.15518253914680213,
+          "epoch": 1,
+          "train_loss": 1.163267873270414
+        },
+        {
+          "development_macro_average_precision": 0.19276238517554542,
+          "epoch": 2,
+          "train_loss": 0.867486475185485
+        },
+        {
+          "development_macro_average_precision": 0.20482248480935106,
+          "epoch": 3,
+          "train_loss": 0.6856259806566346
+        },
+        {
+          "development_macro_average_precision": 0.22331408663183375,
+          "epoch": 4,
+          "train_loss": 0.5474913293995888
+        },
+        {
+          "development_macro_average_precision": 0.2417689751115761,
+          "epoch": 5,
+          "train_loss": 0.4474975884521247
+        },
+        {
+          "development_macro_average_precision": 0.23139266448696796,
+          "epoch": 6,
+          "train_loss": 0.3817684973560096
+        },
+        {
+          "development_macro_average_precision": 0.2358612896956859,
+          "epoch": 7,
+          "train_loss": 0.31350969785277744
+        },
+        {
+          "development_macro_average_precision": 0.2284558155181755,
+          "epoch": 8,
+          "train_loss": 0.26540987060699833
+        },
+        {
+          "development_macro_average_precision": 0.23828572545535365,
+          "epoch": 9,
+          "train_loss": 0.22340543649757436
+        },
+        {
+          "development_macro_average_precision": 0.22429071481401766,
+          "epoch": 10,
+          "train_loss": 0.19569600700118825
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.10488780062284103,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.044279604591956206,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.5761395201199311,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2417689751115761
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.1380133924952275,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.0404051440439322,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.519767368724232,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.23272863508779726
+      }
+    },
+    "79": {
+      "best_epoch": 7,
+      "checkpoint": "gru_seed_79.pt",
+      "development_curve_mean_absolute_step": 0.014235339664864712,
+      "development_curve_range": 0.05700175809724051,
+      "epochs_trained": 12,
+      "final_three_epoch_mean_ap": 0.1978472148067648,
+      "history": [
+        {
+          "development_macro_average_precision": 0.1552768286661171,
+          "epoch": 1,
+          "train_loss": 1.1555563800804332
+        },
+        {
+          "development_macro_average_precision": 0.19386068223190903,
+          "epoch": 2,
+          "train_loss": 0.857268454239682
+        },
+        {
+          "development_macro_average_precision": 0.20719210889070738,
+          "epoch": 3,
+          "train_loss": 0.6808487643817754
+        },
+        {
+          "development_macro_average_precision": 0.2057350211672624,
+          "epoch": 4,
+          "train_loss": 0.5401882213365848
+        },
+        {
+          "development_macro_average_precision": 0.20240396813182357,
+          "epoch": 5,
+          "train_loss": 0.44230989813062055
+        },
+        {
+          "development_macro_average_precision": 0.20412761426706064,
+          "epoch": 6,
+          "train_loss": 0.3605875005959861
+        },
+        {
+          "development_macro_average_precision": 0.21227858676335762,
+          "epoch": 7,
+          "train_loss": 0.31116190656432147
+        },
+        {
+          "development_macro_average_precision": 0.18192108386234432,
+          "epoch": 8,
+          "train_loss": 0.26176434631842643
+        },
+        {
+          "development_macro_average_precision": 0.2121546379565499,
+          "epoch": 9,
+          "train_loss": 0.23322247208705005
+        },
+        {
+          "development_macro_average_precision": 0.20072267923242249,
+          "epoch": 10,
+          "train_loss": 0.1994103108390238
+        },
+        {
+          "development_macro_average_precision": 0.19185132114704564,
+          "epoch": 11,
+          "train_loss": 0.1864573985762795
+        },
+        {
+          "development_macro_average_precision": 0.2009676440408262,
+          "epoch": 12,
+          "train_loss": 0.16826936029314263
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.12597604491053907,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.06459963352481757,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.44626008185471616,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.21227858676335762
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.11706667135906838,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.06748944728818437,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4393022819421895,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.20795280019648077
+      }
+    },
+    "97": {
+      "best_epoch": 7,
+      "checkpoint": "gru_seed_97.pt",
+      "development_curve_mean_absolute_step": 0.007949411537412963,
+      "development_curve_range": 0.048269560982187654,
+      "epochs_trained": 12,
+      "final_three_epoch_mean_ap": 0.20797401825143358,
+      "history": [
+        {
+          "development_macro_average_precision": 0.16545281883065716,
+          "epoch": 1,
+          "train_loss": 1.1290480769179294
+        },
+        {
+          "development_macro_average_precision": 0.166814097678916,
+          "epoch": 2,
+          "train_loss": 0.8526251049774356
+        },
+        {
+          "development_macro_average_precision": 0.18797061600453002,
+          "epoch": 3,
+          "train_loss": 0.6802999113840923
+        },
+        {
+          "development_macro_average_precision": 0.1979308477308638,
+          "epoch": 4,
+          "train_loss": 0.5538937930211287
+        },
+        {
+          "development_macro_average_precision": 0.20933632913688371,
+          "epoch": 5,
+          "train_loss": 0.4477334568648363
+        },
+        {
+          "development_macro_average_precision": 0.2051461976201313,
+          "epoch": 6,
+          "train_loss": 0.38371965043827333
+        },
+        {
+          "development_macro_average_precision": 0.2137223798128448,
+          "epoch": 7,
+          "train_loss": 0.3239679334206352
+        },
+        {
+          "development_macro_average_precision": 0.20301807156355248,
+          "epoch": 8,
+          "train_loss": 0.28271088722371807
+        },
+        {
+          "development_macro_average_precision": 0.20354364188890436,
+          "epoch": 9,
+          "train_loss": 0.25009269193871797
+        },
+        {
+          "development_macro_average_precision": 0.20955746876451467,
+          "epoch": 10,
+          "train_loss": 0.21083563995343124
+        },
+        {
+          "development_macro_average_precision": 0.20345735243623506,
+          "epoch": 11,
+          "train_loss": 0.20317642927536295
+        },
+        {
+          "development_macro_average_precision": 0.21090723355355104,
+          "epoch": 12,
+          "train_loss": 0.19028905747084882
+        }
+      ],
+      "normal_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.10327269989070462,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.06332395616024969,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4745704833875801,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.2137223798128448
+      },
+      "reversed_order": {
+        "classes": {
+          "pedestrian_ego_near_zone_entry": {
+            "average_precision": 0.08840354917841567,
+            "prevalence": 0.01986024273630011
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "average_precision": 0.07154284752651524,
+            "prevalence": 0.03281079110462997
+          },
+          "vehicle_relative_corridor_entry": {
+            "average_precision": 0.4585785247496926,
+            "prevalence": 0.07698056801195814
+          }
+        },
+        "macro_average_precision": 0.20617497381820782
+      }
+    }
+  },
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "train_partitions": [
+    "l0",
+    "feedback"
+  ],
+  "training_config": {
+    "batch_size": 128,
+    "dropout": 0.2,
+    "hidden_size": 48,
+    "learning_rate": 0.001,
+    "max_epochs": 50,
+    "name": "narrow-fast-12seed",
+    "patience": 5,
+    "seeds": [
+      17,
+      29,
+      43,
+      61,
+      79,
+      97,
+      113,
+      131,
+      149,
+      167,
+      181,
+      199
+    ],
+    "smoothing_window": 1,
+    "weight_decay": 0.0001
+  },
+  "training_window_count": 8690
+}
