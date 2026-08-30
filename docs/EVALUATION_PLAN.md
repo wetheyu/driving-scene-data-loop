@@ -398,6 +398,10 @@ be independent of the first.
 
 ### Controlled VLM-label retraining
 
+Superseded in form by *Protocol v0.11* below, which retargets this comparison
+from the v0.8 `Mining-300` batch to the v0.10 `disagreement_v010` 900 batch. The
+rules in this section still hold.
+
 Mining-VLM reuses the exact frozen Mining-Oracle window IDs. The only intended
 change is the extra batch's label source:
 
@@ -539,6 +543,163 @@ Nothing in this section may change after the first v0.10 reveal. A null result
 under this design closes the question for this dataset and representation: it
 would be the third independent operating point at which selection shows no
 transferable value.
+
+## Protocol v0.11 — automatic labeling with a remote VLM
+
+Frozen 2026-08-30, before any request is sent. This stage does not spend Oracle
+budget, does not reopen a held-out set, and does not change any v0.10 result. It
+answers the labeling half of the loop, which the project has so far bought from a
+private metric Oracle:
+
+> On the exact windows the v0.10 selector already chose and the Oracle already
+> revealed, how accurately, at what uncertainty rate, and at what unit cost can a
+> remote VLM reproduce the metric scenario labels from five monocular CAM_FRONT
+> frames alone — and does training on those labels instead of the Oracle's keep
+> the downstream gain?
+
+The second half of that question is the same epistemic move that Finding 6 forced
+on selection: label F1 is a proxy, and a proxy is only trusted after the
+downstream measurement agrees with it.
+
+### Batch amendment
+
+`DATA_SPEC.md`, `STAGE_PLAN.md`, and the *Controlled VLM-label retraining*
+section above name the v0.8 `Mining-300` batch, declared before v0.10 existed.
+The labeled batch becomes the v0.10 `disagreement_v010` 900-row prefix — the
+batch that actually closed the loop, whose Oracle labels are already revealed and
+whose nested `300 ⊂ 600 ⊂ 900` structure is preserved. This is a mechanical
+retarget made before the first request; no metric, gate, or red line moves with
+it.
+
+### Frozen identity
+
+Everything below is fixed before the formal batch and recorded in
+`vlm_run_manifest.json` with the prompt and schema hashes:
+
+| Field | Value |
+| --- | --- |
+| provider | Anthropic API |
+| model | `claude-sonnet-5` (the response's own `model` string is recorded too) |
+| thinking | adaptive, default effort |
+| output | structured output constrained by the frozen JSON schema |
+| images | the five CAM_FRONT keyframes of the window, original 1600x900 JPEG, base64, in temporal order |
+| text | the three frozen scenario descriptions and their frozen thresholds, plus the verdict instructions |
+| temperature | not set (removed on this model family) |
+| transport | Message Batches, 100 windows per submitted batch, `custom_id = window_id` |
+
+The model is the volume-realistic tier, not the strongest tier, because the
+industrial question is what auto-labeling costs at scale. Claude Opus 5 is held
+in reserve as a *diagnostic* under the gate below, never as the default.
+
+### Request boundary
+
+One request carries exactly one window. The builder reads only the frozen ranking
+file, the public `pool_windows.jsonl` fields in `PUBLIC_U_FIELDS`, and the media
+files those `frame_refs` name. It never reads `revealed_labels.jsonl`,
+`windows.jsonl`, Strem output, bindings, instance tokens, 3D boxes, distances,
+visibility, or Base probabilities. A focused test asserts the built request body
+contains no Oracle-derived field, in the same spirit as the existing
+no-label-leak test. Credentials live in `ANTHROPIC_API_KEY`; every response is
+written under the private data root and only aggregates reach `results/`.
+
+### Output schema
+
+Per window, one verdict per scenario, keyed by `scenario_id` and never by
+position:
+
+```text
+{window_id, verdicts: [{scenario_id, verdict: positive|negative|uncertain,
+                        evidence_frames: [0..4], confidence: 0..1,
+                        limitation: str}]}
+```
+
+A response whose `scenario_id` set differs from the frozen scenario order is
+rejected, not reordered — the Oracle reveal already rejected one class-order
+mismatch and the same rule applies here.
+
+### Smoke, then freeze
+
+Up to three prompt iterations on about 30 **Development** windows (roughly four
+positives and four negatives per class plus six `ignore` windows), synchronous
+calls, at most about `$3`. Schema validity, uncertain rate, rough agreement, and
+per-window cost are read; the prompt is edited only here. TaskDesign and
+Development are the only partitions a prompt may ever see. Pool2, Test2, and
+`frozen_test` never inform prompt editing. After the last smoke round the prompt,
+schema, model, and preprocessing hash into the manifest and do not change.
+
+### Execution and cost
+
+Submission is chunked at 100 windows per batch because the five base64 images run
+near 1 MB per request and a batch is size-limited; the nine chunk ids and their
+states live in the manifest. Raw responses land on disk as each chunk completes,
+so a rerun re-requests only missing or failed `window_id`s and never re-pays for a
+completed one. Before any submission the builder verifies every referenced image
+exists and is readable, and renders three windows as contact sheets for a
+one-time human check that frame order and identity are correct. The script
+refuses to submit when the estimated spend exceeds `$35` without an explicit
+confirmation flag.
+
+Estimated at batch pricing: about `$0.014` per window, `~$13` for the formal 900,
+`~$3` for smoke, `~$11` if the Opus diagnostic below is triggered.
+
+### Gates
+
+Pre-declared so that no branch spends money without producing a reportable
+result:
+
+1. Formal Sonnet run on the 900 batch.
+2. If Macro-F1 over the three classes is `< 0.35`, the Opus diagnostic runs on
+   the nested 300 prefix only, and answers one question: is the ceiling the task
+   or the model tier. Whether to then buy a full Opus batch is a separate
+   decision, not pre-authorized here.
+3. The downstream arm runs only if the VLM produces at least 15 `positive`
+   verdicts that the Oracle also calls positive, summed over classes; below that
+   the arm's outcome is arithmetically predetermined and the money is better not
+   spent on compute time.
+
+### Label metrics
+
+Computed against the already-revealed Oracle labels for the same IDs:
+
+- per class Precision, Recall, F1 over windows the Oracle calls `positive` or
+  `negative`, with VLM `uncertain` excluded from the numerator and denominator
+  but reported as its own rate;
+- windows the Oracle calls `ignore` or `invalid` are profiled separately, never
+  scored as errors — they are the definitionally ambiguous region;
+- schema-invalid rate, and the rate of `evidence_frames` outside `0..4` or empty
+  under a `positive` verdict, as the hallucination probe;
+- latency distribution, total spend, spend per usable label.
+
+Each pre-declared VLM failure mode in `BAD_CASE_PROCESS.md` maps to one of these
+fields, so the diagnosis is chosen from a list written before the data existed.
+
+### Controlled downstream arm
+
+`v010-disagreement-900-vlm` reuses the exact 900 window IDs, the exact `L0-small`
+seed set, `narrow-fast-12seed` from scratch, and every hyperparameter of
+`v010-disagreement-900`. The only difference is that the added batch's labels come
+from the VLM file instead of the reveal file. Only the VLM's own `uncertain`
+verdicts are masked; the Oracle's `ignore` states must not be consulted to choose
+which VLM labels to keep, because a real auto-labeling pipeline has no such
+oracle. The arm loader rejects a label file whose artifact identity does not match
+the arm's declared label source.
+
+Both held-out sets are spent, so this contrast is measured on Development with
+twelve seed-paired differences and is reported as Development-level evidence.
+Three readings are pre-declared:
+
+| Result | Reading |
+| --- | --- |
+| VLM arm ≈ Oracle arm | the automatic labeler substitutes for the expensive label source at this operating point |
+| Base < VLM arm < Oracle arm | lossy but net-positive: noisy labels still beat no data |
+| VLM arm ≤ Base | label noise cancels the data, and auto-labeling has a hard accuracy floor here |
+
+### Red lines
+
+No SFT and no weight update of any VLM: this stage is API inference, and it is
+never described as VLM training experience. No held-out set is reopened for it.
+The VLM never overrides a Strem label, and a disagreement is reported as a
+disagreement rather than resolved in the VLM's favour.
 
 ## Metrics
 

@@ -25,8 +25,8 @@ hidden U labels before a selection batch is fixed.
 
 After the primary Oracle-label comparison is frozen, a secondary question asks
 whether a remote VLM can produce useful structured labels on exactly the same
-selected Mining-300 windows. This evaluates automatic labeling separately from
-data-selection quality.
+selected windows of the frozen v0.10 mining batch. This evaluates automatic
+labeling separately from data-selection quality.
 
 ## Candidate Scenarios
 
@@ -182,7 +182,7 @@ prompt design, tuning, selection, or retraining.
 - LastFrame-LR, Mean5-LR, and Global-GRU;
 - Development false-negative bank;
 - Base, three Random-Oracle batches, and Mining-Oracle experiments;
-- structured VLM labels on the frozen Mining-300 batch, evaluated against the
+- structured VLM labels on the frozen v0.10 mining batch, evaluated against the
   Oracle, plus one controlled Mining-VLM retraining run;
 - three training seeds and one-time Frozen Test scoring;
 - four compact result tables, at least five deeply explained cases,
