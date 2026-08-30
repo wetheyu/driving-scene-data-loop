@@ -2,14 +2,14 @@
 
 Specification: Frozen for `v0.8-three-class-loop`
 
-This is an accelerated, evidence-oriented personal-project plan. The remaining work
-is organized by evidence needed for scene-mining and the data-loop record, not
-by adding infrastructure. Expect roughly 12 to 14 focused sessions after the
-current foundation; measured DINO CPU speed may move that estimate.
+This is an accelerated, evidence-oriented personal-project plan, organized by
+evidence needed for scene-mining and the data-loop record, not by adding
+infrastructure. **Every stage below is complete**; the section headers carry
+each stage's outcome, and what remains is listed under *Remaining Directions*.
 
-## Completion Standard
+## Completion Standard — Met
 
-Stop when these results exist:
+All eight results below exist:
 
 1. The three Gate-A-frozen Strem labels each receive a documented Gate-B
    decision.
@@ -20,8 +20,9 @@ Stop when these results exist:
 5. Development false negatives produce one explainable integrated Mining rule.
 6. Mining-Oracle and three independent Random-Oracle batches are retrained
    fairly with the same primary `N=300` budget.
-7. A remote VLM labels the same frozen Mining-300 IDs, is measured
-   against the Oracle, and supplies one controlled VLM retraining comparison.
+7. A remote VLM labels a frozen mined batch (retargeted to the v0.10
+   disagreement 900 by protocol v0.11), is measured against the Oracle, and
+   supplies one controlled VLM retraining comparison.
 8. Held-out Test metrics, four compact tables, and at least five deep cases are
    documented.
 
@@ -238,30 +239,29 @@ before reveal, and identical retraining config.
 Key concepts: false negatives, cosine similarity, uncertainty versus
 confidence, active data selection, Oracle simulation, and controlled variables.
 
-## Stage D — VLM Automatic-Label Evaluation
+## Stage D — VLM Automatic-Label Evaluation — Completed as protocol v0.11
 
-Target: 2 focused sessions.
+Executed 2026-08-30 on the v0.10 `disagreement_v010` 900 batch (the pre-run
+retarget from Mining-300 is recorded in the Evaluation Plan). Observed:
+`gpt-5.6-terra`, 900/900 replies, `$23.69` measured, Macro-F1 `0.494` against
+the Oracle, and a twelve-seed Mining-VLM arm statistically indistinguishable
+from Mining-Oracle (`−0.018 ± 0.020` corridor, 86% of the gain). Full record:
+`docs/FINDINGS.md` section 15 and `results/vlm-labels-v1/`.
 
-1. Freeze a remote VLM provider/model, prompt, input preprocessing, and JSON
-   schema.
-2. Send only the already-frozen Mining-300 five-frame images; do not send Strem
-   evidence, 3D boxes, distances, bindings, or Oracle labels.
-3. Collect per-class `positive|negative|uncertain`, evidence frames, confidence,
-   limitations, latency, and cost.
-4. Compare VLM labels with the Oracle on the same IDs.
-5. Retrain Mining-VLM with the same model settings and compare it with
-   Mining-Oracle. Mask `uncertain` labels without replacing windows.
-
-Required checks: schema validity, no Oracle field in requests, exact ID equality
-between Mining-VLM and Mining-Oracle, and no prompt tuning from Frozen Test.
+Required checks all passed: schema validity 99.1%, no Oracle field in requests
+(enforced by the request builder and a leak test), exact ID equality between the
+VLM and Oracle arms, and zero prompt tuning after the smoke freeze.
 
 Key concepts: VLM structured output, automatic-label precision/recall,
 hallucination, uncertainty, monocular metric limitations, label noise, and why
 API inference is not SFT.
 
-## Stage E — Frozen Evaluation and Result Delivery
+## Stage E — Frozen Evaluation and Result Delivery — Completed
 
-Target: 2 focused sessions.
+The frozen-test reading (v0.8, null) and the Test2 reading (v0.10, positive)
+were each opened once, after all predictions froze; the four compact tables
+exist across `docs/FINDINGS.md` and `results/`; the delivery material lives in
+the untracked private layer. Original targets kept below for the record.
 
 1. Train every arm in the frozen arm list and freeze every prediction file
    before the first Held-out Test score. The Test is opened once, for all arms
@@ -290,6 +290,24 @@ instead of changing the protocol until it wins.
 - spatial DINO features;
 - VLM SFT, Agent, UI, workflow systems, vector DB, or distributed platform work;
 - production-scale or online-loop claims.
+
+## Remaining Directions
+
+None of these block anything; they are ordered by expected evidence value.
+
+- A second loop round: recompute disagreement from the updated model over the
+  2,212 unrevealed Pool2 windows; requires carving a fresh held-out first, since
+  both existing held-out sets are spent.
+- An FP-side hard-negative query bank (false positives outnumber false
+  negatives 2-7x; the gap is on record), with queries drawn from logs disjoint
+  from every evaluation partition.
+- VLM as a pre-filter rather than a labeler: cascade cheap VLM verdicts into
+  Oracle review only for high-uncertainty windows; the existing 900-window
+  joint distribution is enough to estimate the cost-recall curve offline.
+- Target-cropped representations for the information-limited classes, and
+  six-camera eligibility.
+- A larger-dataset port (Waymo/AV2): the engine is dataset-agnostic, a new
+  converter is the cost.
 
 ## Recovery Order
 

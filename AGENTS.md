@@ -14,10 +14,8 @@ Read these documents in order:
 6. `docs/EVALUATION_PLAN.md`
 7. `docs/BAD_CASE_PROCESS.md`
 8. `docs/FINDINGS.md`
-9. `docs/NOTES_CN.md`
-10. `docs/ROADMAP.md`
-11. `docs/ALIGNMENT.md`
-12. `docs/DEVELOPMENT_ENVIRONMENT.md`
+9. `docs/ROADMAP.md`
+10. `docs/DEVELOPMENT_ENVIRONMENT.md`
 
 Do not silently change the research question, scenario definitions, data split,
 annotation budget, Strem boundary, or evaluation protocol.
@@ -38,12 +36,12 @@ annotation budget, Strem boundary, or evaluation protocol.
 - Use English for code, identifiers, comments, logs, CLI text, and the
   specification documents that define the protocol.
 - Use Chinese for discussion, progress explanations, notes, and the
-  review and learning material in `docs/NOTES_CN.md`.
+  maintainer-private material under the untracked `private/` directory.
 - Keep the two layers separate rather than translated. `docs/FINDINGS.md` is the
   English evidence record whose numbers trace to `results/`;
-  `docs/NOTES_CN.md` is the Chinese speaking layer covering how to tell it,
-  the follow-up questions to expect, and the standard answers connected to
-  project code. Facts live in the first; only the second is rewritten when the
+  `private/NOTES_CN.md` (untracked) is the Chinese speaking layer covering
+  how to tell it, the follow-up questions to expect, and the standard answers
+  connected to project code. Facts live in the first; only the second is rewritten when the
   delivery changes.
 - Mark unimplemented work as `Planned`.
 - Never report a plan, fixture, smoke test, or synthetic value as a real result.

@@ -1,21 +1,31 @@
 # Driving Scene Mining and High-Value Data Feedback Loop
 
-Specification: Frozen for `v0.8-three-class-loop`
-
 Chinese title: **自动驾驶场景挖掘与高价值数据闭环**
 
-Report subtitle: *Strem temporal event mining and fixed-budget selection based
-on bad-case similarity, model uncertainty, and visual diversity.*
+A one-person offline research project that closes an autonomous-driving data
+loop on nuScenes and measures every link of it: mine rare temporal scenes with
+a formal matcher, train a small visual model, select new data under a fixed
+annotation budget without seeing labels, retrain, and check on held-out logs
+whether the selection genuinely helped. The central question:
 
-This evidence-oriented project studies one concrete autonomous-driving data-loop
-question:
+> Under the same annotation budget, does mined data improve a held-out metric
+> more than random data — and when it does not, why exactly not?
 
-> Under the same simulated annotation budget `N=300`, can data selected by
-> Development bad-case similarity, model-boundary uncertainty, and visual
-> diversity improve Held-out Test Macro-AP more than random selection?
+Improvement is a hypothesis, not a premise. The project keeps its negative
+results instead of tuning the experiment until the desired answer appears, and
+the commit history is the timestamped record of what was frozen before what was
+revealed.
 
-Improvement is a hypothesis. The project keeps negative results instead of
-tuning the experiment until the desired answer appears.
+## Headline Results
+
+| Question | Answer | Record |
+| --- | --- | --- |
+| Does bad-case-similarity selection transfer? (v0.8) | **No.** A Development effect of `+0.0247` (3.7σ) died on held-out logs (`+0.0033`, 0.3σ). The mechanism was diagnosed, not excused: the mining queries came from the partition that judged them | [Findings §8–13](docs/FINDINGS.md) |
+| Does the redesigned loop beat random? (v0.10) | **Yes.** Ensemble-disagreement selection beats the random distribution by `+0.0619 ± 0.0082` corridor AP (**7.6σ**) on ten held-out logs it never touched, under a criterion frozen before any label was revealed. The yield-maximising selector fails the same bar | [Findings §14](docs/FINDINGS.md) |
+| Can a remote VLM replace the metric labeling Oracle? (v0.11) | **At this operating point, yes.** Labels at Macro-F1 `0.494` retrained to 86% of the Oracle's gain, statistically indistinguishable (`−0.018 ± 0.020`), at `$0.026` per window — and label F1 predicted none of that | [Findings §15](docs/FINDINGS.md) |
+
+The scenario specification is frozen at `v0.8-three-class-loop`; protocols
+v0.10 and v0.11 build on it without editing it.
 
 ## What the Project Does
 
@@ -111,8 +121,13 @@ Average Precision and three-class Macro-AP on the Held-out Test Set. An
 Oracle-only nested `150/300/600` budget curve checks whether the conclusion
 depends on the chosen budget; `N=300` remains the primary comparison.
 
-A remote VLM is only a later, bounded auto-label comparison on already-frozen
-Mining-300 IDs. It is not the primary Oracle or a selector input.
+That is the v0.8 protocol, and its held-out answer was null. Protocol v0.10
+re-poses the same comparison at a small-seed operating point with a freshly
+carved, decoupled held-out set and nested budgets `300 ⊂ 600 ⊂ 900`; protocol
+v0.11 then swaps the label source on the winning batch. The
+[Evaluation Plan](docs/EVALUATION_PLAN.md) holds all three, frozen. A remote
+VLM is a bounded auto-label comparison on an already-frozen mined batch; it is
+never the primary Oracle or a selector input.
 
 ## Code Map
 
@@ -133,8 +148,13 @@ The maintained pipeline intentionally has few modules:
 | `false_negative_bank.py` | deduplicate Development false negatives by event |
 | `public_pool.py` | run the frozen Base and build label-free selection vectors |
 | `selection.py` | freeze Random and integrated Mining rankings |
+| `oracle_reveal.py` | reveal Oracle labels for frozen selected IDs only |
+| `feedback_retraining.py` | join one revealed batch to its declared label source and arm |
+| `prediction_scoring.py` | torch-free scorer: per-seed AP and seed-paired contrasts |
+| `vlm_labeling.py` | build public-only VLM requests, parse verdicts, write training labels |
+| `vlm_evaluation.py` | score VLM labels against the revealed Oracle |
 
-The sixteen scripts under `scripts/` are direct stage entry points. Historical
+The twenty-three scripts under `scripts/` are direct stage entry points. Historical
 gallery builders, candidate-spec generators, archive extractors, and duplicate
 raw-JSON indexers were removed after their results were frozen.
 
@@ -173,9 +193,12 @@ query/eval coupling. The corrected protocol v0.10 (small seed, decoupled Test2,
 no query bank) then **passed its pre-registered criterion**: ensemble-
 disagreement selection beats random by `+0.0619 ± 0.0082` corridor AP (7.6σ)
 on ten held-out logs it never touched, positive at every budget, while
-yield-maximising probability ranking fails the same bar. [Findings]
-(docs/FINDINGS.md) sections 13-14 hold both tables; they are one story.
-Remote-VLM labeling has not run.
+yield-maximising probability ranking fails the same bar. Protocol v0.11 then
+labeled the winning 900-window batch with a remote VLM and retrained on those
+labels instead: Macro-F1 `0.494` against the Oracle, downstream statistically
+indistinguishable from the Oracle arm.
+[Findings](docs/FINDINGS.md) sections 13-15 hold all three tables; they are one
+story.
 
 ## Environment and Checks
 
@@ -206,8 +229,6 @@ uv run python scripts/build_strem_eligible_streams.py \
 
 [Findings](docs/FINDINGS.md) records what the experiments observed and the
 reasoning built on it, in the order the evidence arrived.
-[中文说明](docs/NOTES_CN.md) is the Chinese companion covering how to
-present that record and the questions it invites.
 
 See [Architecture](docs/ARCHITECTURE.md), [Data Spec](docs/DATA_SPEC.md),
 [Evaluation Plan](docs/EVALUATION_PLAN.md), and
@@ -260,3 +281,8 @@ fixed-budget data selection, controlled retraining, and evaluation.
 Not core: Agent, RAG, LLM orchestration, SFT/LoRA, vector databases, Spark,
 Airflow, multi-sensor fusion, prediction/planning/control, online learning, or
 production safety claims.
+
+## License
+
+MIT — see [LICENSE](LICENSE). nuScenes data and the Strem binary are separate
+works under their own licences and are not part of this repository.

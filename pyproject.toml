@@ -7,6 +7,7 @@ name = "driving-scene-data-loop"
 version = "0.0.0"
 description = "A research-first driving-scenario understanding, mining, and data-curation loop."
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "numpy>=1.26,<2",

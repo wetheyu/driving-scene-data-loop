@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 follow its documentation reading order (`docs/PROJECT_SCOPE.md` →
 `docs/STAGE_PLAN.md` → `docs/ARCHITECTURE.md` → `docs/STREM_SKILL.md` →
 `docs/DATA_SPEC.md` → `docs/EVALUATION_PLAN.md` → `docs/BAD_CASE_PROCESS.md` →
-`docs/FINDINGS.md` → `docs/NOTES_CN.md` → `docs/ROADMAP.md` → `docs/ALIGNMENT.md` → `docs/DEVELOPMENT_ENVIRONMENT.md`)
+`docs/FINDINGS.md` → `docs/ROADMAP.md` → `docs/DEVELOPMENT_ENVIRONMENT.md`)
 before touching a stage you have not worked on. Key points that shape every edit:
 
 - This is a one-person, research-first offline research experiment frozen at
@@ -20,9 +20,10 @@ before touching a stage you have not worked on. Key points that shape every edit
   selector leakage, and fair evaluation. Those checks are required; general
   defensive programming is not.
 - English for code, identifiers, comments, protocol documents, logs, and CLI
-  text. Chinese for discussion, progress explanation, notes, and
-  `docs/NOTES_CN.md`. `FINDINGS.md` holds the facts; `NOTES_CN.md` holds
-  the delivery. They are not translations of each other.
+  text. Chinese for discussion, progress explanation, notes, and the
+  maintainer-private material under the untracked `private/` directory.
+  `FINDINGS.md` holds the facts; `private/NOTES_CN.md` holds the delivery.
+  They are not translations of each other and the second never enters Git.
 - Never present a plan, fixture, or synthetic value as a real result; mark
   unimplemented work `Planned`. Preserve negative results — this project does not
   tune until the desired answer appears.
