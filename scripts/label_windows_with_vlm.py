@@ -21,9 +21,11 @@ from driving_scene_data_loop.vlm_labeling import (
     FROZEN_MODEL,
     LABELS_FILENAME,
     MANIFEST_FILENAME,
+    RESPONSES_ENDPOINT,
     SCENARIO_DESCRIPTIONS,
     build_request_params,
     estimated_cost_usd,
+    extract_output_text,
     parse_verdicts,
     plan_chunks,
     prompt_identity,
@@ -127,12 +129,12 @@ def main() -> None:
     if not pending:
         print(json.dumps({"status": "already complete"}))
         return
-    if "ANTHROPIC_API_KEY" not in os.environ:
-        raise SystemExit("ANTHROPIC_API_KEY is not set")
+    if "OPENAI_API_KEY" not in os.environ:
+        raise SystemExit("OPENAI_API_KEY is not set")
 
-    import anthropic
+    from openai import OpenAI
 
-    client = anthropic.Anthropic()
+    client = OpenAI()
     started = time.monotonic()
     usage: JsonObject = {
         "requests": 0,
@@ -159,6 +161,7 @@ def main() -> None:
         chunk_records.append(record)
         print(json.dumps(record, allow_nan=False, sort_keys=True))
 
+    usage["measured_cost_usd"] = _measured_cost_usd(usage, args.model, args.transport)
     usage["estimated_cost_usd"] = estimated_cost_usd(
         cast(int, usage["requests"]),
         model=args.model,
@@ -193,28 +196,64 @@ def _run_batch(
     labels_path: Path,
     usage: JsonObject,
 ) -> JsonObject:
-    """Submit one chunk, wait for it, and append every reply as it is read."""
+    """Submit one chunk as a batch file, wait for it, and append every reply.
 
-    batch = client.messages.batches.create(
-        requests=[
-            {"custom_id": window_id, "params": params}
-            for window_id, params in requests.items()
-        ]
+    The uploaded file carries the frames, so it is written under the private run
+    directory, and both the local copy and the provider-side copy are removed
+    once the results are in hand.
+    """
+
+    upload_path = labels_path.parent / "batch_input.jsonl"
+    with upload_path.open("w", encoding="utf-8") as destination:
+        for window_id, params in requests.items():
+            destination.write(
+                json.dumps(
+                    {
+                        "custom_id": window_id,
+                        "method": "POST",
+                        "url": RESPONSES_ENDPOINT,
+                        "body": params,
+                    },
+                    allow_nan=False,
+                    separators=(",", ":"),
+                )
+                + "\n"
+            )
+    with upload_path.open("rb") as source:
+        uploaded = client.files.create(file=source, purpose="batch")
+    upload_path.unlink()
+
+    batch = client.batches.create(
+        input_file_id=uploaded.id,
+        endpoint=RESPONSES_ENDPOINT,
+        completion_window="24h",
     )
     while True:
-        state = client.messages.batches.retrieve(batch.id)
-        if state.processing_status == "ended":
+        state = client.batches.retrieve(batch.id)
+        if state.status in ("completed", "failed", "expired", "cancelled"):
             break
         time.sleep(POLL_SECONDS)
+    if state.status != "completed":
+        raise SystemExit(f"batch {batch.id} ended as {state.status}")
 
     rows: list[JsonObject] = []
-    for result in client.messages.batches.results(batch.id):
-        window_id = result.custom_id
-        if result.result.type != "succeeded":
-            usage["failures"] += 1
+    for line in client.files.content(state.output_file_id).text.splitlines():
+        if not line.strip():
             continue
-        rows.append(_row_from_message(result.result.message, window_id, scenario_ids, usage))
+        result = cast(JsonObject, json.loads(line))
+        window_id = cast(str, result["custom_id"])
+        response = cast(JsonObject, result.get("response") or {})
+        body = cast(JsonObject, response.get("body") or {})
+        if response.get("status_code") != 200 or not body:
+            usage["failures"] = cast(int, usage["failures"]) + 1
+            continue
+        rows.append(_row_from_body(body, window_id, scenario_ids, usage))
     _append_jsonl(labels_path, rows)
+    for file_id in (uploaded.id, state.output_file_id):
+        try:
+            client.files.delete(file_id)
+        except Exception as error:  # noqa: BLE001 - cleanup must not lose results
+            print(json.dumps({"cleanup_failed": file_id, "error": str(error)}))
     return {"batch_id": batch.id, "requested": len(requests), "labeled": len(rows)}
 
 
@@ -230,29 +269,42 @@ def _run_sync(
     rows: list[JsonObject] = []
     for window_id, params in requests.items():
         try:
-            message = client.messages.create(**params)
+            response = client.responses.create(**params)
         except Exception as error:  # noqa: BLE001 - a failed call is a measured outcome
-            usage["failures"] += 1
+            usage["failures"] = cast(int, usage["failures"]) + 1
             print(json.dumps({"window_id": window_id, "error": str(error)}))
             continue
-        rows.append(_row_from_message(message, window_id, scenario_ids, usage))
+        rows.append(
+            _row_from_body(response.model_dump(), window_id, scenario_ids, usage)
+        )
     _append_jsonl(labels_path, rows)
     return {"requested": len(requests), "labeled": len(rows)}
 
 
-def _row_from_message(
-    message: Any,
+def _row_from_body(
+    body: JsonObject,
     window_id: str,
     scenario_ids: tuple[str, ...],
     usage: JsonObject,
 ) -> JsonObject:
-    usage["requests"] += 1
-    usage["input_tokens"] += int(message.usage.input_tokens)
-    usage["output_tokens"] += int(message.usage.output_tokens)
-    text = next((block.text for block in message.content if block.type == "text"), "")
-    row = parse_verdicts(text=text, window_id=window_id, scenario_ids=scenario_ids)
-    row["stop_reason"] = message.stop_reason
-    row["model"] = message.model
+    reply_usage = cast(JsonObject, body.get("usage") or {})
+    usage["requests"] = cast(int, usage["requests"]) + 1
+    usage["input_tokens"] = cast(int, usage["input_tokens"]) + int(
+        cast(int, reply_usage.get("input_tokens", 0))
+    )
+    usage["output_tokens"] = cast(int, usage["output_tokens"]) + int(
+        cast(int, reply_usage.get("output_tokens", 0))
+    )
+    row = parse_verdicts(
+        text=extract_output_text(body),
+        window_id=window_id,
+        scenario_ids=scenario_ids,
+    )
+    row["status"] = body.get("status")
+    row["model"] = body.get("model")
+    incomplete = body.get("incomplete_details")
+    if isinstance(incomplete, dict):
+        row["incomplete_reason"] = incomplete.get("reason")
     return row
 
 
@@ -279,6 +331,21 @@ def _write_contact_sheets(
         sheet.save(path, quality=88)
         written.append(path.name)
     return written
+
+
+def _measured_cost_usd(usage: JsonObject, model: str, transport: str) -> float:
+    """Price the tokens the provider actually reported, not the pre-run estimate."""
+
+    from driving_scene_data_loop.vlm_labeling import MODEL_PRICES_USD_PER_MTOK
+
+    input_price, output_price = MODEL_PRICES_USD_PER_MTOK[model]
+    total = (
+        cast(int, usage["input_tokens"]) * input_price
+        + cast(int, usage["output_tokens"]) * output_price
+    ) / 1e6
+    if transport == "batch":
+        total *= 0.5
+    return round(total, 4)
 
 
 def _read_public_rows(path: Path, wanted: set[str]) -> dict[str, JsonObject]:

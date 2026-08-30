@@ -252,11 +252,12 @@ paid GPU requires an explicit budget decision.
 ## Remote VLM Gate
 
 A remote VLM is permitted because the user has adequate API budget. Protocol
-v0.11 in `docs/EVALUATION_PLAN.md` froze the provider (Anthropic API), the model
-(`claude-sonnet-5`, the volume-realistic tier rather than the strongest one), the
-prompt, the JSON schema, and the image preprocessing; `claude-opus-5` is held as
-a gated diagnostic. `ANTHROPIC_API_KEY` must be exported in the Procyon shell
-that runs the stage. The gate rules that produced those choices remain:
+v0.11 in `docs/EVALUATION_PLAN.md` froze the provider (OpenAI API, Responses
+endpoint), the model (`gpt-5.6-terra`, the volume-realistic tier rather than the
+strongest one), the prompt, the JSON schema, and the image preprocessing;
+`gpt-5.6-sol` is held as a gated diagnostic. `OPENAI_API_KEY` must be exported in
+the Procyon shell that runs the stage. The gate rules that produced those choices
+remain:
 
 1. choose and record provider, exact model/version, image preprocessing, prompt,
    and JSON schema;

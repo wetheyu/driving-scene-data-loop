@@ -21,7 +21,7 @@ ml = [
     "transformers>=4.57.6,<4.58",
 ]
 vlm = [
-    "anthropic>=1,<2",
+    "openai>=2,<3",
 ]
 
 [dependency-groups]

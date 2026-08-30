@@ -3,9 +3,9 @@
 Protocol v0.11 in `docs/EVALUATION_PLAN.md` freezes what a request may contain:
 five public CAM_FRONT frames, the public scenario descriptions, and the output
 schema. Nothing here reads a private label file, so the request boundary is a
-property of the code path rather than a reviewer's promise. Anthropic API calls
-live in `scripts/label_windows_with_vlm.py`; this module stays importable and
-testable without the SDK, network, or credentials.
+property of the code path rather than a reviewer's promise. Provider calls live
+in `scripts/label_windows_with_vlm.py`; this module stays importable and testable
+without the SDK, network, or credentials.
 """
 
 from __future__ import annotations
@@ -19,8 +19,9 @@ from driving_scene_data_loop.window_dataset import PUBLIC_U_FIELDS
 
 JsonObject = dict[str, Any]
 
-FROZEN_MODEL = "claude-sonnet-5"
-DIAGNOSTIC_MODEL = "claude-opus-5"
+FROZEN_MODEL = "gpt-5.6-terra"
+DIAGNOSTIC_MODEL = "gpt-5.6-sol"
+RESPONSES_ENDPOINT = "/v1/responses"
 MAX_OUTPUT_TOKENS = 2000
 CHUNK_SIZE = 100
 FRAMES_PER_WINDOW = 5
@@ -31,13 +32,12 @@ LABEL_ARTIFACT = "vlm_labeled_windows"
 
 # USD per million tokens at standard rates; the Batches API bills half of this.
 MODEL_PRICES_USD_PER_MTOK = {
-    FROZEN_MODEL: (2.0, 10.0),
-    DIAGNOSTIC_MODEL: (5.0, 25.0),
+    FROZEN_MODEL: (2.0, 12.0),
+    DIAGNOSTIC_MODEL: (5.0, 30.0),
 }
-# The API downscales an image to at most this many pixels, and one image costs
-# about pixels/750 tokens. CAM_FRONT frames are 1600x900.
-MAXIMUM_IMAGE_PIXELS = 1_150_000
-PIXELS_PER_IMAGE_TOKEN = 750
+# Only for the pre-submission ceiling: image tokenization is model-specific, so
+# this deliberately overestimates. The run manifest records measured usage.
+ESTIMATED_TOKENS_PER_IMAGE = 1550
 TEXT_TOKENS_PER_REQUEST = 1500
 OUTPUT_TOKENS_PER_REQUEST = 1000
 
@@ -153,7 +153,7 @@ def build_request_params(
     scenario_ids: tuple[str, ...],
     model: str = FROZEN_MODEL,
 ) -> JsonObject:
-    """Build one window's Messages request from public fields and media only.
+    """Build one window's Responses request from public fields and media only.
 
     The public row must carry exactly `PUBLIC_U_FIELDS`, which is what makes an
     Oracle field structurally unable to reach the provider.
@@ -172,19 +172,13 @@ def build_request_params(
         path = media_root / media_ref
         if not path.is_file():
             raise VlmLabelingError(f"missing image below media_root: {media_ref}")
+        encoded = base64.standard_b64encode(path.read_bytes()).decode("ascii")
         content.append(
-            {
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": "image/jpeg",
-                    "data": base64.standard_b64encode(path.read_bytes()).decode("ascii"),
-                },
-            }
+            {"type": "input_image", "image_url": f"data:image/jpeg;base64,{encoded}"}
         )
     content.append(
         {
-            "type": "text",
+            "type": "input_text",
             "text": (
                 "Scenarios to judge:\n\n"
                 f"{scenario_prompt(scenario_ids)}\n\n"
@@ -194,11 +188,35 @@ def build_request_params(
     )
     return {
         "model": model,
-        "max_tokens": MAX_OUTPUT_TOKENS,
-        "system": SYSTEM_PROMPT,
-        "messages": [{"role": "user", "content": content}],
-        "output_config": {"format": {"type": "json_schema", "schema": OUTPUT_SCHEMA}},
+        "max_output_tokens": MAX_OUTPUT_TOKENS,
+        "instructions": SYSTEM_PROMPT,
+        "input": [{"role": "user", "content": content}],
+        "text": {
+            "format": {
+                "type": "json_schema",
+                "name": "window_verdicts",
+                "schema": OUTPUT_SCHEMA,
+                "strict": True,
+            }
+        },
     }
+
+
+def extract_output_text(response_body: JsonObject) -> str:
+    """Pull the assistant text out of a Responses payload, or return an empty string.
+
+    A refusal or an empty output is an unusable reply rather than a crash: it
+    becomes an `invalid` label row and is counted in the report.
+    """
+
+    parts: list[str] = []
+    for item in cast(list[Any], response_body.get("output") or []):
+        if not isinstance(item, dict) or item.get("type") != "message":
+            continue
+        for block in cast(list[Any], item.get("content") or []):
+            if isinstance(block, dict) and block.get("type") == "output_text":
+                parts.append(cast(str, block.get("text", "")))
+    return "".join(parts)
 
 
 def prompt_identity(scenario_ids: tuple[str, ...], model: str) -> JsonObject:
@@ -229,8 +247,7 @@ def estimated_cost_usd(window_count: int, *, model: str, batch: bool) -> float:
     if model not in MODEL_PRICES_USD_PER_MTOK:
         raise VlmLabelingError(f"unpriced model: {model}")
     input_price, output_price = MODEL_PRICES_USD_PER_MTOK[model]
-    image_tokens = FRAMES_PER_WINDOW * (MAXIMUM_IMAGE_PIXELS // PIXELS_PER_IMAGE_TOKEN)
-    input_tokens = image_tokens + TEXT_TOKENS_PER_REQUEST
+    input_tokens = FRAMES_PER_WINDOW * ESTIMATED_TOKENS_PER_IMAGE + TEXT_TOKENS_PER_REQUEST
     per_window = (
         input_tokens * input_price + OUTPUT_TOKENS_PER_REQUEST * output_price
     ) / 1e6
@@ -246,9 +263,9 @@ def plan_chunks(
 ) -> tuple[tuple[str, ...], ...]:
     """Split the still-missing windows into submittable chunks, preserving order.
 
-    Five base64 frames run near a megabyte per request, so a batch is chunked by
-    size rather than submitted whole, and a rerun re-requests only what is
-    missing instead of paying twice for a completed window.
+    Five base64 frames run near a megabyte per request against a 200 MB batch
+    file limit, so a batch is chunked rather than submitted whole, and a rerun
+    re-requests only what is missing instead of paying twice for a window.
     """
 
     if chunk_size <= 0:

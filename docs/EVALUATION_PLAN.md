@@ -578,17 +578,24 @@ Everything below is fixed before the formal batch and recorded in
 
 | Field | Value |
 | --- | --- |
-| provider | Anthropic API |
-| model | `claude-sonnet-5` (the response's own `model` string is recorded too) |
-| thinking | adaptive, default effort |
-| output | structured output constrained by the frozen JSON schema |
-| images | the five CAM_FRONT keyframes of the window, original 1600x900 JPEG, base64, in temporal order |
+| provider | OpenAI API, Responses endpoint |
+| model | `gpt-5.6-terra` (the reply's own `model` string is recorded too) |
+| output | structured output, `json_schema` with `strict: true` |
+| images | the five CAM_FRONT keyframes of the window, original 1600x900 JPEG, base64 data URLs, in temporal order |
 | text | the three frozen scenario descriptions and their frozen thresholds, plus the verdict instructions |
-| temperature | not set (removed on this model family) |
-| transport | Message Batches, 100 windows per submitted batch, `custom_id = window_id` |
+| sampling | provider defaults, unset |
+| transport | Batch API on `/v1/responses`, 100 windows per submitted file, `custom_id = window_id` |
+
+**Provider amendment (2026-08-30, before any request):** the identity was first
+frozen as Anthropic `claude-sonnet-5`. The available API budget turned out to
+sit with OpenAI, so the provider moved and the model became the tier-matched
+`gpt-5.6-terra` ($2/$12 per Mtok against $2/$10, and about `$13.5` for the 900
+batch against `$12.75`). Nothing else in this protocol moves: the tier logic,
+the request boundary, the schema, the gates, the metrics, and the downstream arm
+are unchanged, and no request had been sent when this was written.
 
 The model is the volume-realistic tier, not the strongest tier, because the
-industrial question is what auto-labeling costs at scale. Claude Opus 5 is held
+industrial question is what auto-labeling costs at scale. `gpt-5.6-sol` is held
 in reserve as a *diagnostic* under the gate below, never as the default.
 
 ### Request boundary
@@ -599,7 +606,7 @@ files those `frame_refs` name. It never reads `revealed_labels.jsonl`,
 `windows.jsonl`, Strem output, bindings, instance tokens, 3D boxes, distances,
 visibility, or Base probabilities. A focused test asserts the built request body
 contains no Oracle-derived field, in the same spirit as the existing
-no-label-leak test. Credentials live in `ANTHROPIC_API_KEY`; every response is
+no-label-leak test. Credentials live in `OPENAI_API_KEY`; every response is
 written under the private data root and only aggregates reach `results/`.
 
 ### Output schema
@@ -630,8 +637,9 @@ schema, model, and preprocessing hash into the manifest and do not change.
 ### Execution and cost
 
 Submission is chunked at 100 windows per batch because the five base64 images run
-near 1 MB per request and a batch is size-limited; the nine chunk ids and their
-states live in the manifest. Raw responses land on disk as each chunk completes,
+near 1 MB per request against a 200 MB batch-file limit; the nine chunk ids and
+their states live in the manifest. The uploaded input file and the returned
+output file are deleted from the provider once results are in hand. Raw responses land on disk as each chunk completes,
 so a rerun re-requests only missing or failed `window_id`s and never re-pays for a
 completed one. Before any submission the builder verifies every referenced image
 exists and is readable, and renders three windows as contact sheets for a
@@ -639,8 +647,10 @@ one-time human check that frame order and identity are correct. The script
 refuses to submit when the estimated spend exceeds `$35` without an explicit
 confirmation flag.
 
-Estimated at batch pricing: about `$0.014` per window, `~$13` for the formal 900,
-`~$3` for smoke, `~$11` if the Opus diagnostic below is triggered.
+Estimated at batch pricing: about `$0.015` per window, `~$13.5` for the formal
+900, `~$3` for smoke, `~$11` if the `gpt-5.6-sol` diagnostic below is triggered.
+The manifest records measured token usage and prices it, so the reported cost is
+metered rather than estimated.
 
 ### Gates
 
@@ -648,10 +658,10 @@ Pre-declared so that no branch spends money without producing a reportable
 result:
 
 1. Formal Sonnet run on the 900 batch.
-2. If Macro-F1 over the three classes is `< 0.35`, the Opus diagnostic runs on
-   the nested 300 prefix only, and answers one question: is the ceiling the task
-   or the model tier. Whether to then buy a full Opus batch is a separate
-   decision, not pre-authorized here.
+2. If Macro-F1 over the three classes is `< 0.35`, the `gpt-5.6-sol` diagnostic
+   runs on the nested 300 prefix only, and answers one question: is the ceiling
+   the task or the model tier. Whether to then buy a full flagship batch is a
+   separate decision, not pre-authorized here.
 3. The downstream arm runs only if the VLM produces at least 15 `positive`
    verdicts that the Oracle also calls positive, summed over classes; below that
    the arm's outcome is arithmetically predetermined and the money is better not

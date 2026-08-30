@@ -20,6 +20,7 @@ from driving_scene_data_loop.vlm_labeling import (
     VlmLabelingError,
     build_request_params,
     estimated_cost_usd,
+    extract_output_text,
     parse_verdicts,
     plan_chunks,
     write_label_files,
@@ -45,10 +46,12 @@ def test_request_carries_only_public_fields_and_images(tmp_path: Path) -> None:
         model=FROZEN_MODEL,
     )
 
-    content = params["messages"][0]["content"]
-    assert [block["type"] for block in content] == ["image"] * 5 + ["text"]
+    content = params["input"][0]["content"]
+    assert [block["type"] for block in content] == ["input_image"] * 5 + ["input_text"]
+    assert content[0]["image_url"].startswith("data:image/jpeg;base64,")
     assert params["model"] == FROZEN_MODEL
-    assert params["output_config"]["format"]["type"] == "json_schema"
+    assert params["text"]["format"]["type"] == "json_schema"
+    assert params["text"]["format"]["strict"] is True
 
     body = json.dumps(params)
     for field, value in ORACLE_FIELDS.items():
@@ -87,6 +90,30 @@ def test_cost_estimate_is_halved_for_batch_and_ordered_by_model() -> None:
 
     assert batch == pytest.approx(sync / 2)
     assert 10.0 < batch < 20.0
+
+
+def test_output_text_survives_reasoning_items_and_a_refusal() -> None:
+    assert (
+        extract_output_text(
+            {
+                "output": [
+                    {"type": "reasoning", "summary": []},
+                    {
+                        "type": "message",
+                        "content": [{"type": "output_text", "text": '{"verdicts": []}'}],
+                    },
+                ]
+            }
+        )
+        == '{"verdicts": []}'
+    )
+    assert extract_output_text({"output": []}) == ""
+    assert (
+        extract_output_text(
+            {"output": [{"type": "message", "content": [{"type": "refusal"}]}]}
+        )
+        == ""
+    )
 
 
 def test_parse_joins_verdicts_by_scenario_id_not_position() -> None:
