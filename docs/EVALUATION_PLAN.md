@@ -464,6 +464,73 @@ that the old instrument could not resolve. [Findings](FINDINGS.md) sections
 10-12 hold the full revision; the tables above stand as what was observed
 under the frozen protocol at the time.
 
+## Protocol v0.10 — the small-seed decoupled cycle
+
+Frozen 2026-08-30, before any v0.10 label is revealed. Motivated directly by
+Findings 10-13: the v0.8 operating point capped every selector's effect at
+about `+0.004` (full L0, N=300, flat region), the mining queries came from the
+partition that judged them, and the one probe of positive-yield selection
+showed confident positives teach a saturated model nothing. Each lesson maps
+to one design change below. `v0.8` results stay sealed and reported as they
+are; `frozen_test` is spent and is never reopened.
+
+### Partition roles
+
+| Role | Data | Rule |
+| --- | --- | --- |
+| Seed training | `L0-small` = the 3-log lc25 subset (1,931 windows; 92/47/58 positives) | the learning-curve point where corridor is steep and positives are scarce |
+| Early stopping and sanity | Development (7 logs) | carries no headline claim in v0.10 |
+| Selection pool | `Pool2` = U minus the Test2 logs | selectors may read only its public view and Base-small outputs |
+| **Held-out** | `Test2` = 8 U logs chosen by `sha256("test2-v010\0" + log_token)` order | labels never previously revealed there are the eval set; any window already revealed in v0.8 is excluded from both Pool2 and Test2 scoring. Opened once, after all v0.10 predictions freeze |
+| Sealed | `frozen_test`, the 10 unused L0 logs | untouched |
+
+If the 8 hash-chosen Test2 logs hold fewer than 55 corridor events, extend by
+one log in hash order until they do (the same guard rule the learning curve
+used). The count check reads event-support metadata only, as Gate A did.
+
+### Arms
+
+Three selectors, all computed from `Base-small` (= the existing `n12-lc25`
+run, twelve seeds) and the public Pool2 view, none using any bank or query
+derived from an evaluation partition:
+
+- **disagreement**: per class, rank by the standard deviation of the twelve
+  Base-small seed probabilities, descending — epistemic uncertainty, untested
+  so far and structurally incapable of the v0.8 query/eval coupling;
+- **prob-ranked**: per class, rank by the twelve-seed mean probability,
+  descending. At the small-seed point positives are the scarce resource, and
+  the measured 53-84% of its top picks that are *not* positives are hard
+  negatives by construction, so this arm operationalises positive mining and
+  hard-negative mining jointly. An explicit FP-query bank (the gap the FN-only
+  bank left) is deferred to a later round to cap the arm count;
+- **random x3**: seeds `201, 202, 203`, the same distribution-not-a-draw rule
+  as v0.8.
+
+All rankings use the common temporal-separation and round-robin class-merge
+rules, are frozen before any reveal, and use nested budgets `300 ⊂ 600 ⊂ 1200`.
+
+### Training and measurement
+
+`narrow-fast-12seed` from scratch for every arm; `pos_weight` from L0-small
+only; early stopping on Development; the bit-verified two-stage
+predict-then-score path with a window-list extension for Test2.
+
+### Pre-registered criterion
+
+Primary: on Test2, the corridor-class seed-paired contrast (selector minus the
+mean of the three randoms) at `N=1200`, one per selector; success is `≥ 2.5σ`,
+set above 2σ because two selectors are read. Secondary: the same contrasts at
+300/600 (dose pattern) and on near-zone. Proximity hold and Macro are reported
+only. Expected effect from the learning-curve slope (`≈ +0.045` AP per +100
+corridor positives near the 25% point) and measured retrieval yields is
+`+0.02` to `+0.05` against an anticipated paired stderr near `0.010-0.012`;
+the power is moderate, which is stated here rather than discovered later.
+
+Nothing in this section may change after the first v0.10 reveal. A null result
+under this design closes the question for this dataset and representation: it
+would be the third independent operating point at which selection shows no
+transferable value.
+
 ## Metrics
 
 Primary:

@@ -210,6 +210,11 @@ Development predictions.
    corridor advantage of `+0.025` AP over the Random mean (3.7σ seed-paired,
    2.3σ with batch variance folded in, `+0.035` over Base) with a consistent
    sign across budgets. Recorded as Development-informed.
+10a. Protocol v0.10 declared and frozen: small seed (the lc25 point),
+    query/eval decoupling with a fresh 8-log Test2 carved from U, disagreement
+    and prob-ranked selectors against three new Random batches, nested budgets
+    300/600/1200 with the primary criterion at 1200. See the Evaluation Plan's
+    v0.10 section; frozen before any v0.10 reveal.
 10. Completed: froze 650,280 prediction rows across ten arms, verified they
     carry no label field, and opened the Held-out Test once. The pre-declared
     criterion reads `+0.0033 ± 0.0101` (0.3σ): the Development corridor effect
