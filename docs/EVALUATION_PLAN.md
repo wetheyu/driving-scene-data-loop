@@ -634,6 +634,33 @@ Development are the only partitions a prompt may ever see. Pool2, Test2, and
 `frozen_test` never inform prompt editing. After the last smoke round the prompt,
 schema, model, and preprocessing hash into the manifest and do not change.
 
+### Observed smoke, and the freeze it triggered
+
+Run 2026-08-30 on 30 Development windows, synchronous, `$0.81` measured, 30 of
+30 replies returned, ten seconds per window.
+
+| Reading | Value |
+| --- | --- |
+| schema-valid rate | `1.00` |
+| `evidence_frames` out of range or missing under a positive | `0` of 90 |
+| Macro-F1 against the Oracle | `0.846` (per class `1.00 / 0.77 / 0.77`) |
+| VLM `uncertain` on Oracle-decided windows | `14% / 17% / 4%` |
+| Oracle `ignore` windows | near-zone `2/2` answered `uncertain`; corridor `3+/2-`; hold `1+` |
+| measured input tokens per window | `9,365` (estimate assumed `9,250`) |
+
+The prompt was frozen with **zero iterations**: the smoke exposed no failure to
+fix, and editing a prompt that is already schema-clean and calibrated would be
+tuning toward a nicer number rather than repairing a defect. Frozen prompt hash
+`d418e9bb5942e9751d04c642c3a92a9cd23c7175bb09a4e7981b1d36061b90fe`.
+
+Two limits on how far this reading travels, stated before the formal batch and
+not after it. Thirty windows carry four to seven positives per class, so the
+near-zone `1.00` rests on two true positives and is not a measurement; and
+Development is not the mined batch — `disagreement_v010` selected exactly the
+windows the Base ensemble disagreed on, which is an adversarial slice by
+construction. The formal Macro-F1 is expected to land below `0.846`, and this
+paragraph is the reason it will not be reported as a regression.
+
 ### Execution and cost
 
 Submission is chunked at 100 windows per batch because the five base64 images run
