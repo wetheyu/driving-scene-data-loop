@@ -21,12 +21,23 @@ def main() -> None:
     )
     parser.add_argument("--windows", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--budget",
+        type=int,
+        action="append",
+        dest="budgets",
+        help="Repeatable nested budgets; defaults to the frozen v0.8 budgets.",
+    )
     args = parser.parse_args()
 
+    kwargs = {}
+    if args.budgets:
+        kwargs["budgets"] = tuple(sorted(args.budgets))
     report = reveal_selected_labels(
         ranking_paths=tuple(args.rankings),
         windows_path=args.windows,
         output_dir=args.output_dir,
+        **kwargs,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))
 

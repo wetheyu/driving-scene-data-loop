@@ -29,11 +29,28 @@ def main() -> None:
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--windows", type=Path, required=True)
     parser.add_argument("--feature-dir", type=Path, required=True)
-    parser.add_argument("--partition", choices=["development", "frozen_test"], required=True)
+    parser.add_argument(
+        "--partition", choices=["development", "frozen_test", "u"], required=True
+    )
+    parser.add_argument(
+        "--window-list",
+        type=Path,
+        help="Restrict to these window IDs (one per line). Required for u, so a "
+        "Test2 evaluation cannot silently widen to the whole Pool.",
+    )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--num-threads", type=int, default=16)
     args = parser.parse_args()
 
+    if args.partition == "u" and args.window_list is None:
+        raise SystemExit("--window-list is required with --partition u")
+    keep_ids: set[str] | None = None
+    if args.window_list is not None:
+        keep_ids = {
+            line.strip()
+            for line in args.window_list.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
     if args.output_dir.exists():
         raise SystemExit("output directory must not already exist")
     torch.set_num_threads(args.num_threads)
@@ -55,10 +72,16 @@ def main() -> None:
             row = json.loads(line)
             if row["partition"] != args.partition:
                 continue
+            if keep_ids is not None and row["window_id"] not in keep_ids:
+                continue
             window_ids.append(row["window_id"])
             frame_rows.append([feature_index[ref] for ref in row["frame_refs"]])
     if not window_ids:
         raise SystemExit(f"no windows in partition {args.partition!r}")
+    if keep_ids is not None and len(window_ids) != len(keep_ids):
+        raise SystemExit(
+            f"window list names {len(keep_ids)} windows but {len(window_ids)} were found"
+        )
 
     sequences = build_sequence_features(
         frame_features,

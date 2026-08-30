@@ -54,10 +54,25 @@ DEVELOPMENT_INFORMED_ARMS = (
 )
 
 
+# Protocol v0.10 arms, declared in the Evaluation Plan before any v0.10 reveal.
+# pre_registered is True relative to their own protocol's reveals.
+V010_ARMS = tuple(
+    OracleArm(f"v010-{label}-{budget}", method, budget)
+    for label, method in (
+        ("disagreement", "disagreement_v010"),
+        ("prob", "prob_ranked_v010"),
+        ("random201", "random_seed201"),
+        ("random202", "random_seed202"),
+        ("random203", "random_seed203"),
+    )
+    for budget in (300, 600, 1200)
+)
+
+
 def get_oracle_arm(name: str) -> OracleArm:
     """Return one arm, pre-registered or Development-informed, by name."""
 
-    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS:
+    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS:
         if arm.name == name:
             return arm
     raise FeedbackRetrainingError(f"unknown Oracle arm: {name}")

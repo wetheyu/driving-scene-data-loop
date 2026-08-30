@@ -13,7 +13,10 @@ from driving_scene_data_loop.prediction_scoring import score_runs
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--windows", type=Path, required=True)
-    parser.add_argument("--partition", choices=["development", "frozen_test"], required=True)
+    parser.add_argument(
+        "--partition", choices=["development", "frozen_test", "u"], required=True
+    )
+    parser.add_argument("--window-list", type=Path)
     parser.add_argument(
         "--run",
         action="append",
@@ -32,11 +35,19 @@ def main() -> None:
             raise SystemExit(f"--run must look like NAME=DIR, got {value!r}")
         runs[name] = Path(directory)
 
+    window_list = None
+    if args.window_list is not None:
+        window_list = {
+            line.strip()
+            for line in args.window_list.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
     report = score_runs(
         windows_path=args.windows,
         partition=args.partition,
         runs=runs,
         output_path=args.output,
+        window_list=window_list,
     )
     runs_summary = cast(dict[str, dict[str, object]], report["runs"])
     print(json.dumps({name: run["macro_average_precision_mean"]

@@ -138,3 +138,36 @@ def _write_predictions(path: Path, bump: float) -> None:
                 )
                 + "\n"
             )
+
+
+def test_window_list_restricts_and_validates_the_eval_subset(tmp_path: Path) -> None:
+    windows, _ = _write_fixture(tmp_path)
+    run_dir = tmp_path / "a"
+    run_dir.mkdir()
+    for seed in ("17", "29", "43"):
+        # Predictions only for the listed subset, mirroring a Test2 run.
+        path = run_dir / f"predictions_seed_{seed}.jsonl"
+        rows = []
+        for i, p in zip((0, 1, 3), (0.9, 0.8, 0.6), strict=True):
+            rows.append({"window_id": f"scene-a:{i:04d}", "partition": "development",
+                         "probabilities": [p, 0.5, 1.0 - p]})
+        path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+
+    listed = {"scene-a:0000", "scene-a:0001", "scene-a:0003"}
+    report = score_runs(
+        windows_path=windows,
+        partition="development",
+        runs={"a": run_dir},
+        output_path=tmp_path / "scores.json",
+        window_list=listed,
+    )
+    assert report["window_list_size"] == 3
+
+    with pytest.raises(PredictionScoringError, match="not in partition"):
+        score_runs(
+            windows_path=windows,
+            partition="development",
+            runs={"a": run_dir},
+            output_path=tmp_path / "scores2.json",
+            window_list=listed | {"scene-zz:0000"},
+        )

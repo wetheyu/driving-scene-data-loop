@@ -22,6 +22,8 @@ CLUSTER_SEED = 17
 SHORTLIST_SIZE = 2_000
 CLUSTER_COUNT = 30
 BUDGETS = (150, 300, 600)
+V010_BUDGETS = (300, 600, 1200)
+V010_RANDOM_SEEDS = (201, 202, 203)
 TEMPORAL_SEPARATION = 5
 
 
@@ -40,6 +42,7 @@ class _Candidate:
     similarity: float | None = None
     boundary_margin: float | None = None
     cluster_id: int | None = None
+    disagreement: float | None = None
 
 
 def boundary_margin(probability: float, threshold: float) -> float:
@@ -338,6 +341,130 @@ def freeze_score_ranked_rankings(
 
 
 
+def freeze_v010_rankings(
+    *,
+    pool_rows_path: Path,
+    pool_report_path: Path,
+    output_dir: Path,
+    budgets: tuple[int, ...] = V010_BUDGETS,
+    random_seeds: tuple[int, ...] = V010_RANDOM_SEEDS,
+) -> JsonObject:
+    """Freeze the v0.10 rankings on Pool2, pre-registered before any reveal.
+
+    Two selectors, both ranking the whole pool directly -- at eleven thousand
+    windows a recall stage has no computational justification, and v0.8
+    measured its one similarity shortlist discarding better candidates than it
+    kept. `disagreement_v010` ranks by the standard deviation of the Base-small
+    ensemble's probabilities (epistemic uncertainty, structurally incapable of
+    the v0.8 query/eval coupling because it uses no query bank at all);
+    `prob_ranked_v010` ranks by the ensemble mean. Fresh Random seeds keep
+    Random a distribution rather than a draw.
+    """
+
+    if output_dir.exists():
+        raise SelectionError("output directory must not already exist")
+    if not budgets or tuple(sorted(set(budgets))) != budgets:
+        raise SelectionError("budgets must be positive, unique, and increasing")
+    if not random_seeds or tuple(sorted(set(random_seeds))) != random_seeds:
+        raise SelectionError("random seeds must be unique and increasing")
+
+    pool_report = _read_json(pool_report_path)
+    scenario_ids = cast(tuple[str, ...], tuple(pool_report["scenario_ids"]))
+    if len(scenario_ids) != 3 or any(
+        budget <= 0 or budget % len(scenario_ids) != 0 for budget in budgets
+    ):
+        raise SelectionError("every budget must split evenly across three classes")
+    thresholds = {
+        scenario_id: float(pool_report["base"]["thresholds"][scenario_id])
+        for scenario_id in scenario_ids
+    }
+    pool_rows = _read_pool_rows(
+        pool_rows_path,
+        len(scenario_ids),
+        extra_fields=frozenset({"probability_std"}),
+    )
+    for index, row in enumerate(pool_rows):
+        spread = np.asarray(row["probability_std"], dtype=np.float64)
+        if (
+            spread.shape != (len(scenario_ids),)
+            or not np.isfinite(spread).all()
+            or bool((spread < 0.0).any())
+        ):
+            raise SelectionError(f"invalid probability_std at index {index}")
+
+    max_budget = budgets[-1]
+    rankings: dict[str, list[JsonObject]] = {}
+    for seed in random_seeds:
+        rankings[f"random_seed{seed}"] = _random_ranking(
+            pool_rows, max_budget, seed, f"random_seed{seed}"
+        )
+    for method in ("disagreement_v010", "prob_ranked_v010"):
+        queues: dict[str, list[_Candidate]] = {}
+        for class_index, scenario_id in enumerate(scenario_ids):
+            use_spread = method == "disagreement_v010"
+            candidates = [
+                _Candidate(
+                    pool_index=index,
+                    scenario_id=scenario_id,
+                    probability=float(row["base_probabilities"][class_index]),
+                    threshold=thresholds[scenario_id],
+                    disagreement=float(row["probability_std"][class_index]),
+                )
+                for index, row in enumerate(pool_rows)
+            ]
+
+            def sort_key(
+                item: _Candidate, spread_first: bool = use_spread
+            ) -> tuple[float, str]:
+                score = (
+                    cast(float, item.disagreement) if spread_first else item.probability
+                )
+                return (-score, cast(str, pool_rows[item.pool_index]["window_id"]))
+
+            candidates.sort(key=sort_key)
+            queues[scenario_id] = _temporal_filter(candidates, pool_rows)
+        rankings[method] = _merge_class_queues(
+            method, scenario_ids, queues, pool_rows, max_budget
+        )
+
+    output_dir.mkdir(parents=True)
+    files: dict[str, str] = {}
+    for method, rows in rankings.items():
+        filename = f"{method}_ranked.jsonl"
+        files[method] = filename
+        _write_jsonl(output_dir / filename, rows)
+
+    report: JsonObject = {
+        "schema_version": "1.0",
+        "artifact": "v010_selection_rankings",
+        "protocol": "v0.10",
+        "criterion": "frozen in docs/EVALUATION_PLAN.md before any v0.10 reveal",
+        "scenario_ids": list(scenario_ids),
+        "budgets": list(budgets),
+        "primary_budget": budgets[-1],
+        "maximum_ranked_count": max_budget,
+        "pool2_window_count": len(pool_rows),
+        "policy": {
+            "disagreement_v010": "std of Base-small ensemble probabilities, descending",
+            "prob_ranked_v010": "mean of Base-small ensemble probabilities, descending",
+            "random_seeds": list(random_seeds),
+            "recall_stage": "none -- full-pool exhaustive ranking",
+            "temporal_separation_keyframes": TEMPORAL_SEPARATION,
+            "class_merge": "round-robin in frozen scenario order",
+        },
+        "prefixes": {
+            method: _prefix_summary(rows, budgets, scenario_ids)
+            for method, rows in rankings.items()
+        },
+        "files": files,
+    }
+    (output_dir / "v010_selection_report.json").write_text(
+        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    return report
+
+
 def _rank_class_candidates(
     *,
     scenario_id: str,
@@ -544,6 +671,7 @@ def _selection_row(
             ("similarity", candidate.similarity),
             ("boundary_margin", candidate.boundary_margin),
             ("cluster_id", candidate.cluster_id),
+            ("disagreement", candidate.disagreement),
         ):
             if value is not None:
                 result[field] = value
@@ -588,8 +716,12 @@ def _prefix_summary(
     return result
 
 
-def _read_pool_rows(path: Path, class_count: int) -> list[JsonObject]:
-    allowed = set(PUBLIC_U_FIELDS) | {"pool_index", "base_probabilities"}
+def _read_pool_rows(
+    path: Path,
+    class_count: int,
+    extra_fields: frozenset[str] = frozenset(),
+) -> list[JsonObject]:
+    allowed = set(PUBLIC_U_FIELDS) | {"pool_index", "base_probabilities"} | extra_fields
     rows = _read_jsonl(path)
     for index, row in enumerate(rows):
         probabilities = np.asarray(row.get("base_probabilities"), dtype=np.float64)

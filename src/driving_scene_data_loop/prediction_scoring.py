@@ -160,12 +160,25 @@ def score_runs(
     partition: str,
     runs: dict[str, Path],
     output_path: Path,
+    window_list: set[str] | None = None,
 ) -> JsonObject:
-    """Score named prediction directories and every pairwise seed-paired contrast."""
+    """Score named prediction directories and every pairwise seed-paired contrast.
+
+    `window_list` restricts scoring to a declared evaluation subset (Test2 is a
+    subset of the `u` partition); every listed window must exist in the
+    partition, so a typo cannot silently shrink the evaluation.
+    """
 
     if output_path.exists():
         raise PredictionScoringError("output path must not already exist")
     scenario_ids, targets = load_partition_targets(windows_path, partition)
+    if window_list is not None:
+        missing = window_list - set(targets)
+        if missing:
+            raise PredictionScoringError(
+                f"{len(missing)} listed windows are not in partition {partition!r}"
+            )
+        targets = {w: t for w, t in targets.items() if w in window_list}
 
     per_run: JsonObject = {}
     macro_by_seed: dict[str, dict[str, float]] = {}
@@ -220,6 +233,7 @@ def score_runs(
         "schema_version": "1.0",
         "artifact": "prediction_scores",
         "partition": partition,
+        "window_list_size": len(targets) if window_list is not None else None,
         "scenario_ids": list(scenario_ids),
         "runs": per_run,
         "seed_paired_contrasts": contrasts,
