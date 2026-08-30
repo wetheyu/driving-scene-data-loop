@@ -34,6 +34,7 @@ from driving_scene_data_loop.window_dataset import PUBLIC_U_FIELDS
 
 JsonObject = dict[str, Any]
 SPEND_CEILING_USD = 35.0
+SUBMITTED_FILENAME = "submitted_batches.jsonl"
 POLL_SECONDS = 30
 
 
@@ -94,6 +95,23 @@ def main() -> None:
         cast(str, row["window_id"])
         for row in (_read_jsonl(labels_path) if labels_path.is_file() else [])
     }
+    submitted_path = args.output_dir / SUBMITTED_FILENAME
+    unclaimed = [
+        row
+        for row in (_read_jsonl(submitted_path) if submitted_path.is_file() else [])
+        if not set(cast(list[str], row["windows"])) <= completed
+    ]
+    if unclaimed:
+        print(
+            json.dumps(
+                {
+                    "warning": "a submitted batch has unwritten replies; "
+                    "retrieve it before resubmitting or it is paid for twice",
+                    "batch_ids": [row["batch_id"] for row in unclaimed],
+                },
+                sort_keys=True,
+            )
+        )
     chunks = plan_chunks(window_ids, completed, args.chunk_size)
     pending = sum(len(chunk) for chunk in chunks)
     estimate = estimated_cost_usd(pending, model=args.model, batch=args.transport == "batch")
@@ -228,6 +246,16 @@ def _run_batch(
         endpoint=RESPONSES_ENDPOINT,
         completion_window="24h",
     )
+    _append_jsonl(
+        labels_path.parent / SUBMITTED_FILENAME,
+        [
+            {
+                "batch_id": batch.id,
+                "input_file_id": uploaded.id,
+                "windows": list(requests),
+            }
+        ],
+    )
     while True:
         state = client.batches.retrieve(batch.id)
         if state.status in ("completed", "failed", "expired", "cancelled"):
@@ -274,10 +302,9 @@ def _run_sync(
             usage["failures"] = cast(int, usage["failures"]) + 1
             print(json.dumps({"window_id": window_id, "error": str(error)}))
             continue
-        rows.append(
-            _row_from_body(response.model_dump(), window_id, scenario_ids, usage)
-        )
-    _append_jsonl(labels_path, rows)
+        row = _row_from_body(response.model_dump(), window_id, scenario_ids, usage)
+        _append_jsonl(labels_path, [row])
+        rows.append(row)
     return {"requested": len(requests), "labeled": len(rows)}
 
 
