@@ -134,7 +134,7 @@ The maintained pipeline intentionally has few modules:
 | `public_pool.py` | run the frozen Base and build label-free selection vectors |
 | `selection.py` | freeze Random and integrated Mining rankings |
 
-The thirteen scripts under `scripts/` are direct stage entry points. Historical
+The sixteen scripts under `scripts/` are direct stage entry points. Historical
 gallery builders, candidate-spec generators, archive extractors, and duplicate
 raw-JSON indexers were removed after their results were frozen.
 

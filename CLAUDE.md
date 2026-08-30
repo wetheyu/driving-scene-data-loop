@@ -64,7 +64,7 @@ it at a research-worktree build such as `~/strem/target/release/strem`.
 
 ## Pipeline Architecture
 
-Thirteen scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
+Sixteen scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
 holds the logic. Stages chain by fixed artifact filenames, so the output directory
 of one stage is the input directory of the next. Every stage refuses to write into an
 existing output path, so a rerun needs a new directory.
@@ -93,7 +93,22 @@ reveal_selected_labels.py    --private-windows --ranking ... --output-dir
                                                                 -> revealed_labels.jsonl + label_profile.json
 train_feedback_gru.py        --arm --private-windows --public-windows --oracle-dir
                              --feature-dir --output-dir           -> gru_report.json + Development predictions
+freeze_score_ranked_selection.py --pool-dir --output-dir          -> mining_v2_score_ranked_ranked.jsonl (Development-informed)
+predict_with_checkpoints.py  --run-dir --windows --feature-dir --partition --output-dir
+                                                                -> predictions_seed_*.jsonl + manifest.json
+score_predictions.py         --windows --partition --run NAME=DIR ... --output
+                                                                -> per-seed AP + seed-paired contrasts
 ```
+
+The final evaluation is two-stage: `predict_with_checkpoints.py` writes frozen
+per-seed prediction files (no labels), `score_predictions.py` joins labels and
+computes seed-paired contrasts. The scorer reproduced every training-report
+Development AP bit-for-bit before being trusted. `--training-config` selects a
+declared protocol from `TRAINING_CONFIGS` (`gru_baseline.py`); the current
+measurement standard is `narrow-fast-12seed` (hidden 48, twelve seeds with
+`17, 29, 43` as a nested prefix), chosen by pre-declared seed-variance criteria
+after the frozen `v1-frozen` protocol proved noise-limited. Three-seed spreads
+are unreliable — treat any `± x` from three seeds as unknown.
 
 Stage responsibilities that are easy to get wrong:
 
