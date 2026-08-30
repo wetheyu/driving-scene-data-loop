@@ -11,7 +11,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, cast
 
@@ -50,6 +52,12 @@ def main() -> None:
     parser.add_argument("--model", choices=[FROZEN_MODEL, DIAGNOSTIC_MODEL], default=FROZEN_MODEL)
     parser.add_argument("--transport", choices=["batch", "sync"], default="batch")
     parser.add_argument("--chunk-size", type=int, default=CHUNK_SIZE)
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=6,
+        help="Overlapping direct calls; ignored by the batch transport.",
+    )
     parser.add_argument(
         "--resume",
         action="store_true",
@@ -154,7 +162,7 @@ def main() -> None:
 
     from openai import OpenAI
 
-    client = OpenAI()
+    client = OpenAI(max_retries=5)
     started = time.monotonic()
     usage: JsonObject = {
         "requests": 0,
@@ -176,7 +184,9 @@ def main() -> None:
         if args.transport == "batch":
             record = _run_batch(client, requests, scenario_ids, labels_path, usage)
         else:
-            record = _run_sync(client, requests, scenario_ids, labels_path, usage)
+            record = _run_sync(
+                client, requests, scenario_ids, labels_path, usage, args.concurrency
+            )
         record["chunk"] = index
         chunk_records.append(record)
         print(json.dumps(record, allow_nan=False, sort_keys=True))
@@ -311,20 +321,38 @@ def _run_sync(
     scenario_ids: tuple[str, ...],
     labels_path: Path,
     usage: JsonObject,
+    concurrency: int,
 ) -> JsonObject:
-    """Label one chunk with synchronous calls, used for the small smoke batch."""
+    """Label one chunk with direct calls, the fallback when Batch is unavailable.
 
+    Each reply is written as it arrives, so an interrupted run never re-pays for
+    a window it already has. Requests overlap because one window takes about ten
+    seconds and nine hundred of them serially would take hours.
+    """
+
+    lock = threading.Lock()
     rows: list[JsonObject] = []
-    for window_id, params in requests.items():
+
+    def call(item: tuple[str, JsonObject]) -> tuple[str, JsonObject] | None:
+        window_id, params = item
         try:
             response = client.responses.create(**params)
         except Exception as error:  # noqa: BLE001 - a failed call is a measured outcome
-            usage["failures"] = cast(int, usage["failures"]) + 1
-            print(json.dumps({"window_id": window_id, "error": str(error)}))
-            continue
-        row = _row_from_body(response.model_dump(), window_id, scenario_ids, usage)
-        _append_jsonl(labels_path, [row])
-        rows.append(row)
+            with lock:
+                usage["failures"] = cast(int, usage["failures"]) + 1
+            print(json.dumps({"window_id": window_id, "error": str(error)[:200]}))
+            return None
+        return window_id, cast(JsonObject, response.model_dump())
+
+    with ThreadPoolExecutor(max_workers=concurrency) as pool:
+        for result in pool.map(call, requests.items()):
+            if result is None:
+                continue
+            window_id, body = result
+            with lock:
+                row = _row_from_body(body, window_id, scenario_ids, usage)
+                _append_jsonl(labels_path, [row])
+                rows.append(row)
     return {"requested": len(requests), "labeled": len(rows)}
 
 
