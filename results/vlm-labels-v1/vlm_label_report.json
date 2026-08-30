@@ -1,0 +1,134 @@
+{
+  "agreed_positive_pairs": 66,
+  "artifact": "vlm_label_quality",
+  "benchmark": "private Strem Oracle labels for the same frozen window IDs",
+  "budget": 900,
+  "downstream_gate": {
+    "passed": true,
+    "rule": "the downstream arm runs only at 15 or more agreed positive pairs"
+  },
+  "macro_f1": 0.493629,
+  "macro_f1_rule": "mean over classes with at least one scored window",
+  "method": "disagreement_v010",
+  "per_class": {
+    "pedestrian_ego_near_zone_entry": {
+      "ambiguous_oracle_windows": {
+        "ignore": {
+          "invalid": 1,
+          "negative": 17,
+          "positive": 7,
+          "uncertain": 20
+        }
+      },
+      "evidence_out_of_range_windows": 0,
+      "f1": 0.533333,
+      "false_negatives": 4,
+      "false_positives": 24,
+      "oracle_decided_windows": 855,
+      "oracle_label_states": {
+        "ignore": 45,
+        "negative": 821,
+        "positive": 34
+      },
+      "precision": 0.4,
+      "recall": 0.8,
+      "scored_windows": 645,
+      "true_negatives": 601,
+      "true_positives": 16,
+      "undecidable_rate_on_decided": 0.245614,
+      "vlm_verdicts": {
+        "invalid": 8,
+        "negative": 622,
+        "positive": 47,
+        "uncertain": 223
+      },
+      "windows": 900
+    },
+    "pedestrian_vehicle_center_proximity_hold": {
+      "ambiguous_oracle_windows": {
+        "ignore": {
+          "invalid": 0,
+          "negative": 7,
+          "positive": 11,
+          "uncertain": 14
+        }
+      },
+      "evidence_out_of_range_windows": 0,
+      "f1": 0.447553,
+      "false_negatives": 5,
+      "false_positives": 74,
+      "oracle_decided_windows": 868,
+      "oracle_label_states": {
+        "ignore": 32,
+        "negative": 821,
+        "positive": 47
+      },
+      "precision": 0.301887,
+      "recall": 0.864865,
+      "scored_windows": 618,
+      "true_negatives": 507,
+      "true_positives": 32,
+      "undecidable_rate_on_decided": 0.288018,
+      "vlm_verdicts": {
+        "invalid": 8,
+        "negative": 519,
+        "positive": 117,
+        "uncertain": 256
+      },
+      "windows": 900
+    },
+    "vehicle_relative_corridor_entry": {
+      "ambiguous_oracle_windows": {
+        "ignore": {
+          "invalid": 1,
+          "negative": 17,
+          "positive": 7,
+          "uncertain": 13
+        }
+      },
+      "evidence_out_of_range_windows": 0,
+      "f1": 0.5,
+      "false_negatives": 16,
+      "false_positives": 20,
+      "oracle_decided_windows": 862,
+      "oracle_label_states": {
+        "ignore": 38,
+        "negative": 810,
+        "positive": 52
+      },
+      "precision": 0.473684,
+      "recall": 0.529412,
+      "scored_windows": 773,
+      "true_negatives": 719,
+      "true_positives": 18,
+      "undecidable_rate_on_decided": 0.103248,
+      "vlm_verdicts": {
+        "invalid": 8,
+        "negative": 752,
+        "positive": 45,
+        "uncertain": 95
+      },
+      "windows": 900
+    }
+  },
+  "protocol": "v0.11",
+  "run_cost": {
+    "cost_per_agreed_positive_usd": 0.358891,
+    "cost_per_window_usd": 0.026319,
+    "elapsed_seconds": 1391.559,
+    "estimated_cost_usd": 27.45,
+    "input_tokens": 8428500,
+    "measured_cost_usd": 23.6868,
+    "model": "gpt-5.6-terra",
+    "output_tokens": 569146,
+    "requests": 900,
+    "transport": "sync"
+  },
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_valid_rate": 0.991111,
+  "schema_version": "1.0"
+}

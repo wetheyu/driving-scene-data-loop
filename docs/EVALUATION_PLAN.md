@@ -679,6 +679,20 @@ Estimated at batch pricing: about `$0.015` per window, `~$13.5` for the formal
 The manifest records measured token usage and prices it, so the reported cost is
 metered rather than estimated.
 
+### Observed execution (2026-08-30)
+
+The Batch API is unusable on this organization: a batch rejects its own input
+file as inaccessible, identically for a 207-byte file and a 105 MB one, while the
+same key uploads that file, reads it back, and makes direct calls normally. The
+cause was not diagnosed further because the remaining saving was `$11` and the
+scarcer resource is time; the formal run therefore used direct calls with six
+overlapping requests, at `$23.69` measured against the `$13.7` a batch would have
+cost. This is the ordinary compliance-versus-cost tradeoff of a real labeling
+pipeline and is recorded rather than hidden.
+
+Formal run: 900 of 900 replies, zero failed calls, 23 minutes, 8,428,500 input
+and 569,146 output tokens, `$0.0263` per window.
+
 ### Gates
 
 Pre-declared so that no branch spends money without producing a reportable

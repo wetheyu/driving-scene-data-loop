@@ -566,6 +566,82 @@ second, corrected attempt. What it is not: evidence for the v0.8 similarity
 pipeline, for yield-based selection, or for anything at the data-rich
 operating point where v0.8 showed effects are unmeasurable.
 
+## 15. Protocol v0.11: a VLM that gets half the labels wrong buys the same model
+
+The loop so far bought its labels from a private metric Oracle. Industrially that
+is the expensive half, so v0.11 asked what a remote VLM produces on exactly the
+windows the v0.10 selector chose and the Oracle already revealed, and -- the part
+that matters -- whether training on those labels instead keeps the gain.
+
+`gpt-5.6-terra`, five CAM_FRONT frames and the public scenario text per window,
+strict JSON-schema output, 900 windows, `$23.69` measured, 23 minutes, zero
+failed calls. The provider never saw a label, a Strem result, a binding, a box,
+or a distance: the request builder accepts only rows carrying exactly the public
+field set, so the boundary is a property of the code path.
+
+### The labels are mediocre
+
+| Class | Precision | Recall | F1 | VLM `uncertain` |
+| --- | ---: | ---: | ---: | ---: |
+| near-zone | 0.400 | 0.800 | 0.533 | 24.6% |
+| proximity hold | 0.302 | 0.865 | 0.448 | 28.8% |
+| corridor | 0.474 | 0.529 | 0.500 | 10.3% |
+
+Macro-F1 `0.494`; schema-valid `99.1%`; `evidence_frames` out of range or missing
+under a positive verdict: `0` of 2,700. The error is overwhelmingly
+false-positive -- 118 false positives against 25 false negatives -- which is what
+a monocular estimator does against a metric threshold: it sees the relation and
+cannot see the boundary. The Development smoke reached `0.846` on the same prompt
+five hours earlier; the drop is the selector working as designed, since
+`disagreement` selects exactly the windows the ensemble finds hardest.
+
+The Oracle's `ignore` windows are the check that the uncertainty is real rather
+than decorative. On near-zone, 20 of 45 got `uncertain` -- the model declines
+where the metric definition is itself ambiguous, instead of guessing.
+
+### The downstream model does not notice
+
+Twelve seed-paired Development contrasts, identical seeds, identical L0-small,
+identical recipe, identical 900 window IDs. Only the added batch's label source
+differs.
+
+| Contrast | Corridor AP | Macro AP |
+| --- | --- | --- |
+| VLM − Base | `+0.1105 ± 0.0265` (4.2σ) | `+0.0258 ± 0.0085` (3.0σ) |
+| Oracle − Base | `+0.1288 ± 0.0246` (5.2σ) | `+0.0299 ± 0.0090` (3.3σ) |
+| **VLM − Oracle** | `−0.0183 ± 0.0201` (0.9σ) | `−0.0041 ± 0.0071` (0.6σ) |
+
+VLM labels capture **86%** of the Oracle's corridor gain and are statistically
+indistinguishable from it. This is the first of the three readings pre-declared
+in the Evaluation Plan before the labels existed: at this operating point the
+automatic labeler substitutes for the expensive label source.
+
+The mechanism is not mysterious once the numbers sit together. The classifier
+does not need correct labels on every window; it needs the added batch to shift
+the decision boundary in the right direction. A precision-0.47 corridor labeler
+that recovers half the positives still delivers most of that shift, because the
+alternative is not perfect labels -- it is no labels at all. The near-zone
+give-back reproduces in both arms (`−0.024` VLM, `−0.031` Oracle), so it belongs
+to the batch, not to the label source.
+
+### What this costs, and what it does not license
+
+`$0.0263` per window, `$0.359` per label the Oracle also calls positive. That is
+the number to plan a pipeline on, and the reason the mid-tier model was frozen
+rather than the flagship: the industrial question is what labeling costs at
+scale, not what the best available model can do once.
+
+Two honest limits. The held-out sets are both spent, so this is a Development
+contrast and cannot claim held-out transfer -- the same discipline section 13
+enforced on v0.8. And label F1 is not the metric that mattered here: an F1 of
+`0.49` predicted nothing about a downstream difference of `0.6σ`. That is the
+same lesson as the positive-yield trap in section 6, arriving on the other leg of
+the loop -- a label-quality proxy is only trusted after the downstream
+measurement agrees with it.
+
+Nothing here is VLM training. It is API inference against a frozen prompt, and it
+is never to be described as fine-tuning or SFT experience.
+
 ## Claim boundary
 
 These are Development and selection observations on one dataset, one

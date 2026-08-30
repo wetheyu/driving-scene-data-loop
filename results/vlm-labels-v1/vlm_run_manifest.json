@@ -1,0 +1,81 @@
+{
+  "artifact": "vlm_label_run",
+  "budget": 900,
+  "chunk_size": 100,
+  "chunks": [
+    {
+      "chunk": 0,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 1,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 2,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 3,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 4,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 5,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 6,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 7,
+      "labeled": 100,
+      "requested": 100
+    },
+    {
+      "chunk": 8,
+      "labeled": 100,
+      "requested": 100
+    }
+  ],
+  "identity": {
+    "max_output_tokens": 2000,
+    "model": "gpt-5.6-terra",
+    "prompt_sha256": "d418e9bb5942e9751d04c642c3a92a9cd23c7175bb09a4e7981b1d36061b90fe",
+    "scenario_order": [
+      "pedestrian_ego_near_zone_entry",
+      "pedestrian_vehicle_center_proximity_hold",
+      "vehicle_relative_corridor_entry"
+    ]
+  },
+  "method": "disagreement_v010",
+  "protocol": "v0.11",
+  "request_boundary": "public window fields and CAM_FRONT media only",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "transport": "sync",
+  "usage": {
+    "elapsed_seconds": 1391.559,
+    "estimated_cost_usd": 27.45,
+    "failures": 0,
+    "input_tokens": 8428500,
+    "measured_cost_usd": 23.6868,
+    "output_tokens": 569146,
+    "requests": 900
+  }
+}
