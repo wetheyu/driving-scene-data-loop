@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import cast
 
 from driving_scene_data_loop.lr_baselines import (
     load_baseline_windows,
@@ -26,7 +27,10 @@ def main() -> None:
         args.windows,
         args.feature_dir / "frame_index.jsonl",
     )
-    frame_count = validate_formal_feature_manifest(args.feature_dir / "feature_manifest.json")
+    feature_cache = validate_formal_feature_manifest(
+        args.feature_dir / "feature_manifest.json"
+    )
+    frame_count = int(cast(int, feature_cache["frame_count"]))
     frame_features = load_frame_features(
         args.feature_dir / "frame_features.npy",
         frame_count,
@@ -36,6 +40,7 @@ def main() -> None:
         frame_features=frame_features,
         output_dir=args.output_dir,
         seed=args.seed,
+        feature_cache=feature_cache,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))
 

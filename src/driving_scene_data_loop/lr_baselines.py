@@ -116,8 +116,14 @@ def load_baseline_windows(
     )
 
 
-def validate_formal_feature_manifest(path: Path) -> int:
-    """Reject a smoke cache or a different encoder before formal training."""
+def validate_formal_feature_manifest(path: Path) -> dict[str, object]:
+    """Reject a smoke cache or a different encoder, and return the cache identity.
+
+    The identity travels into each run's report. Two caches can share every
+    validated field and still be different representations -- `pooler_output_cls`
+    against `patch_token_max_pool` -- so `model_output` has to be recorded or a
+    representation comparison cannot say which run used which features.
+    """
 
     try:
         value: object = json.loads(path.read_text(encoding="utf-8"))
@@ -136,7 +142,16 @@ def validate_formal_feature_manifest(path: Path) -> int:
     for field, expected_value in expected.items():
         if value.get(field) != expected_value:
             raise LrBaselineError(f"feature manifest {field} must be {expected_value!r}")
-    return FORMAL_FRAME_COUNT
+    model_output = value.get("model_output")
+    if not isinstance(model_output, str) or not model_output:
+        raise LrBaselineError("feature manifest must name its model_output")
+    return {
+        "model_id": MODEL_ID,
+        "model_revision": MODEL_REVISION,
+        "model_output": model_output,
+        "feature_dimension": FEATURE_DIMENSION,
+        "frame_count": FORMAL_FRAME_COUNT,
+    }
 
 
 def load_frame_features(
@@ -183,6 +198,7 @@ def train_lr_baselines(
     frame_features: NDArray[np.float32],
     output_dir: Path,
     seed: int = 17,
+    feature_cache: JsonObject | None = None,
 ) -> JsonObject:
     """Fit both frozen protocols on L0 and score only Development AP."""
 
@@ -219,6 +235,7 @@ def train_lr_baselines(
     report: JsonObject = {
         "schema_version": "1.0",
         "scenario_ids": list(window_data.scenario_ids),
+        "feature_cache": feature_cache,
         "feature_dimension": int(frame_features.shape[1]),
         "train_partition": "l0",
         "evaluation_partition": "development",

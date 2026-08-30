@@ -1,4 +1,19 @@
-"""Extract one frozen DINOv2 CLS feature for each unique CAM_FRONT frame."""
+"""Extract one frozen DINOv2 feature per unique CAM_FRONT frame.
+
+Two poolings of the same frozen encoder are supported, and a cache records
+which one produced it:
+
+- `cls` pools the `pooler_output` CLS token, a global summary of the frame.
+  This produced the formal cache every result before the spatial probe used.
+- `patch_max` drops the CLS token and takes a per-channel maximum over the
+  encoder's own 37x37 patch tokens. It probes the representation-ceiling
+  hypothesis in `docs/FINDINGS.md`: a pedestrian at 15-20 m spans only 1-2
+  patches, so a global average may wash it out where a maximum would not.
+
+Both write `[frame_count, 384]` float32, so every downstream consumer accepts
+either without change. The manifest's `model_output` is what tells them apart,
+and it is recorded in the reports of runs that consume a cache.
+"""
 
 from __future__ import annotations
 
@@ -6,6 +21,7 @@ import json
 import time
 from collections.abc import Iterator
 from pathlib import Path, PurePosixPath
+from typing import Any, Literal
 
 import numpy as np
 from PIL import Image
@@ -15,6 +31,12 @@ MODEL_REVISION = "ed25f3a31f01632728cabb09d1542f84ab7b0056"
 INPUT_SIZE = 518
 FEATURE_DIMENSION = 384
 LETTERBOX_FILL = (124, 116, 104)
+
+FeaturePooling = Literal["cls", "patch_max"]
+MODEL_OUTPUT_BY_POOLING: dict[str, str] = {
+    "cls": "pooler_output_cls",
+    "patch_max": "patch_token_max_pool",
+}
 
 
 class DinoFeatureError(ValueError):
@@ -77,6 +99,30 @@ def letterbox_image(image: Image.Image) -> Image.Image:
     return canvas
 
 
+def max_pool_patch_tokens(last_hidden_state: Any, patch_size: int) -> Any:
+    """Drop the CLS token and take a per-channel max over the remaining patches.
+
+    `last_hidden_state` is `[batch, 1 + num_patches, hidden]`. Any other patch
+    count is rejected, so a config or resolution drift is caught rather than
+    silently pooling the wrong number of tokens.
+    """
+
+    import torch  # type: ignore[import-not-found,unused-ignore]
+
+    hidden_state = torch.as_tensor(last_hidden_state)
+    if hidden_state.ndim != 3:
+        raise DinoFeatureError("last_hidden_state must have shape [batch,tokens,hidden]")
+    if patch_size <= 0 or INPUT_SIZE % patch_size != 0:
+        raise DinoFeatureError("INPUT_SIZE must be an exact multiple of patch_size")
+    expected_patches = (INPUT_SIZE // patch_size) ** 2
+    if hidden_state.shape[1] != expected_patches + 1:
+        raise DinoFeatureError(
+            f"expected {expected_patches + 1} tokens (1 CLS + {expected_patches} "
+            f"patches), got {hidden_state.shape[1]}"
+        )
+    return hidden_state[:, 1:, :].max(dim=1).values
+
+
 def extract_feature_cache(
     *,
     windows_path: Path,
@@ -85,6 +131,7 @@ def extract_feature_cache(
     cache_dir: Path,
     batch_size: int,
     num_threads: int,
+    pooling: FeaturePooling = "cls",
     limit: int | None = None,
     local_files_only: bool = False,
 ) -> dict[str, object]:
@@ -94,6 +141,8 @@ def extract_feature_cache(
         raise DinoFeatureError("output directory must not already exist")
     if batch_size <= 0 or num_threads <= 0:
         raise DinoFeatureError("batch_size and num_threads must be positive")
+    if pooling not in MODEL_OUTPUT_BY_POOLING:
+        raise DinoFeatureError(f"unknown pooling: {pooling!r}")
     if limit is not None and limit <= 0:
         raise DinoFeatureError("limit must be positive")
 
@@ -133,6 +182,7 @@ def extract_feature_cache(
         use_safetensors=True,
     )
     model.eval()
+    patch_size = int(model.config.patch_size)
 
     output_dir.mkdir(parents=True)
     features = np.lib.format.open_memmap(  # type: ignore[no-untyped-call]
@@ -162,13 +212,15 @@ def extract_feature_cache(
             raise DinoFeatureError("processor returned an unexpected pixel shape")
         with torch.inference_mode():
             output = model(pixel_values=pixel_values)
-        batch_features = np.asarray(
-            output.pooler_output.detach().cpu(),
-            dtype=np.float32,
+        pooled = (
+            output.pooler_output
+            if pooling == "cls"
+            else max_pool_patch_tokens(output.last_hidden_state, patch_size)
         )
+        batch_features = np.asarray(pooled.detach().cpu(), dtype=np.float32)
         expected_shape = (len(batch_refs), FEATURE_DIMENSION)
         if batch_features.shape != expected_shape or not np.isfinite(batch_features).all():
-            raise DinoFeatureError("DINO returned invalid CLS features")
+            raise DinoFeatureError(f"DINO returned invalid {pooling} features")
         features[start : start + len(batch_refs)] = batch_features
     features.flush()
     elapsed_seconds = time.perf_counter() - started
@@ -187,7 +239,9 @@ def extract_feature_cache(
         "schema_version": "1.0",
         "model_id": MODEL_ID,
         "model_revision": MODEL_REVISION,
-        "model_output": "pooler_output_cls",
+        "model_output": MODEL_OUTPUT_BY_POOLING[pooling],
+        "patch_size": patch_size,
+        "patches_per_side": INPUT_SIZE // patch_size,
         "input": {
             "camera": "CAM_FRONT",
             "letterbox_size": INPUT_SIZE,

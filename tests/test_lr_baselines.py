@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from driving_scene_data_loop.lr_baselines import (
     BaselineWindowData,
@@ -167,3 +168,48 @@ def _window(
         "labels": labels,
         "loss_mask": loss_mask,
     }
+
+
+def test_manifest_validation_returns_the_cache_identity(tmp_path: Path) -> None:
+    # Two caches can pass every other check and still be different
+    # representations, so model_output has to come back for the run to record.
+    manifest = tmp_path / "feature_manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "model_id": "facebook/dinov2-small",
+                "model_revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056",
+                "model_output": "patch_token_max_pool",
+                "feature_dimension": 384,
+                "dtype": "float32",
+                "frame_count": 34_149,
+                "limited_smoke": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    identity = validate_formal_feature_manifest(manifest)
+
+    assert identity["model_output"] == "patch_token_max_pool"
+    assert identity["frame_count"] == 34_149
+
+
+def test_manifest_without_a_model_output_is_rejected(tmp_path: Path) -> None:
+    manifest = tmp_path / "feature_manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "model_id": "facebook/dinov2-small",
+                "model_revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056",
+                "feature_dimension": 384,
+                "dtype": "float32",
+                "frame_count": 34_149,
+                "limited_smoke": False,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(LrBaselineError, match="model_output"):
+        validate_formal_feature_manifest(manifest)

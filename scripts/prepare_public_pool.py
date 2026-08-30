@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import cast
 
 from driving_scene_data_loop.false_negative_bank import load_feature_index
 from driving_scene_data_loop.lr_baselines import (
@@ -24,7 +25,8 @@ def main() -> None:
     args = parser.parse_args()
 
     manifest_path = args.feature_dir / "feature_manifest.json"
-    frame_count = validate_formal_feature_manifest(manifest_path)
+    feature_cache = validate_formal_feature_manifest(manifest_path)
+    frame_count = int(cast(int, feature_cache["frame_count"]))
     feature_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     report = prepare_public_pool(
         public_windows_path=args.public_windows,

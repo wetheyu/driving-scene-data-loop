@@ -31,12 +31,14 @@ class SelectionError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class _Candidate:
+    """One ranked Pool window. Diagnostics a selector does not compute stay None."""
+
     pool_index: int
     scenario_id: str
     probability: float
     threshold: float
-    similarity: float
-    boundary_margin: float
+    similarity: float | None = None
+    boundary_margin: float | None = None
     cluster_id: int | None = None
 
 
@@ -283,10 +285,10 @@ def freeze_score_ranked_rankings(
     pool_rows = _read_pool_rows(pool_rows_path, len(scenario_ids))
 
     max_budget = budgets[-1]
-    queues: dict[str, list[_ScoreCandidate]] = {}
+    queues: dict[str, list[_Candidate]] = {}
     for class_index, scenario_id in enumerate(scenario_ids):
         candidates = [
-            _ScoreCandidate(
+            _Candidate(
                 pool_index=index,
                 scenario_id=scenario_id,
                 probability=float(row["base_probabilities"][class_index]),
@@ -300,9 +302,9 @@ def freeze_score_ranked_rankings(
                 pool_rows[item.pool_index]["window_id"],
             )
         )
-        queues[scenario_id] = _score_temporal_filter(candidates, pool_rows)
+        queues[scenario_id] = _temporal_filter(candidates, pool_rows)
 
-    ranking = _merge_score_queues(method, scenario_ids, queues, pool_rows, max_budget)
+    ranking = _merge_class_queues(method, scenario_ids, queues, pool_rows, max_budget)
 
     output_dir.mkdir(parents=True)
     filename = f"{method}_ranked.jsonl"
@@ -334,73 +336,6 @@ def freeze_score_ranked_rankings(
     )
     return report
 
-
-@dataclass(frozen=True, slots=True)
-class _ScoreCandidate:
-    pool_index: int
-    scenario_id: str
-    probability: float
-    threshold: float
-
-
-def _score_temporal_filter(
-    candidates: list[_ScoreCandidate],
-    pool_rows: list[JsonObject],
-) -> list[_ScoreCandidate]:
-    scene_starts: dict[str, list[int]] = {}
-    result: list[_ScoreCandidate] = []
-    for candidate in candidates:
-        row = pool_rows[candidate.pool_index]
-        if _temporally_allowed(row, scene_starts):
-            _record_start(row, scene_starts)
-            result.append(candidate)
-    return result
-
-
-def _merge_score_queues(
-    method: str,
-    scenario_ids: tuple[str, ...],
-    queues: dict[str, list[_ScoreCandidate]],
-    pool_rows: list[JsonObject],
-    budget: int,
-) -> list[JsonObject]:
-    positions = {scenario_id: 0 for scenario_id in scenario_ids}
-    selected_ids: set[str] = set()
-    scene_starts: dict[str, list[int]] = {}
-    selected: list[JsonObject] = []
-    quota = budget // len(scenario_ids)
-    for _ in range(quota):
-        for scenario_id in scenario_ids:
-            queue = queues[scenario_id]
-            while positions[scenario_id] < len(queue):
-                candidate = queue[positions[scenario_id]]
-                positions[scenario_id] += 1
-                row = pool_rows[candidate.pool_index]
-                if row["window_id"] in selected_ids or not _temporally_allowed(
-                    row, scene_starts
-                ):
-                    continue
-                selected_ids.add(row["window_id"])
-                _record_start(row, scene_starts)
-                selected.append(
-                    {
-                        "rank": len(selected) + 1,
-                        "method": method,
-                        "window_id": row["window_id"],
-                        "scene_token": row["scene_token"],
-                        "scene_name": row["scene_name"],
-                        "log_token": row["log_token"],
-                        "start_frame_index": row["start_frame_index"],
-                        "end_frame_index": row["end_frame_index"],
-                        "query_scenario_id": candidate.scenario_id,
-                        "base_probability": candidate.probability,
-                        "base_threshold": candidate.threshold,
-                    }
-                )
-                break
-            else:
-                raise SelectionError(f"{method} exhausted candidates for {scenario_id}")
-    return selected
 
 
 def _rank_class_candidates(
@@ -443,11 +378,13 @@ def _rank_class_candidates(
         )
         for index in relevant
     ]
+    # This path always sets both diagnostics, so read them back as floats; a
+    # selector that leaves them unset never reaches this ranking.
     return sorted(
         candidates,
         key=lambda item: (
-            item.boundary_margin,
-            -item.similarity,
+            float(cast(float, item.boundary_margin)),
+            -float(cast(float, item.similarity)),
             pool_rows[item.pool_index]["window_id"],
         ),
     )
@@ -601,12 +538,15 @@ def _selection_row(
                 "query_scenario_id": candidate.scenario_id,
                 "base_probability": candidate.probability,
                 "base_threshold": candidate.threshold,
-                "similarity": candidate.similarity,
-                "boundary_margin": candidate.boundary_margin,
             }
         )
-        if candidate.cluster_id is not None:
-            result["cluster_id"] = candidate.cluster_id
+        for field, value in (
+            ("similarity", candidate.similarity),
+            ("boundary_margin", candidate.boundary_margin),
+            ("cluster_id", candidate.cluster_id),
+        ):
+            if value is not None:
+                result[field] = value
     return result
 
 

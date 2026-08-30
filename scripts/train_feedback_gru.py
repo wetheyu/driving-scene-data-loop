@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import cast
 
 from driving_scene_data_loop.feedback_retraining import (
     DEVELOPMENT_INFORMED_ARMS,
@@ -48,7 +49,10 @@ def main() -> None:
         frame_index_path=args.feature_dir / "frame_index.jsonl",
         arm=arm,
     )
-    frame_count = validate_formal_feature_manifest(args.feature_dir / "feature_manifest.json")
+    feature_cache = validate_formal_feature_manifest(
+        args.feature_dir / "feature_manifest.json"
+    )
+    frame_count = int(cast(int, feature_cache["frame_count"]))
     frame_features = load_frame_features(
         args.feature_dir / "frame_features.npy",
         frame_count,
@@ -59,6 +63,7 @@ def main() -> None:
         output_dir=args.output_dir,
         num_threads=args.num_threads,
         warm_start_dir=args.warm_start_dir,
+        feature_cache=feature_cache,
         run_name=arm.name,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))

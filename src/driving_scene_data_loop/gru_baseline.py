@@ -201,6 +201,7 @@ def train_gru_baselines(
     scenario_ids: tuple[str, ...] | None = None,
     run_name: str = "base",
     warm_start_dir: Path | None = None,
+    feature_cache: JsonObject | None = None,
 ) -> JsonObject:
     """Train three normal-order seeds and diagnose reversed Development order.
 
@@ -358,6 +359,7 @@ def train_gru_baselines(
         "schema_version": "1.0",
         "model": "global_gru",
         "run_name": run_name,
+        "feature_cache": feature_cache,
         "scenario_ids": list(selected_scenarios),
         "train_partitions": ["l0"] + (["feedback"] if feedback_rows.any() else []),
         "evaluation_partition": "development",
