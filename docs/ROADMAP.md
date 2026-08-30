@@ -215,6 +215,14 @@ Development predictions.
     and prob-ranked selectors against three new Random batches, nested budgets
     300/600/1200 with the primary criterion at 1200. See the Evaluation Plan's
     v0.10 section; frozen before any v0.10 reveal.
+11. Completed: executed protocol v0.10 end to end — Test2 carved (10 logs, 65
+    corridor events), Pool2 ensemble inference, five rankings frozen, labels
+    revealed, fifteen arms trained, 698,688 Test2 predictions frozen and
+    verified label-free, Test2 opened once. The pre-registered criterion
+    passes: ensemble-disagreement selection beats the Random mean by
+    `+0.0619 ± 0.0082` corridor AP (7.6σ) at N=900, positive at every budget,
+    Macro +3.8σ; probability ranking fails the same bar. The data loop is
+    demonstrated on held-out logs no selector ever touched.
 10. Completed: froze 650,280 prediction rows across ten arms, verified they
     carry no label field, and opened the Held-out Test once. The pre-declared
     criterion reads `+0.0033 ± 0.0101` (0.3σ): the Development corridor effect

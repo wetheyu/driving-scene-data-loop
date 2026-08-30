@@ -1,0 +1,215 @@
+{
+  "artifact": "v010_selection_rankings",
+  "budgets": [
+    300,
+    600,
+    900
+  ],
+  "criterion": "frozen in docs/EVALUATION_PLAN.md before any v0.10 reveal",
+  "files": {
+    "disagreement_v010": "disagreement_v010_ranked.jsonl",
+    "prob_ranked_v010": "prob_ranked_v010_ranked.jsonl",
+    "random_seed201": "random_seed201_ranked.jsonl",
+    "random_seed202": "random_seed202_ranked.jsonl",
+    "random_seed203": "random_seed203_ranked.jsonl"
+  },
+  "maximum_ranked_count": 900,
+  "policy": {
+    "class_merge": "round-robin in frozen scenario order",
+    "disagreement_v010": "std of Base-small ensemble probabilities, descending",
+    "prob_ranked_v010": "mean of Base-small ensemble probabilities, descending",
+    "random_seeds": [
+      201,
+      202,
+      203
+    ],
+    "recall_stage": "none -- full-pool exhaustive ranking",
+    "temporal_separation_keyframes": 5
+  },
+  "pool2_window_count": 5311,
+  "prefixes": {
+    "disagreement_v010": {
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 100,
+          "pedestrian_vehicle_center_proximity_hold": 100,
+          "vehicle_relative_corridor_entry": 100
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 200,
+          "pedestrian_vehicle_center_proximity_hold": 200,
+          "vehicle_relative_corridor_entry": 200
+        },
+        "unique_windows": 600
+      },
+      "900": {
+        "cluster_profile": {},
+        "count": 900,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 300,
+          "pedestrian_vehicle_center_proximity_hold": 300,
+          "vehicle_relative_corridor_entry": 300
+        },
+        "unique_windows": 900
+      }
+    },
+    "prob_ranked_v010": {
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 100,
+          "pedestrian_vehicle_center_proximity_hold": 100,
+          "vehicle_relative_corridor_entry": 100
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 200,
+          "pedestrian_vehicle_center_proximity_hold": 200,
+          "vehicle_relative_corridor_entry": 200
+        },
+        "unique_windows": 600
+      },
+      "900": {
+        "cluster_profile": {},
+        "count": 900,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 300,
+          "pedestrian_vehicle_center_proximity_hold": 300,
+          "vehicle_relative_corridor_entry": 300
+        },
+        "unique_windows": 900
+      }
+    },
+    "random_seed201": {
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 600
+      },
+      "900": {
+        "cluster_profile": {},
+        "count": 900,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 900
+      }
+    },
+    "random_seed202": {
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 600
+      },
+      "900": {
+        "cluster_profile": {},
+        "count": 900,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 900
+      }
+    },
+    "random_seed203": {
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 600
+      },
+      "900": {
+        "cluster_profile": {},
+        "count": 900,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 900
+      }
+    }
+  },
+  "primary_budget": 900,
+  "protocol": "v0.10",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0"
+}

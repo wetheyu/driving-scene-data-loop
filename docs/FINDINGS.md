@@ -511,6 +511,50 @@ driven selection beat random selection at a fixed budget — is answered for thi
 dataset, representation, and budget: **no measurable advantage on held-out
 data.**
 
+## 14. Protocol v0.10: the loop closes, on the pre-registered criterion
+
+Every diagnosed flaw was fixed by design, the protocol and criterion were
+frozen before any v0.10 label was revealed, and the one budget amendment
+(1,200 to 900, for measured placement capacity) was made pre-reveal and
+recorded. The operating point moved to the small seed the learning curve
+identified (L0-small, 1,931 windows, 58 corridor positives); the selectors use
+no query bank at all — ensemble disagreement (probability spread over the
+twelve Base-small seeds) and ensemble probability mean, both ranking Pool2
+exhaustively with no recall stage; and the readout is Test2, ten U logs never
+touched by any selector, query, reveal, or training run, carved by hash before
+selection. Integrity audit: zero overlap between Test2 and revealed windows,
+zero Test2-log windows in any ranking, training compositions exact.
+
+On Test2 (3,639 windows; 139/129/117 positives per class):
+
+| Contrast, selector − Random(3 batches), seed-paired | N=300 | N=600 | **N=900 (primary)** |
+| --- | ---: | ---: | ---: |
+| **disagreement, corridor** | `+0.0517` (3.9σ) | `+0.0372` (3.0σ) | **`+0.0619 ± 0.0082` (7.6σ) — passes the frozen ≥2.5σ bar** |
+| disagreement, Macro | `+0.0149` (2.3σ) | `+0.0187` (3.6σ) | `+0.0148` (3.8σ) |
+| prob-ranked, corridor | `+0.0563` (3.7σ) | `+0.0449` (3.7σ) | `+0.0254` (1.8σ) — fails the bar |
+
+The loop's premise is also finally measurable: adding data itself
+(Random minus Base-small) reads `+0.0425 / +0.0614 / +0.0691` Macro at the
+three budgets, 8 to 11σ — the same quantity that was `+0.0036` (0.6σ) at the
+v0.8 operating point. The small-seed redesign did exactly what the learning
+curve predicted.
+
+The two selectors separate in the theoretically expected direction. Yield-
+maximising probability ranking, which buys the most positives, fails the
+primary bar — the third independent demonstration that positive yield is not
+training value. Epistemic disagreement, which asks where the ensemble
+genuinely conflicts, wins decisively and at every budget. Its trade-off is
+reported with it: at `N=900` it gives back `−0.0083` (−2.8σ) on near-zone and
+`−0.0091` (−1.6σ) on proximity hold, and still carries Macro by +3.8σ.
+
+What the claim is: under this dataset, representation, and protocol, at a
+seed-scarce operating point, **bad-model-driven selection by ensemble
+disagreement measurably improves the model over random selection on held-out
+logs it never saw** — the pre-registered question, answered positively, on the
+second, corrected attempt. What it is not: evidence for the v0.8 similarity
+pipeline, for yield-based selection, or for anything at the data-rich
+operating point where v0.8 showed effects are unmeasurable.
+
 ## Claim boundary
 
 These are Development and selection observations on one dataset, one
@@ -527,7 +571,9 @@ can support a confident mechanism. Sections 10-12 supersede the three-seed
 readings quoted in sections 2, 3, and 8 wherever they disagree: the three-seed
 spreads were unreliable. Section 13 in turn bounds section 12: the corridor
 effect is a Development result that did not reproduce on held-out data, so it
-must never be quoted as the project's outcome. The outcome is the negative one
-in section 13, and the value of sections 4 through 12 is the diagnostic chain,
-not the effect they located. The `N=600` downturn remains unexplained, and the
+must never be quoted as the project's outcome. The project's outcome is now
+twofold: the v0.8 negative in section 13, and the v0.10 positive in section 14,
+which stands on a pre-registered criterion, a decoupled held-out, and a clean
+integrity audit — quote them together, since the second exists only because the
+first was diagnosed honestly. The `N=600` downturn remains unexplained, and the
 two explanations offered for the failed transfer are untested alternatives.

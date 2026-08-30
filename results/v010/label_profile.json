@@ -1,0 +1,694 @@
+{
+  "artifact": "oracle_revealed_labels",
+  "budget_rule": "ignore and invalid consume budget and are never replaced",
+  "budgets": [
+    300,
+    600,
+    900
+  ],
+  "files": {
+    "rows": "revealed_labels.jsonl"
+  },
+  "label_order": "labels, loss_mask, label_states, and event_group_ids follow scenario_ids",
+  "methods": {
+    "disagreement_v010": {
+      "budgets": {
+        "300": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 900,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 13,
+              "label_states": {
+                "ignore": 19,
+                "invalid": 0,
+                "negative": 269,
+                "positive": 12
+              },
+              "positive_yield": 0.04,
+              "usable_labels": 281
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 17,
+              "label_states": {
+                "ignore": 11,
+                "invalid": 0,
+                "negative": 275,
+                "positive": 14
+              },
+              "positive_yield": 0.04666666666666667,
+              "usable_labels": 289
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 33,
+              "label_states": {
+                "ignore": 19,
+                "invalid": 0,
+                "negative": 253,
+                "positive": 28
+              },
+              "positive_yield": 0.09333333333333334,
+              "usable_labels": 281
+            }
+          },
+          "scene_coverage": 123,
+          "unique_windows": 300,
+          "usable_labels": 851,
+          "windows": 300
+        },
+        "600": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 1800,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 26,
+              "label_states": {
+                "ignore": 34,
+                "invalid": 0,
+                "negative": 545,
+                "positive": 21
+              },
+              "positive_yield": 0.035,
+              "usable_labels": 566
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 32,
+              "label_states": {
+                "ignore": 20,
+                "invalid": 0,
+                "negative": 552,
+                "positive": 28
+              },
+              "positive_yield": 0.04666666666666667,
+              "usable_labels": 580
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 49,
+              "label_states": {
+                "ignore": 33,
+                "invalid": 0,
+                "negative": 524,
+                "positive": 43
+              },
+              "positive_yield": 0.07166666666666667,
+              "usable_labels": 567
+            }
+          },
+          "scene_coverage": 174,
+          "unique_windows": 600,
+          "usable_labels": 1713,
+          "windows": 600
+        },
+        "900": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 2700,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 40,
+              "label_states": {
+                "ignore": 45,
+                "invalid": 0,
+                "negative": 821,
+                "positive": 34
+              },
+              "positive_yield": 0.03777777777777778,
+              "usable_labels": 855
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 52,
+              "label_states": {
+                "ignore": 32,
+                "invalid": 0,
+                "negative": 821,
+                "positive": 47
+              },
+              "positive_yield": 0.052222222222222225,
+              "usable_labels": 868
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 59,
+              "label_states": {
+                "ignore": 38,
+                "invalid": 0,
+                "negative": 810,
+                "positive": 52
+              },
+              "positive_yield": 0.057777777777777775,
+              "usable_labels": 862
+            }
+          },
+          "scene_coverage": 191,
+          "unique_windows": 900,
+          "usable_labels": 2585,
+          "windows": 900
+        }
+      },
+      "ranked_count": 900
+    },
+    "prob_ranked_v010": {
+      "budgets": {
+        "300": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 900,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 16,
+              "label_states": {
+                "ignore": 20,
+                "invalid": 0,
+                "negative": 271,
+                "positive": 9
+              },
+              "positive_yield": 0.03,
+              "usable_labels": 280
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 23,
+              "label_states": {
+                "ignore": 17,
+                "invalid": 0,
+                "negative": 267,
+                "positive": 16
+              },
+              "positive_yield": 0.05333333333333334,
+              "usable_labels": 283
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 51,
+              "label_states": {
+                "ignore": 29,
+                "invalid": 0,
+                "negative": 227,
+                "positive": 44
+              },
+              "positive_yield": 0.14666666666666667,
+              "usable_labels": 271
+            }
+          },
+          "scene_coverage": 120,
+          "unique_windows": 300,
+          "usable_labels": 834,
+          "windows": 300
+        },
+        "600": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 1800,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 28,
+              "label_states": {
+                "ignore": 35,
+                "invalid": 0,
+                "negative": 546,
+                "positive": 19
+              },
+              "positive_yield": 0.03166666666666667,
+              "usable_labels": 565
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 44,
+              "label_states": {
+                "ignore": 37,
+                "invalid": 0,
+                "negative": 529,
+                "positive": 34
+              },
+              "positive_yield": 0.056666666666666664,
+              "usable_labels": 563
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 61,
+              "label_states": {
+                "ignore": 40,
+                "invalid": 0,
+                "negative": 506,
+                "positive": 54
+              },
+              "positive_yield": 0.09,
+              "usable_labels": 560
+            }
+          },
+          "scene_coverage": 162,
+          "unique_windows": 600,
+          "usable_labels": 1688,
+          "windows": 600
+        },
+        "900": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 2700,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 39,
+              "label_states": {
+                "ignore": 50,
+                "invalid": 0,
+                "negative": 821,
+                "positive": 29
+              },
+              "positive_yield": 0.03222222222222222,
+              "usable_labels": 850
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 60,
+              "label_states": {
+                "ignore": 45,
+                "invalid": 0,
+                "negative": 803,
+                "positive": 52
+              },
+              "positive_yield": 0.057777777777777775,
+              "usable_labels": 855
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 74,
+              "label_states": {
+                "ignore": 46,
+                "invalid": 0,
+                "negative": 792,
+                "positive": 62
+              },
+              "positive_yield": 0.06888888888888889,
+              "usable_labels": 854
+            }
+          },
+          "scene_coverage": 187,
+          "unique_windows": 900,
+          "usable_labels": 2559,
+          "windows": 900
+        }
+      },
+      "ranked_count": 900
+    },
+    "random_seed201": {
+      "budgets": {
+        "300": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 900,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 14,
+              "label_states": {
+                "ignore": 22,
+                "invalid": 0,
+                "negative": 267,
+                "positive": 11
+              },
+              "positive_yield": 0.03666666666666667,
+              "usable_labels": 278
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 24,
+              "label_states": {
+                "ignore": 10,
+                "invalid": 0,
+                "negative": 269,
+                "positive": 21
+              },
+              "positive_yield": 0.07,
+              "usable_labels": 290
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 18,
+              "label_states": {
+                "ignore": 5,
+                "invalid": 0,
+                "negative": 279,
+                "positive": 16
+              },
+              "positive_yield": 0.05333333333333334,
+              "usable_labels": 295
+            }
+          },
+          "scene_coverage": 161,
+          "unique_windows": 300,
+          "usable_labels": 863,
+          "windows": 300
+        },
+        "600": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 1800,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 24,
+              "label_states": {
+                "ignore": 43,
+                "invalid": 0,
+                "negative": 537,
+                "positive": 20
+              },
+              "positive_yield": 0.03333333333333333,
+              "usable_labels": 557
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 41,
+              "label_states": {
+                "ignore": 22,
+                "invalid": 0,
+                "negative": 542,
+                "positive": 36
+              },
+              "positive_yield": 0.06,
+              "usable_labels": 578
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 34,
+              "label_states": {
+                "ignore": 14,
+                "invalid": 0,
+                "negative": 554,
+                "positive": 32
+              },
+              "positive_yield": 0.05333333333333334,
+              "usable_labels": 586
+            }
+          },
+          "scene_coverage": 190,
+          "unique_windows": 600,
+          "usable_labels": 1721,
+          "windows": 600
+        },
+        "900": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 2700,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 36,
+              "label_states": {
+                "ignore": 54,
+                "invalid": 0,
+                "negative": 815,
+                "positive": 31
+              },
+              "positive_yield": 0.034444444444444444,
+              "usable_labels": 846
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 56,
+              "label_states": {
+                "ignore": 36,
+                "invalid": 0,
+                "negative": 814,
+                "positive": 50
+              },
+              "positive_yield": 0.05555555555555555,
+              "usable_labels": 864
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 53,
+              "label_states": {
+                "ignore": 30,
+                "invalid": 0,
+                "negative": 822,
+                "positive": 48
+              },
+              "positive_yield": 0.05333333333333334,
+              "usable_labels": 870
+            }
+          },
+          "scene_coverage": 192,
+          "unique_windows": 900,
+          "usable_labels": 2580,
+          "windows": 900
+        }
+      },
+      "ranked_count": 900
+    },
+    "random_seed202": {
+      "budgets": {
+        "300": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 900,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 11,
+              "label_states": {
+                "ignore": 13,
+                "invalid": 0,
+                "negative": 282,
+                "positive": 5
+              },
+              "positive_yield": 0.016666666666666666,
+              "usable_labels": 287
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 24,
+              "label_states": {
+                "ignore": 7,
+                "invalid": 0,
+                "negative": 275,
+                "positive": 18
+              },
+              "positive_yield": 0.06,
+              "usable_labels": 293
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 16,
+              "label_states": {
+                "ignore": 9,
+                "invalid": 0,
+                "negative": 279,
+                "positive": 12
+              },
+              "positive_yield": 0.04,
+              "usable_labels": 291
+            }
+          },
+          "scene_coverage": 172,
+          "unique_windows": 300,
+          "usable_labels": 871,
+          "windows": 300
+        },
+        "600": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 1800,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 28,
+              "label_states": {
+                "ignore": 27,
+                "invalid": 0,
+                "negative": 555,
+                "positive": 18
+              },
+              "positive_yield": 0.03,
+              "usable_labels": 573
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 41,
+              "label_states": {
+                "ignore": 17,
+                "invalid": 0,
+                "negative": 552,
+                "positive": 31
+              },
+              "positive_yield": 0.051666666666666666,
+              "usable_labels": 583
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 37,
+              "label_states": {
+                "ignore": 20,
+                "invalid": 0,
+                "negative": 550,
+                "positive": 30
+              },
+              "positive_yield": 0.05,
+              "usable_labels": 580
+            }
+          },
+          "scene_coverage": 189,
+          "unique_windows": 600,
+          "usable_labels": 1736,
+          "windows": 600
+        },
+        "900": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 2700,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 41,
+              "label_states": {
+                "ignore": 44,
+                "invalid": 0,
+                "negative": 827,
+                "positive": 29
+              },
+              "positive_yield": 0.03222222222222222,
+              "usable_labels": 856
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 60,
+              "label_states": {
+                "ignore": 30,
+                "invalid": 0,
+                "negative": 819,
+                "positive": 51
+              },
+              "positive_yield": 0.056666666666666664,
+              "usable_labels": 870
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 60,
+              "label_states": {
+                "ignore": 37,
+                "invalid": 0,
+                "negative": 815,
+                "positive": 48
+              },
+              "positive_yield": 0.05333333333333334,
+              "usable_labels": 863
+            }
+          },
+          "scene_coverage": 192,
+          "unique_windows": 900,
+          "usable_labels": 2589,
+          "windows": 900
+        }
+      },
+      "ranked_count": 900
+    },
+    "random_seed203": {
+      "budgets": {
+        "300": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 900,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 15,
+              "label_states": {
+                "ignore": 17,
+                "invalid": 0,
+                "negative": 271,
+                "positive": 12
+              },
+              "positive_yield": 0.04,
+              "usable_labels": 283
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 13,
+              "label_states": {
+                "ignore": 13,
+                "invalid": 0,
+                "negative": 276,
+                "positive": 11
+              },
+              "positive_yield": 0.03666666666666667,
+              "usable_labels": 287
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 12,
+              "label_states": {
+                "ignore": 8,
+                "invalid": 0,
+                "negative": 280,
+                "positive": 12
+              },
+              "positive_yield": 0.04,
+              "usable_labels": 292
+            }
+          },
+          "scene_coverage": 159,
+          "unique_windows": 300,
+          "usable_labels": 862,
+          "windows": 300
+        },
+        "600": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 1800,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 20,
+              "label_states": {
+                "ignore": 32,
+                "invalid": 0,
+                "negative": 551,
+                "positive": 17
+              },
+              "positive_yield": 0.028333333333333332,
+              "usable_labels": 568
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 36,
+              "label_states": {
+                "ignore": 22,
+                "invalid": 0,
+                "negative": 547,
+                "positive": 31
+              },
+              "positive_yield": 0.051666666666666666,
+              "usable_labels": 578
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 32,
+              "label_states": {
+                "ignore": 19,
+                "invalid": 0,
+                "negative": 554,
+                "positive": 27
+              },
+              "positive_yield": 0.045,
+              "usable_labels": 581
+            }
+          },
+          "scene_coverage": 192,
+          "unique_windows": 600,
+          "usable_labels": 1727,
+          "windows": 600
+        },
+        "900": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 2700,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 37,
+              "label_states": {
+                "ignore": 55,
+                "invalid": 0,
+                "negative": 817,
+                "positive": 28
+              },
+              "positive_yield": 0.03111111111111111,
+              "usable_labels": 845
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 57,
+              "label_states": {
+                "ignore": 33,
+                "invalid": 0,
+                "negative": 816,
+                "positive": 51
+              },
+              "positive_yield": 0.056666666666666664,
+              "usable_labels": 867
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 50,
+              "label_states": {
+                "ignore": 26,
+                "invalid": 0,
+                "negative": 832,
+                "positive": 42
+              },
+              "positive_yield": 0.04666666666666667,
+              "usable_labels": 874
+            }
+          },
+          "scene_coverage": 192,
+          "unique_windows": 900,
+          "usable_labels": 2586,
+          "windows": 900
+        }
+      },
+      "ranked_count": 900
+    }
+  },
+  "primary_budget": 300,
+  "private_windows_run": "window-dataset-v1",
+  "revealed_window_count": 3099,
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0"
+}

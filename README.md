@@ -166,13 +166,16 @@ Completed on private nuScenes trainval data:
 These are Development, data-construction, selection, or selected-label-profile
 observations.
 
-**The Held-out Test has since been opened, once.** Under the criterion declared
-before opening, bad-case driven selection shows no measurable advantage over
-random selection on held-out data: `+0.0033 ± 0.0101` on the corridor class,
-against `+0.0247 ± 0.0066` on Development. That negative finding, together with
-the diagnostic chain that produced and then bounded it, is the project's result;
-[Findings](docs/FINDINGS.md) section 13 holds the full table. Remote-VLM
-labeling has not run.
+**Both held-out openings have now happened, once each.** The v0.8 test was
+negative — the similarity-driven selector's Development effect did not transfer
+(`+0.0033 ± 0.0101`) — and its failure mechanism was diagnosed to the
+query/eval coupling. The corrected protocol v0.10 (small seed, decoupled Test2,
+no query bank) then **passed its pre-registered criterion**: ensemble-
+disagreement selection beats random by `+0.0619 ± 0.0082` corridor AP (7.6σ)
+on ten held-out logs it never touched, positive at every budget, while
+yield-maximising probability ranking fails the same bar. [Findings]
+(docs/FINDINGS.md) sections 13-14 hold both tables; they are one story.
+Remote-VLM labeling has not run.
 
 ## Environment and Checks
 

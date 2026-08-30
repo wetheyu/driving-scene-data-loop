@@ -1,0 +1,30 @@
+{
+  "artifact": "pool2_ensemble_inference",
+  "base": {
+    "ensemble": "mean and std over 12 seed checkpoints",
+    "run": "n12-lc25",
+    "thresholds": {
+      "pedestrian_ego_near_zone_entry": 0.6631935834884644,
+      "pedestrian_vehicle_center_proximity_hold": 0.1668693721294403,
+      "vehicle_relative_corridor_entry": 0.4075378477573395
+    }
+  },
+  "feature_cache": {
+    "feature_dimension": 384,
+    "frame_count": 34149,
+    "model_id": "facebook/dinov2-small",
+    "model_output": "pooler_output_cls",
+    "model_revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056"
+  },
+  "files": {
+    "rows": "pool2_windows.jsonl"
+  },
+  "protocol": "v0.10",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "window_count": 5311
+}

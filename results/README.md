@@ -25,7 +25,8 @@ data. Each directory name is the private run that produced the file, under
 | `feedback-finetune-mining-v2-300/gru_report.json` | Mining v2 fine-tuned from the Base checkpoint |
 | `n12-*/gru_report.json` | the rebuilt measurement: every arm under `narrow-fast` at twelve seeds, including the L0 learning curve (`n12-lc*`) and the 150/300/600 dose-response |
 | `learning-curve-v1/manifest.json` | which whole-log L0 subsets the learning curve trained on |
-| `frozen-test/frozen_test_scores.json` | the one Held-out Test opening: ten arms, twelve seeds, per-seed AP and every seed-paired contrast |
+| `frozen-test/frozen_test_scores.json` | the one v0.8 Held-out Test opening: ten arms, twelve seeds, per-seed AP and every seed-paired contrast |
+| `v010/*.json` | protocol v0.10: the frozen rankings report, Pool2 ensemble inference, the reveal profile, and the one Test2 opening in which disagreement selection passed the pre-registered criterion |
 
 ## What these files are not
 
