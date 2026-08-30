@@ -1,5 +1,7 @@
 # Driving Scene Mining and High-Value Data Feedback Loop
 
+[![checks](https://github.com/wetheyu/driving-scene-data-loop/actions/workflows/checks.yml/badge.svg)](https://github.com/wetheyu/driving-scene-data-loop/actions/workflows/checks.yml)
+
 Chinese title: **自动驾驶场景挖掘与高价值数据闭环**
 
 A one-person offline research project that closes an autonomous-driving data
