@@ -64,7 +64,7 @@ it at a research-worktree build such as `~/strem/target/release/strem`.
 
 ## Pipeline Architecture
 
-Sixteen scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
+Twenty-two scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
 holds the logic. Stages chain by fixed artifact filenames, so the output directory
 of one stage is the input directory of the next. Every stage refuses to write into an
 existing output path, so a rerun needs a new directory.
@@ -98,6 +98,12 @@ predict_with_checkpoints.py  --run-dir --windows --feature-dir --partition --out
                                                                 -> predictions_seed_*.jsonl + manifest.json
 score_predictions.py         --windows --partition --run NAME=DIR ... --output
                                                                 -> per-seed AP + seed-paired contrasts
+prepare_vlm_smoke_batch.py   --windows --output-dir             -> smoke_windows.jsonl (public view)
+                                                                   + smoke_ranking.jsonl + oracle/
+label_windows_with_vlm.py    --ranking --public-windows --media-root --output-dir
+                                                                -> vlm_labels.jsonl + vlm_run_manifest.json
+evaluate_vlm_labels.py       --vlm-labels --oracle-dir --method --budget --output-dir
+                                                                -> vlm_label_report.json
 ```
 
 The final evaluation is two-stage: `predict_with_checkpoints.py` writes frozen
@@ -169,7 +175,10 @@ private artifacts, so treat any change as a protocol change:
   local `data/raw/nuscenes` mini split is smoke-testing only.
 - `data/`, `models/`, `artifacts/`, `dist/`, and all run outputs are gitignored.
   Private media, features, checkpoints, and run artifacts never enter Git or a
-  model-provider upload.
+  model-provider upload. The single declared exception is the v0.11 VLM stage,
+  which sends the five CAM_FRONT frames of a frozen selected window and the
+  public scenario descriptions — never labels, Strem evidence, bindings, boxes,
+  or features — under the boundary in `docs/DATA_SPEC.md`.
 - `results/` holds the committed aggregate report JSON for each private run, and
   is the source for every number quoted in the docs. Add a report there when a
   stage completes; never add its rows, embeddings, or labels.

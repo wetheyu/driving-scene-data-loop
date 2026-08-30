@@ -251,8 +251,12 @@ paid GPU requires an explicit budget decision.
 
 ## Remote VLM Gate
 
-A remote VLM is permitted because the user has adequate API budget, but no
-provider or model is currently frozen. Before formal automatic labeling:
+A remote VLM is permitted because the user has adequate API budget. Protocol
+v0.11 in `docs/EVALUATION_PLAN.md` froze the provider (Anthropic API), the model
+(`claude-sonnet-5`, the volume-realistic tier rather than the strongest one), the
+prompt, the JSON schema, and the image preprocessing; `claude-opus-5` is held as
+a gated diagnostic. `ANTHROPIC_API_KEY` must be exported in the Procyon shell
+that runs the stage. The gate rules that produced those choices remain:
 
 1. choose and record provider, exact model/version, image preprocessing, prompt,
    and JSON schema;
@@ -282,12 +286,14 @@ need.
 
 ## Secrets and Cleanup
 
-Keep credentials and raw media out of Git and model-provider uploads. Before any
+Keep credentials and raw media out of Git, and out of every model-provider
+upload except the v0.11 VLM request boundary declared in `docs/DATA_SPEC.md`. Before any
 cleanup, confirm the exact project-owned target and preserve experiment inputs
 and outputs that cannot be regenerated cheaply.
 
 Current non-claims: the formal DINO cache, two LR baselines, three-class Gate-B
 diagnostic, FN bank, label-free Pool inference, selection rankings, and selected
-Oracle-label profile exist. VLM annotation, feedback-retraining results, and
-held-out evaluation do not yet exist. No VLM provider/model is pinned and no AWS
-resource has been created.
+Oracle-label profile exist, as do the v0.10 feedback-retraining results and its
+two spent held-out readings. VLM annotation does not yet exist: the v0.11 stage
+is implemented, its identity is frozen, and its smoke batch is built, but no
+request has been sent. No AWS resource has been created.
