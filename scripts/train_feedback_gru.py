@@ -11,6 +11,7 @@ from driving_scene_data_loop.feedback_retraining import (
     DEVELOPMENT_INFORMED_ARMS,
     ORACLE_ARMS,
     V010_ARMS,
+    VLM_ARMS,
     get_oracle_arm,
     load_feedback_windows,
 )
@@ -29,12 +30,20 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--arm",
-        choices=[arm.name for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS],
+        choices=[
+            arm.name
+            for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS
+        ],
         required=True,
     )
     parser.add_argument("--private-windows", type=Path, required=True)
     parser.add_argument("--public-windows", type=Path, required=True)
-    parser.add_argument("--oracle-dir", type=Path, required=True)
+    parser.add_argument(
+        "--oracle-dir",
+        type=Path,
+        required=True,
+        help="Label directory; must match the arm's declared label source.",
+    )
     parser.add_argument("--feature-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--num-threads", type=int, default=16)

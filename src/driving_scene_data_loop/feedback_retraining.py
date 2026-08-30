@@ -22,12 +22,22 @@ class FeedbackRetrainingError(ValueError):
 
 @dataclass(frozen=True, slots=True)
 class OracleArm:
-    """One Oracle-label feedback arm."""
+    """One label-feedback arm: which frozen IDs, and whose labels for them."""
 
     name: str
     method: str
     budget: int
     pre_registered: bool = True
+    label_source: str = "oracle"
+
+
+# An arm must be trained on the label source it declares. Training the VLM arm
+# on Oracle labels would silently turn the label-noise comparison into a rerun of
+# the Oracle arm, so the profile's artifact identity is checked, not assumed.
+LABEL_SOURCE_ARTIFACTS = {
+    "oracle": "oracle_revealed_labels",
+    "vlm": "vlm_labeled_windows",
+}
 
 
 ORACLE_ARMS = (
@@ -69,13 +79,25 @@ V010_ARMS = tuple(
 )
 
 
+# Protocol v0.11: the same frozen IDs and the same training recipe as the v0.10
+# disagreement arm, with only the added batch's label source changed.
+VLM_ARMS = (
+    OracleArm(
+        "v010-disagreement-900-vlm",
+        "disagreement_v010",
+        900,
+        label_source="vlm",
+    ),
+)
+
+
 def get_oracle_arm(name: str) -> OracleArm:
     """Return one arm, pre-registered or Development-informed, by name."""
 
-    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS:
+    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS:
         if arm.name == name:
             return arm
-    raise FeedbackRetrainingError(f"unknown Oracle arm: {name}")
+    raise FeedbackRetrainingError(f"unknown feedback arm: {name}")
 
 
 def load_feedback_windows(
@@ -89,8 +111,14 @@ def load_feedback_windows(
 ) -> BaselineWindowData:
     """Join L0/Development with one selected, revealed Pool prefix."""
 
-    base = load_baseline_windows(private_windows_path, frame_index_path)
     profile = _read_json(reveal_profile_path)
+    expected_artifact = LABEL_SOURCE_ARTIFACTS.get(arm.label_source)
+    if expected_artifact is None or profile.get("artifact") != expected_artifact:
+        raise FeedbackRetrainingError(
+            f"{arm.name} declares {arm.label_source} labels but was given "
+            f"{profile.get('artifact')!r}"
+        )
+    base = load_baseline_windows(private_windows_path, frame_index_path)
     reveal_scenarios = tuple(cast(list[str], profile["scenario_ids"]))
     if reveal_scenarios != base.scenario_ids:
         raise FeedbackRetrainingError("Oracle and training scenario order differ")

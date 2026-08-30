@@ -46,7 +46,12 @@ def test_feedback_join_uses_public_frames_and_revealed_targets(tmp_path: Path) -
 def test_feedback_join_rejects_a_different_scenario_order(tmp_path: Path) -> None:
     paths = _write_fixture(tmp_path)
     paths["profile"].write_text(
-        json.dumps({"scenario_ids": ["corridor", "near", "hold"]}),
+        json.dumps(
+            {
+                "artifact": "oracle_revealed_labels",
+                "scenario_ids": ["corridor", "near", "hold"],
+            }
+        ),
         encoding="utf-8",
     )
 
@@ -63,7 +68,7 @@ def test_feedback_join_rejects_a_different_scenario_order(tmp_path: Path) -> Non
 
 def test_formal_arm_list_is_closed() -> None:
     assert get_oracle_arm("mining-300-oracle").budget == 300
-    with pytest.raises(FeedbackRetrainingError, match="unknown Oracle arm"):
+    with pytest.raises(FeedbackRetrainingError, match="unknown feedback arm"):
         get_oracle_arm("new-arm-after-reveal")
 
 
@@ -120,7 +125,12 @@ def _write_fixture(tmp_path: Path) -> dict[str, Path]:
         ],
     )
     profile = tmp_path / "label_profile.json"
-    profile.write_text(json.dumps({"scenario_ids": list(SCENARIOS)}), encoding="utf-8")
+    profile.write_text(
+        json.dumps(
+            {"artifact": "oracle_revealed_labels", "scenario_ids": list(SCENARIOS)}
+        ),
+        encoding="utf-8",
+    )
     return {
         "private": private,
         "public": public,
