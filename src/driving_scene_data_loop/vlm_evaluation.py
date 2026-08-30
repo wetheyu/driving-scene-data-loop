@@ -180,14 +180,20 @@ def _cost_summary(manifest: JsonObject, agreed_positives: int) -> JsonObject:
     """Report what the labels cost, including the unit an operator actually plans on."""
 
     usage = cast(JsonObject, manifest.get("usage", {}))
-    spend = float(cast(float, usage.get("estimated_cost_usd", 0.0)))
+    # The measured figure prices the tokens the provider reported; the estimate
+    # only sized the pre-run ceiling. Reported cost must be the measured one.
+    measured = usage.get("measured_cost_usd")
+    if measured is None:
+        measured = usage.get("estimated_cost_usd", 0.0)
+    spend = float(cast(float, measured))
     return {
         "model": manifest.get("identity", {}).get("model"),
         "transport": manifest.get("transport"),
         "requests": usage.get("requests"),
         "input_tokens": usage.get("input_tokens"),
         "output_tokens": usage.get("output_tokens"),
-        "estimated_cost_usd": round(spend, 4),
+        "measured_cost_usd": round(spend, 4),
+        "estimated_cost_usd": usage.get("estimated_cost_usd"),
         "cost_per_window_usd": _ratio_float(spend, cast(int, usage.get("requests", 0))),
         "cost_per_agreed_positive_usd": _ratio_float(spend, agreed_positives),
         "elapsed_seconds": usage.get("elapsed_seconds"),
