@@ -35,3 +35,6 @@ artifacts/
 *.sqlite
 *.sqlite3
 
+
+# local credential drop for the v0.11 VLM stage; never committed
+.openai_env
