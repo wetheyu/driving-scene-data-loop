@@ -295,6 +295,7 @@ and outputs that cannot be regenerated cheaply.
 Current non-claims: the formal DINO cache, two LR baselines, three-class Gate-B
 diagnostic, FN bank, label-free Pool inference, selection rankings, and selected
 Oracle-label profile exist, as do the v0.10 feedback-retraining results and its
-two spent held-out readings. VLM annotation does not yet exist: the v0.11 stage
-is implemented, its identity is frozen, and its smoke batch is built, but no
-request has been sent. No AWS resource has been created.
+two spent held-out readings. The v0.11 VLM annotation is complete: 900 windows
+labeled, scored against the Oracle, and one controlled downstream arm trained,
+all recorded in `results/` and `docs/FINDINGS.md` section 15. No AWS resource
+has been created.

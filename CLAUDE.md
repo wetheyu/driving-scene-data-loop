@@ -64,7 +64,7 @@ it at a research-worktree build such as `~/strem/target/release/strem`.
 
 ## Pipeline Architecture
 
-Twenty-two scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
+Twenty-three scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
 holds the logic. Stages chain by fixed artifact filenames, so the output directory
 of one stage is the input directory of the next. Every stage refuses to write into an
 existing output path, so a rerun needs a new directory.
@@ -104,6 +104,9 @@ label_windows_with_vlm.py    --ranking --public-windows --media-root --output-di
                                                                 -> vlm_labels.jsonl + vlm_run_manifest.json
 evaluate_vlm_labels.py       --vlm-labels --oracle-dir --method --budget --output-dir
                                                                 -> vlm_label_report.json
+build_vlm_training_labels.py --vlm-labels --ranking --budget --output-dir
+                                                                -> revealed_labels.jsonl + label_profile.json
+                                                                   (vlm_labeled_windows identity, Oracle never opened)
 ```
 
 The final evaluation is two-stage: `predict_with_checkpoints.py` writes frozen
