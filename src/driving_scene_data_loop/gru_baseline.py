@@ -53,6 +53,7 @@ class TrainingConfig:
     """
 
     name: str
+    seeds: tuple[int, ...] = SEEDS
     hidden_size: int = HIDDEN_SIZE
     dropout: float = 0.2
     learning_rate: float = LEARNING_RATE
@@ -65,6 +66,7 @@ class TrainingConfig:
     def to_json(self) -> JsonObject:
         return {
             "name": self.name,
+            "seeds": list(self.seeds),
             "hidden_size": self.hidden_size,
             "dropout": self.dropout,
             "learning_rate": self.learning_rate,
@@ -106,6 +108,14 @@ TRAINING_CONFIGS: dict[str, TrainingConfig] = {
             learning_rate=3e-4,
             patience=10,
             smoothing_window=3,
+        ),
+        # The sweep winner, run with four times the seeds. The first three are
+        # unchanged, so the original three-seed result stays a nested prefix and
+        # the wider run only adds precision rather than replacing the estimate.
+        TrainingConfig(
+            name="narrow-fast-12seed",
+            seeds=(17, 29, 43, 61, 79, 97, 113, 131, 149, 167, 181, 199),
+            hidden_size=48,
         ),
         # The most aggressive capacity cut worth trying at 384-d inputs.
         TrainingConfig(
@@ -321,7 +331,7 @@ def train_gru_baselines(
     )
     warm_start_paths: dict[int, Path] = {}
     if warm_start_dir is not None:
-        for seed in SEEDS:
+        for seed in config.seeds:
             path = warm_start_dir / f"gru_seed_{seed}.pt"
             if not path.is_file():
                 raise GruBaselineError(f"warm start checkpoint is missing: {path}")
@@ -379,7 +389,7 @@ def train_gru_baselines(
         if is_development
     )
     seed_runs: dict[int, SeedRun] = {}
-    for seed in SEEDS:
+    for seed in config.seeds:
         seed_run = _train_one_seed(
             seed=seed,
             train_sequences=train_sequences,
@@ -412,7 +422,7 @@ def train_gru_baselines(
                 development_mask,
                 seed_runs[seed].probabilities,
             ).average_precision
-            for seed in SEEDS
+            for seed in config.seeds
         ],
         dtype=np.float64,
     )
@@ -423,14 +433,14 @@ def train_gru_baselines(
                 development_mask,
                 seed_runs[seed].reversed_probabilities,
             ).average_precision
-            for seed in SEEDS
+            for seed in config.seeds
         ],
         dtype=np.float64,
     )
     development_metrics = calculate_ap_metrics(
         development_labels,
         development_mask,
-        seed_runs[SEEDS[0]].probabilities,
+        seed_runs[config.seeds[0]].probabilities,
     )
     gate_b: dict[str, object] = {}
     retained_classes: list[str] = []
@@ -450,7 +460,8 @@ def train_gru_baselines(
         }
 
     base_thresholds: dict[str, object] = {}
-    base_probabilities = seed_runs[17].probabilities
+    base_seed = config.seeds[0]
+    base_probabilities = seed_runs[base_seed].probabilities
     for class_index, scenario_id in enumerate(selected_scenarios):
         valid = development_mask[:, class_index]
         threshold, f1 = best_f1_threshold(
@@ -487,14 +498,14 @@ def train_gru_baselines(
             "batch_size": BATCH_SIZE,
             "max_epochs": MAX_EPOCHS,
             "patience": PATIENCE,
-            "seeds": list(SEEDS),
+            "seeds": list(config.seeds),
             "num_threads": num_threads,
             "checkpoint_metric": "development_macro_average_precision",
             "reversed_diagnostic": "same checkpoint, reversed Development time axis",
         },
         "pos_weight": pos_weight.tolist(),
         "pos_weight_source": "l0_only",
-        "runs": {str(seed): seed_runs[seed].report for seed in SEEDS},
+        "runs": {str(seed): seed_runs[seed].report for seed in config.seeds},
         "aggregate": {
             "normal_order": _aggregate_scores(
                 normal_scores,
@@ -508,7 +519,7 @@ def train_gru_baselines(
         "gate_b": gate_b,
         "gate_b_passed_classes": retained_classes,
         "loop_classes": list(selected_scenarios),
-        "base_seed": 17,
+        "base_seed": base_seed,
         "base_thresholds": base_thresholds,
     }
     (output_dir / "gru_report.json").write_text(
