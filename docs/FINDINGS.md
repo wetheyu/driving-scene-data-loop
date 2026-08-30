@@ -382,6 +382,14 @@ Across the already-revealed budget prefixes the sign is consistent —
 `+0.0245 / +0.0376 / +0.0245` at 150/300/600 — though the curve is not
 monotone and the 150/600 points have only the seed-101 batch as control.
 
+A fifth check answers the sharpest remaining worry about Development's size:
+its 74 corridor events cluster badly, with one log holding 43 of them (58%),
+while the Held-out Test spreads 69 events over 15 logs at a 14% maximum share.
+Splitting Development on that log, the effect stands in both disjoint halves
+independently: `+0.0307 ± 0.0098` (3.1σ) against Random without the dominant
+log — where Mining beats Base by `+0.0687` — and `+0.0279 ± 0.0068` (4.1σ)
+inside it. The advantage is not one log's traffic pattern.
+
 Where it works is exactly where the textbook says uncertainty sampling should:
 corridor is the one class whose Base is competent (AP 0.50, so its uncertainty
 is meaningful) and whose learning curve is still steep (so data still buys
