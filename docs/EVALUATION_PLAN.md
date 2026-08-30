@@ -507,7 +507,16 @@ derived from an evaluation partition:
   as v0.8.
 
 All rankings use the common temporal-separation and round-robin class-merge
-rules, are frozen before any reveal, and use nested budgets `300 ⊂ 600 ⊂ 1200`.
+rules, are frozen before any reveal, and use nested budgets `300 ⊂ 600 ⊂ 900`.
+
+**Pre-reveal amendment (2026-08-30):** the budgets were declared as
+`300/600/1200`, but the Test2 guard legitimately extended the held-out carve to
+ten logs, leaving Pool2 at 5,311 windows across 192 scenes with an exact
+temporal-rule capacity of 1,363 slots. Random placement at 1,200 is infeasible
+(all three seeds fail; all succeed at 1,050), so the top budget becomes 900
+with margin. This is a mechanical feasibility amendment made before any v0.10
+label was revealed; the primary criterion moves with it to `N=900` unchanged in
+form.
 
 ### Training and measurement
 
@@ -518,8 +527,8 @@ predict-then-score path with a window-list extension for Test2.
 ### Pre-registered criterion
 
 Primary: on Test2, the corridor-class seed-paired contrast (selector minus the
-mean of the three randoms) at `N=1200`, one per selector; success is `≥ 2.5σ`,
-set above 2σ because two selectors are read. Secondary: the same contrasts at
+mean of the three randoms) at `N=900` (see the amendment note above), one per
+selector; success is `≥ 2.5σ`, set above 2σ because two selectors are read. Secondary: the same contrasts at
 300/600 (dose pattern) and on near-zone. Proximity hold and Macro are reported
 only. Expected effect from the learning-curve slope (`≈ +0.045` AP per +100
 corridor positives near the 25% point) and measured retrieval yields is

@@ -20,7 +20,7 @@ def main() -> None:
         pool_report_path=args.pool2_dir / "pool2_report.json",
         output_dir=args.output_dir,
     )
-    print(json.dumps({m: report["prefixes"][m]["1200"]["unique_windows"]
+    print(json.dumps({m: report["prefixes"][m]["900"]["unique_windows"]
                       for m in report["files"]}, sort_keys=True))
 
 

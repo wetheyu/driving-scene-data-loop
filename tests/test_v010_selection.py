@@ -69,9 +69,9 @@ def test_v010_rejects_a_negative_spread(tmp_path: Path) -> None:
 
 
 def test_v010_arms_are_registered() -> None:
-    arm = get_oracle_arm("v010-disagreement-1200")
+    arm = get_oracle_arm("v010-disagreement-900")
     assert arm.method == "disagreement_v010"
-    assert arm.budget == 1200
+    assert arm.budget == 900
     assert get_oracle_arm("v010-random203-300").method == "random_seed203"
 
 

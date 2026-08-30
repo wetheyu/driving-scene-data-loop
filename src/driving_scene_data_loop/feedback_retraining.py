@@ -65,7 +65,7 @@ V010_ARMS = tuple(
         ("random202", "random_seed202"),
         ("random203", "random_seed203"),
     )
-    for budget in (300, 600, 1200)
+    for budget in (300, 600, 900)
 )
 
 

@@ -22,7 +22,11 @@ CLUSTER_SEED = 17
 SHORTLIST_SIZE = 2_000
 CLUSTER_COUNT = 30
 BUDGETS = (150, 300, 600)
-V010_BUDGETS = (300, 600, 1200)
+# Amended from (300, 600, 1200) before any v0.10 reveal: Pool2 holds 192 scenes
+# with an exact temporal-rule capacity of 1,363 slots, and random placement at
+# 1,200 is infeasible (all three seeds fail; all succeed at 1,050). 900 keeps a
+# comfortable margin. Recorded in the Evaluation Plan's v0.10 amendment note.
+V010_BUDGETS = (300, 600, 900)
 V010_RANDOM_SEEDS = (201, 202, 203)
 TEMPORAL_SEPARATION = 5
 
