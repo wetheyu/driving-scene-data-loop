@@ -79,7 +79,7 @@ logs become Frozen Test.
 
 `projection.py` asks the devkit to transform one annotation box into the
 CAM_FRONT coordinate frame. Project code only calculates the clipped 2D box and
-applies the frozen learning filter:
+applies the frozen eligibility filter:
 
 - every box corner is in front of the camera;
 - at least one corner is inside the image;

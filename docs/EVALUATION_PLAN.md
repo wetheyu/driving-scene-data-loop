@@ -563,7 +563,7 @@ downstream measurement agrees with it.
 
 ### Batch amendment
 
-`DATA_SPEC.md`, `STAGE_PLAN.md`, and the *Controlled VLM-label retraining*
+`DATA_SPEC.md` and the *Controlled VLM-label retraining*
 section above name the v0.8 `Mining-300` batch, declared before v0.10 existed.
 The labeled batch becomes the v0.10 `disagreement_v010` 900-row prefix — the
 batch that actually closed the loop, whose Oracle labels are already revealed and
@@ -832,7 +832,7 @@ is simple: do not run Frozen Test scoring until every prediction file is final.
 
 ## Manual Review
 
-Keep the remaining manual review bounded and job-focused: a small stratified
+Keep the remaining manual review bounded: a small stratified
 TaskDesign gallery plus at least five final explanatory cases, including one VLM
 label error or uncertainty case. Strem labels simulate an Oracle; manual review
 audits their quality and is not described as full human annotation.

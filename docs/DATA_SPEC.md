@@ -133,8 +133,8 @@ so the profile says so instead of reconstructing or inventing them. A later
 selected-batch report adds positive yield, usable-label yield, log coverage,
 duplicate rate, and ignore cost. Size, visibility, time-of-day, weather, and
 scene complexity are added only when the metadata is available and the
-analysis uses them. Pandas is sufficient at this project scale; PySpark is an
-side topic, not a forced runtime dependency.
+analysis uses them. Pandas is sufficient at this project scale; PySpark would
+be unjustified overhead here.
 
 ## Time and Window Contract
 

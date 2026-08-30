@@ -5,7 +5,7 @@ build-backend = "uv_build"
 [project]
 name = "driving-scene-data-loop"
 version = "0.0.0"
-description = "A research-first driving-scenario understanding, mining, and data-curation loop."
+description = "Temporal scene mining, fixed-budget data selection, and controlled retraining on nuScenes."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12,<3.13"

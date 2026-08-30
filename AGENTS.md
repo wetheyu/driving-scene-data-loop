@@ -7,15 +7,14 @@ These instructions apply to this repository and every file below it.
 Read these documents in order:
 
 1. `docs/PROJECT_SCOPE.md`
-2. `docs/STAGE_PLAN.md`
-3. `docs/ARCHITECTURE.md`
-4. `docs/STREM_SKILL.md`
-5. `docs/DATA_SPEC.md`
-6. `docs/EVALUATION_PLAN.md`
-7. `docs/BAD_CASE_PROCESS.md`
-8. `docs/FINDINGS.md`
-9. `docs/ROADMAP.md`
-10. `docs/DEVELOPMENT_ENVIRONMENT.md`
+2. `docs/ARCHITECTURE.md`
+3. `docs/STREM_SKILL.md`
+4. `docs/DATA_SPEC.md`
+5. `docs/EVALUATION_PLAN.md`
+6. `docs/BAD_CASE_PROCESS.md`
+7. `docs/FINDINGS.md`
+8. `docs/ROADMAP.md`
+9. `docs/DEVELOPMENT_ENVIRONMENT.md`
 
 Do not silently change the research question, scenario definitions, data split,
 annotation budget, Strem boundary, or evaluation protocol.
@@ -35,33 +34,26 @@ annotation budget, Strem boundary, or evaluation protocol.
 
 - Use English for code, identifiers, comments, logs, CLI text, and the
   specification documents that define the protocol.
-- Use Chinese for discussion, progress explanations, notes, and the
-  maintainer-private material under the untracked `private/` directory.
-- Keep the two layers separate rather than translated. `docs/FINDINGS.md` is the
-  English evidence record whose numbers trace to `results/`;
-  `private/NOTES_CN.md` (untracked) is the Chinese speaking layer covering
-  how to tell it, the follow-up questions to expect, and the standard answers
-  connected to project code. Facts live in the first; only the second is rewritten when the
-  delivery changes.
+- Use Chinese for discussion with the maintainer; maintainer-private notes live
+  under the untracked `private/` directory and never enter Git.
+- `docs/FINDINGS.md` is the English evidence record whose numbers trace to
+  `results/`. Facts live there and nowhere else.
 - Mark unimplemented work as `Planned`.
 - Never report a plan, fixture, smoke test, or synthetic value as a real result.
 - Preserve negative results and important bad cases.
 
-## Research-First Development
-
-The author is starting from the foundations and building the record.
+## Incremental Development
 
 - Advance one small, runnable, testable concept at a time.
-- Before code, explain the problem, input, transformation, output, and limitation.
-- Give the standard answer, then connect it to project code.
-- Combine repetitive mechanical work, but do not skip new concepts.
-- End each milestone with a short knowledge check and written summary.
+- Before code, state the problem, input, transformation, output, and limitation.
+- Combine repetitive mechanical work; never skip a design decision.
+- End each milestone with a short written summary of what was measured.
 
 ## Simplicity and Scope Discipline
 
-This is a one-person, evidence-oriented offline project, not a production service or
+This is a one-person offline research project, not a production service or
 a reusable platform. Its purpose is to demonstrate a clear algorithmic data
-loop and help the author explain it precisely. Implement the smallest
+loop end to end and measure it honestly. Implement the smallest
 direct solution that makes the current milestone runnable, testable, and
 explainable.
 
@@ -149,7 +141,7 @@ The VLM work is a bounded auto-label evaluation, not foundation-model training.
 - Update owning documentation when behavior changes.
 - Add focused tests for the main path and experiment-critical failure modes.
 - A milestone is done only when its focused checks pass, its status is truthful,
-  and the author can explain its purpose and limitation.
+  and its purpose and limitation are documented.
 
 Use these normal checks:
 

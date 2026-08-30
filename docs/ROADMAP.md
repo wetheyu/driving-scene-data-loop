@@ -2,9 +2,8 @@
 
 Specification: Frozen for `v0.8-three-class-loop`
 
-This is an accelerated, evidence-oriented personal-project plan, organized by
-evidence needed for scene-mining and the data-loop record, not by adding
-infrastructure. **Every stage below is complete**; the section headers carry
+This plan is organized by evidence value for the scene-mining and data-loop
+questions, not by adding infrastructure. **Every stage below is complete**; the section headers carry
 each stage's outcome, and what remains is listed under *Remaining Directions*.
 
 ## Completion Standard — Met
@@ -38,7 +37,6 @@ production engineering do not block completion.
   labels, split isolation, model inputs, selector leakage, or fair evaluation.
 - Combine repeated scans and audits. Do not turn one-off analysis into a generic
   framework.
-- Give the standard answer before connecting it to code.
 - A tie or regression is a valid result; support and metrics are never invented.
 - Finish the Oracle-label causal loop before interpreting the VLM-label result.
 
@@ -260,8 +258,8 @@ API inference is not SFT.
 
 The frozen-test reading (v0.8, null) and the Test2 reading (v0.10, positive)
 were each opened once, after all predictions froze; the four compact tables
-exist across `docs/FINDINGS.md` and `results/`; the delivery material lives in
-the untracked private layer. Original targets kept below for the record.
+exist across `docs/FINDINGS.md` and `results/`. Original targets kept below
+for the record.
 
 1. Train every arm in the frozen arm list and freeze every prediction file
    before the first Held-out Test score. The Test is opened once, for all arms
@@ -274,8 +272,8 @@ the untracked private layer. Original targets kept below for the record.
    - VLM label quality and Mining-VLM versus Mining-Oracle.
 3. Explain at least five representative cases covering data/label, Base FN,
    selector behavior, VLM labeling, and retraining outcome.
-4. Finalize reproducible commands, limitations, a resume bullet, and 30-second,
-   3-minute, and detailed written explanations.
+4. Finalize reproducible commands, limitations, and short, medium, and
+   detailed written explanations.
 
 No extra tuning occurs after the Held-out Test is opened. If Mining does
 not beat Random or its VLM-label run trails Oracle labels, report and diagnose the result

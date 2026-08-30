@@ -186,7 +186,7 @@ prompt design, tuning, selection, or retraining.
   Oracle, plus one controlled Mining-VLM retraining run;
 - three training seeds and one-time Frozen Test scoring;
 - four compact result tables, at least five deeply explained cases,
-  reproducible commands, and write-up material.
+  and reproducible commands.
 
 The primary experiment uses `N=300`; an Oracle-only nested `N=150/300/600`
 Random-versus-Mining curve is a light sensitivity check. Optional only

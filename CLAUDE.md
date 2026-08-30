@@ -6,12 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `AGENTS.md` is the authoritative contract for this repository: read it first, and
 follow its documentation reading order (`docs/PROJECT_SCOPE.md` →
-`docs/STAGE_PLAN.md` → `docs/ARCHITECTURE.md` → `docs/STREM_SKILL.md` →
+`docs/ARCHITECTURE.md` → `docs/STREM_SKILL.md` →
 `docs/DATA_SPEC.md` → `docs/EVALUATION_PLAN.md` → `docs/BAD_CASE_PROCESS.md` →
 `docs/FINDINGS.md` → `docs/ROADMAP.md` → `docs/DEVELOPMENT_ENVIRONMENT.md`)
 before touching a stage you have not worked on. Key points that shape every edit:
 
-- This is a one-person, research-first offline research experiment frozen at
+- This is a one-person offline research experiment frozen at
   `v0.8-three-class-loop`, not a service or a reusable platform. Implement the
   smallest direct solution: plain functions, small dataclasses, JSONL + `.npy`.
   Do not add registries, managers, plugin layers, defensive fallback trees, or
@@ -20,10 +20,9 @@ before touching a stage you have not worked on. Key points that shape every edit
   selector leakage, and fair evaluation. Those checks are required; general
   defensive programming is not.
 - English for code, identifiers, comments, protocol documents, logs, and CLI
-  text. Chinese for discussion, progress explanation, notes, and the
-  maintainer-private material under the untracked `private/` directory.
-  `FINDINGS.md` holds the facts; `private/NOTES_CN.md` holds the delivery.
-  They are not translations of each other and the second never enters Git.
+  text. Chinese for discussion with the maintainer; maintainer-private notes
+  live under the untracked `private/` directory and never enter Git.
+  `FINDINGS.md` holds the facts.
 - Never present a plan, fixture, or synthetic value as a real result; mark
   unimplemented work `Planned`. Preserve negative results — this project does not
   tune until the desired answer appears.
