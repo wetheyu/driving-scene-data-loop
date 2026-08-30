@@ -547,6 +547,17 @@ genuinely conflicts, wins decisively and at every budget. Its trade-off is
 reported with it: at `N=900` it gives back `−0.0083` (−2.8σ) on near-zone and
 `−0.0091` (−1.6σ) on proximity hold, and still carries Macro by +3.8σ.
 
+A post-hoc efficiency reading (exploratory, same Test2 exam, full-L0 Base
+predicted after the opening) puts the absolute numbers in their real currency.
+On corridor, the small seed scores `0.1711`, full-L0 training (8,390 windows)
+scores `0.3933`, and the disagreement arm — 2,831 windows, one third of the
+data — scores `0.3594`: **85% of the full-data gain captured with 14% of the
+additional labels**, against Random's 55% for the same 900-window budget.
+Test2 prevalence is `3.3-4.1%`, so chance-level AP is about `0.03` and the
+disagreement arm sits eleven times above it. The loop's value is measured in
+label efficiency, not absolute AP: the absolute ceiling of this deliberately
+small frozen stack is visible in the full-L0 number itself.
+
 What the claim is: under this dataset, representation, and protocol, at a
 seed-scarce operating point, **bad-model-driven selection by ensemble
 disagreement measurably improves the model over random selection on held-out
