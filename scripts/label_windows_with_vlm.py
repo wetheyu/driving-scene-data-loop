@@ -36,6 +36,8 @@ JsonObject = dict[str, Any]
 SPEND_CEILING_USD = 35.0
 SUBMITTED_FILENAME = "submitted_batches.jsonl"
 POLL_SECONDS = 30
+FILE_POLL_SECONDS = 5
+FILE_READY_TIMEOUT_SECONDS = 900
 
 
 def main() -> None:
@@ -241,11 +243,28 @@ def _run_batch(
         uploaded = client.files.create(file=source, purpose="batch")
     upload_path.unlink()
 
-    batch = client.batches.create(
-        input_file_id=uploaded.id,
-        endpoint=RESPONSES_ENDPOINT,
-        completion_window="24h",
-    )
+    # A hundred windows of base64 frames is around a hundred megabytes, and the
+    # upload is still being processed when files.create returns. Submitting the
+    # batch before then fails the whole batch with "cannot find file".
+    deadline = time.monotonic() + FILE_READY_TIMEOUT_SECONDS
+    while True:
+        status = client.files.retrieve(uploaded.id).status
+        if status == "processed":
+            break
+        if status == "error" or time.monotonic() > deadline:
+            client.files.delete(uploaded.id)
+            raise SystemExit(f"upload {uploaded.id} never became usable ({status})")
+        time.sleep(FILE_POLL_SECONDS)
+
+    try:
+        batch = client.batches.create(
+            input_file_id=uploaded.id,
+            endpoint=RESPONSES_ENDPOINT,
+            completion_window="24h",
+        )
+    except Exception:
+        client.files.delete(uploaded.id)
+        raise
     _append_jsonl(
         labels_path.parent / SUBMITTED_FILENAME,
         [
@@ -262,6 +281,7 @@ def _run_batch(
             break
         time.sleep(POLL_SECONDS)
     if state.status != "completed":
+        client.files.delete(uploaded.id)
         raise SystemExit(f"batch {batch.id} ended as {state.status}")
 
     rows: list[JsonObject] = []
