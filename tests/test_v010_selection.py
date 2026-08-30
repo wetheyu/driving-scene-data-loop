@@ -48,7 +48,8 @@ def test_v010_rankings_sort_by_their_declared_signals(tmp_path: Path) -> None:
     # Random rows carry no selector diagnostics at all.
     rand = _read_jsonl(output_dir / "random_seed201_ranked.jsonl")
     assert not set().union(*(set(r) for r in rand)) & {"disagreement", "base_probability"}
-    assert cast(dict[str, dict[str, dict[str, object]]], report["prefixes"])["disagreement_v010"]["3"]["count"] == 3
+    prefixes = cast(dict[str, dict[str, dict[str, object]]], report["prefixes"])
+    assert prefixes["disagreement_v010"]["3"]["count"] == 3
 
 
 def test_v010_rejects_a_negative_spread(tmp_path: Path) -> None:
