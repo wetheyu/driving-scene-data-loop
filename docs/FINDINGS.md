@@ -468,6 +468,43 @@ seven logs. Alternatively the measurement protocol, selected after seeing round
 one, may have been tuned into a Development-specific optimum — the exact risk
 the Development-informed label was attached to record.
 
+### Post-hoc diagnosis: where the Development effect came from
+
+Clearly labeled exploratory, run after the opening, changing nothing. Three
+layers, ordered by how directly the evidence supports each.
+
+**Instance-level proximity — verified, minor.** Splitting Development's 206
+corridor positives at the median of their cosine similarity to the 300 added
+Mining windows, the contrast is `+0.0284 ± 0.0077` on the similar half against
+`+0.0194 ± 0.0100` on the dissimilar half: a real gradient in the predicted
+direction, worth about `0.009` — not the collapse.
+
+**Domain-level coupling — the main suspect.** The dissimilar half sits at
+similarity levels comparable to the Test distribution (Development median
+`0.655`, Test `0.613`, the far half below `0.651`), yet it still shows a 1.9σ
+advantage that the Test does not. Cosine proximity to the batch therefore
+cannot be the main carrier. What the far half shares with the batch is the
+domain itself: every FN-bank query came from the same six or seven drives that
+then evaluated the outcome. The selection was optimised, through its queries,
+for the logs it would be judged on.
+
+**Estimate inflation — structural.** Corridor became the primary criterion as
+the largest of six contrasts read off the twelve-seed grid, so its Development
+estimate carries winner's-curse inflation; on the Test the leading class
+rotates to near-zone (`+0.0180`, unpredicted), the signature of reading noise
+ranks rather than effects.
+
+Why five robustness checks saw nothing: all of them resample inside
+Development, and the leave-dominant-log-out split divides the evaluation logs
+while the FN bank spans every one of them — the coupling covers both halves.
+
+The design lesson in one sentence: **the selector's query set and the
+evaluation set were the same partition.** No label ever leaked, but drawing
+mining queries from the split that then measures the mining outcome couples
+the two at instance and domain level, and no within-split check can see it.
+The v0.10 protocol change follows directly: query logs and evaluation logs
+must be disjoint.
+
 No further arm was trained, no threshold moved, and no criterion was revised
 after this table was produced. The pre-registered question — does bad-case
 driven selection beat random selection at a fixed budget — is answered for this
