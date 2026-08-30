@@ -2,21 +2,18 @@
 
 [![checks](https://github.com/wetheyu/driving-scene-data-loop/actions/workflows/checks.yml/badge.svg)](https://github.com/wetheyu/driving-scene-data-loop/actions/workflows/checks.yml)
 
-Chinese title: **自动驾驶场景挖掘与高价值数据闭环**
-
 A one-person offline research project that closes an autonomous-driving data
 loop on nuScenes and measures every link of it: mine rare temporal scenes with
 a formal matcher, train a small visual model, select new data under a fixed
 annotation budget without seeing labels, retrain, and check on held-out logs
-whether the selection genuinely helped. The central question:
+whether the selection genuinely helped.
 
 > Under the same annotation budget, does mined data improve a held-out metric
 > more than random data — and when it does not, why exactly not?
 
-Improvement is a hypothesis, not a premise. The project keeps its negative
-results instead of tuning the experiment until the desired answer appears, and
-the commit history is the timestamped record of what was frozen before what was
-revealed.
+Improvement is a hypothesis, not a premise. Negative results are kept, and the
+commit history is the timestamped record of what was frozen before what was
+revealed. [中文简介在文末](#中文简介).
 
 ## Headline Results
 
@@ -27,263 +24,124 @@ revealed.
 | Can a remote VLM replace the metric labeling Oracle? (v0.11) | **At this operating point, yes.** Labels at Macro-F1 `0.494` retrained to 86% of the Oracle's gain, statistically indistinguishable (`−0.018 ± 0.020`), at `$0.026` per window — and label F1 predicted none of that | [Findings §15](docs/FINDINGS.md) |
 
 The scenario specification is frozen at `v0.8-three-class-loop`; protocols
-v0.10 and v0.11 build on it without editing it.
+v0.10 and v0.11 build on it without editing it. The full narrative, in the
+order the evidence arrived, is [Findings](docs/FINDINGS.md).
 
-## What the Project Does
+## The Loop
 
 ```text
-nuScenes v1.0-trainval
-  -> split complete driving logs
-  -> clean annotations that are unusable in CAM_FRONT
-  -> Strem mines three temporal scene types
-  -> create labeled five-frame windows
-  -> DINOv2 extracts one feature per image
-  -> LR and GRU learn scene classification
-  -> collect Development false negatives
-  -> select public-Pool windows without reading their labels
-  -> reveal their hidden labels and retrain
-  -> compare Random with integrated Mining on held-out data
+nuScenes v1.0-trainval  (850 scenes, 68 logs, 34,149 CAM_FRONT keyframes)
+  -> whole-log split into design / train / development / pool / held-out
+  -> visual-eligibility cleaning        (859,857 -> 120,035 annotations)
+  -> Strem mines three temporal scenarios -> 30,749 five-frame windows
+  -> frozen DINOv2 features -> GRU classifier      (per-class AP, Macro-AP)
+  -> selectors rank a label-free public pool under a fixed budget
+  -> the Oracle reveals only the selected IDs -> retrain from scratch
+  -> seed-paired scoring on a held-out set that is opened exactly once
 ```
 
-In plain language: first define what scene to find, then automatically find it
-in driving logs, train a visual model to recognize it, inspect what the model
-misses, add more useful data, and measure whether the model actually improves.
-
-## Frozen Scene Labels
+## Frozen Scenarios
 
 Executable specifications live in [`specs/task_spec_v2`](specs/task_spec_v2).
+Positive rates are 3.5–5.4% per class — the long tail is the point.
 
 | Label | Formal meaning | Not claimed |
 | --- | --- | --- |
-| `pedestrian_ego_near_zone_entry` | the same eligible pedestrian moves from at least 20 m to at most 15 m from ego within 2 s | collision risk, TTC, intent |
-| `vehicle_relative_corridor_entry` | the same eligible motor vehicle moves from `abs(y)>=3 m` to `abs(y)<=1.5 m` while `0<=x<=30 m`, within 2 s | an intentional lane change |
-| `pedestrian_vehicle_center_proximity_hold` | the same pedestrian and vehicle annotation centers remain within 5 m for at least 1 s | body clearance or conflict |
+| `pedestrian_ego_near_zone_entry` | the same eligible pedestrian moves from ≥ 20 m to ≤ 15 m from ego within 2 s | collision risk, TTC, intent |
+| `vehicle_relative_corridor_entry` | the same eligible motor vehicle moves from `abs(y) ≥ 3 m` to `abs(y) ≤ 1.5 m` while `0 ≤ x ≤ 30 m`, within 2 s | an intentional lane change |
+| `pedestrian_vehicle_center_proximity_hold` | the same pedestrian and vehicle annotation centers stay within 5 m for ≥ 1 s | body clearance or conflict |
 
-All three Gate-A classes enter the data loop. Gate B records how learnable each
-class was for the initial model; it does not remove the weak proximity class.
-That class is deliberately retained as the challenge class whose response to
-targeted data is measured.
+## Data Contract
 
-## Why Each Main Tool Exists
-
-- **nuScenes devkit** loads official relational tables, token references,
-  sample chains, boxes, calibrations, and camera records. The project does not
-  rebuild these indexes.
-- **Strem v0.3.0** evaluates precise temporal patterns and keeps the same
-  object binding across frames. It is the scene miner and private simulated
-  Oracle, not a visual model.
-- **DINOv2-Small** converts each CAM_FRONT image into a frozen 384-dimensional
-  visual feature.
-- **Logistic Regression** provides simple last-frame and order-free baselines.
-- **PyTorch GRU** processes the ordered five-frame sequence.
-- **Similarity, uncertainty, and MiniBatchKMeans diversity** select Pool
-  windows related to known failures without reading their hidden labels.
-
-Strem is an external research dependency configured by `STREM_BIN`. Its source
-repository is never copied into or modified by this project.
-
-## Data and Evaluation Contract
-
-Five consecutive annotated CAM_FRONT keyframes form one window. Complete
-`log_token` groups are split before windows are generated:
+Whole `log_token` groups are split before any window exists, so no log ever
+crosses a partition:
 
 | Partition | Logs | Use |
 | --- | ---: | --- |
-| Design Set (`task_design`) | 5 | define and audit labels |
-| Initial Training Set (`l0`) | 13 | initial training |
-| Development Set (`development`) | 7 | early stopping, thresholds, false negatives |
-| Simulated Unlabeled Pool (`u`) | 25 | hidden-label candidate pool |
-| Held-out Test Set (`frozen_test`) | 18 official-val logs | final evaluation only |
+| Design | 5 | define and audit labels |
+| Initial training | 13 | initial training |
+| Development | 7 | early stopping, thresholds, diagnostics |
+| Simulated unlabeled pool | 25 | hidden-label candidate pool |
+| Held-out test | 18 official-val logs | opened once |
 
-Strem labels each class independently:
-
-- `positive`: the five-frame substream itself matches the specification;
-- `negative`: the window does not overlap a complete-scene event;
-- `ignore`: it overlaps an event but does not contain a valid five-frame match;
-- `invalid`: required evidence or Strem execution failed.
-
-`ignore` and `invalid` are masked from training. Public U records contain frame,
-scene, log, and time references only; they contain no label, binding, 3D box, or
-Strem result.
-
-The primary comparison is:
-
-```text
-Base vs Random-300-Oracle (seeds 101/102/103) vs Mining-300-Oracle
-```
-
-Random is a distribution over batches while integrated Mining is deterministic,
-so three independent Random batches are frozen before any label is revealed. The
-question is whether the one Mining result falls outside the Random range, not
-whether it beats one Random draw.
-
-All feedback models start from the same Initial Training data and train the same GRU from
-scratch. They differ only in the added windows. The final metrics are per-class
-Average Precision and three-class Macro-AP on the Held-out Test Set. An
-Oracle-only nested `150/300/600` budget curve checks whether the conclusion
-depends on the chosen budget; `N=300` remains the primary comparison.
-
-That is the v0.8 protocol, and its held-out answer was null. Protocol v0.10
-re-poses the same comparison at a small-seed operating point with a freshly
-carved, decoupled held-out set and nested budgets `300 ⊂ 600 ⊂ 900`; protocol
-v0.11 then swaps the label source on the winning batch. The
-[Evaluation Plan](docs/EVALUATION_PLAN.md) holds all three, frozen. A remote
-VLM is a bounded auto-label comparison on an already-frozen mined batch; it is
-never the primary Oracle or a selector input.
+Strem labels each class as `positive`, `negative`, `ignore` (event overlap
+without a bounded match), or `invalid`; the last two are masked from loss, and
+a Strem failure is never a negative. Public pool records carry frame, scene,
+log, and time references only — no label, binding, 3D box, or Strem result —
+and focused tests enforce that boundary.
 
 ## Code Map
 
-The maintained pipeline intentionally has few modules:
-
 | Module | Responsibility |
 | --- | --- |
-| `splits.py` | deterministic whole-log split using devkit records |
-| `projection.py` | devkit 3D-box transform plus the frozen image filter |
-| `strem_converter.py` | call the pinned external nuScenes-to-Strem converter |
+| `splits.py` | deterministic whole-log split |
+| `projection.py` | 3D-box projection and the frozen eligibility filter |
+| `strem_converter.py` / `strem_adapter.py` | pinned external Strem conversion and execution |
 | `strem_eligibility.py` | keep only CAM_FRONT-learnable objects in streams |
-| `strem_adapter.py` | run Strem and parse its result |
-| `scenario_events.py` | group Strem intervals with identical bindings |
-| `window_dataset.py` | create five-frame positive/negative/ignore labels |
-| `dino_features.py` | extract and cache frozen frame features |
-| `lr_baselines.py` | train LastFrame-LR and Mean5-LR |
-| `gru_baseline.py` | train and evaluate the ordered GRU |
-| `false_negative_bank.py` | deduplicate Development false negatives by event |
-| `public_pool.py` | run the frozen Base and build label-free selection vectors |
-| `selection.py` | freeze Random and integrated Mining rankings |
-| `oracle_reveal.py` | reveal Oracle labels for frozen selected IDs only |
-| `feedback_retraining.py` | join one revealed batch to its declared label source and arm |
-| `prediction_scoring.py` | torch-free scorer: per-seed AP and seed-paired contrasts |
-| `vlm_labeling.py` | build public-only VLM requests, parse verdicts, write training labels |
-| `vlm_evaluation.py` | score VLM labels against the revealed Oracle |
+| `scenario_events.py` / `window_dataset.py` | event grouping and five-frame window labels |
+| `dino_features.py` | frozen DINOv2 feature cache |
+| `lr_baselines.py` / `gru_baseline.py` | baselines and the ordered GRU |
+| `false_negative_bank.py` / `public_pool.py` / `selection.py` | bad-case bank, label-free pool, frozen rankings |
+| `oracle_reveal.py` / `feedback_retraining.py` | reveal selected IDs only; retrain declared arms |
+| `prediction_scoring.py` | torch-free per-seed AP and seed-paired contrasts |
+| `vlm_labeling.py` / `vlm_evaluation.py` | public-only VLM requests; scoring against the Oracle |
 
-The twenty-three scripts under `scripts/` are direct stage entry points. Historical
-gallery builders, candidate-spec generators, archive extractors, and duplicate
-raw-JSON indexers were removed after their results were frozen.
+Twenty-three scripts under [`scripts/`](scripts) are the stage entry points;
+stages chain by fixed artifact filenames and refuse to overwrite outputs.
 
-## Current Observed Results
-
-Completed on private nuScenes trainval data:
-
-- 850 scenes, 34,149 keyframes, 68 complete logs;
-- 1,430 Strem event groups and 30,749 five-frame windows;
-- 11,639 label-free public-U windows;
-- 120,035 of 859,857 target annotations passed the CAM_FRONT eligibility rule;
-- DINO cache shape `(34149, 384)`, finite `float32`;
-- Development Macro-AP: LastFrame-LR `0.1499`, Mean5-LR `0.1942`;
-- three-class GRU Development per-class AP `0.1675`, `0.0537`, and `0.5011`
-  in scene-table order (three-seed means);
-- a historical two-class diagnostic reached Macro-AP `0.3636 ± 0.0157`, with
-  reversed-frame Macro-AP `0.3328 ± 0.0232`;
-- the formal three-class FN bank has 69 event rows represented by 61 unique
-  Development windows (`26/21/22` event rows by scenario-table order);
-- public-Pool Base inference produced 11,639 unique rows and a finite,
-  unit-normalized `(11639,768)` selection matrix with no Oracle fields.
-- Random and integrated Mining each produced one frozen 600-window ranking with
-  nested `150/300/600` prefixes. All IDs are unique, satisfy the five-keyframe
-  temporal separation, and contain no Oracle fields.
-- Oracle reveal ran only after all rankings froze and retained labels for 2,220
-  unique selected windows. Mining improved positive yield over the Random range
-  only for the proximity-hold class at `N=300`.
-
-These are Development, data-construction, selection, or selected-label-profile
-observations.
-
-**Both held-out openings have now happened, once each.** The v0.8 test was
-negative — the similarity-driven selector's Development effect did not transfer
-(`+0.0033 ± 0.0101`) — and its failure mechanism was diagnosed to the
-query/eval coupling. The corrected protocol v0.10 (small seed, decoupled Test2,
-no query bank) then **passed its pre-registered criterion**: ensemble-
-disagreement selection beats random by `+0.0619 ± 0.0082` corridor AP (7.6σ)
-on ten held-out logs it never touched, positive at every budget, while
-yield-maximising probability ranking fails the same bar. Protocol v0.11 then
-labeled the winning 900-window batch with a remote VLM and retrained on those
-labels instead: Macro-F1 `0.494` against the Oracle, downstream statistically
-indistinguishable from the Oracle arm.
-[Findings](docs/FINDINGS.md) sections 13-15 hold all three tables; they are one
-story.
-
-## Environment and Checks
-
-Python 3.12 and uv are used. The formal CPU environment is on Procyon; local
-nuScenes mini is smoke-only.
+## Running It
 
 ```bash
-uv sync --locked --all-groups
+uv sync --locked --all-groups        # add --all-extras for torch
 uv run ruff check .
-uv run mypy src scripts tests
-uv run pytest
-uv lock --check
+uv run mypy src scripts tests        # strict
+uv run pytest                        # passes with no dataset present
 ```
 
-Core commands now use the official nuScenes root rather than individual JSON
-table paths:
+- **Reading the results** needs nothing: every number quoted in the docs traces
+  to a JSON report under [`results/`](results/README.md).
+- **Tests** run from a bare clone; torch-dependent tests skip without the `ml`
+  extra, and the Strem integration tests skip unless `STREM_BIN` points at the
+  pinned matcher.
+- **Pipeline stages** need nuScenes, which is not redistributable — register at
+  [nuscenes.org](https://www.nuscenes.org/). `v1.0-mini` metadata plus
+  `CAM_FRONT` images are enough for a smoke run.
+- **Full reproduction** is not possible outside the author's environment:
+  scene mining calls Strem v0.3.0, an external research project whose
+  repository is not public. Its binary is pinned by SHA-256 so a substituted
+  build cannot silently change what a label means
+  ([Strem Skill](docs/STREM_SKILL.md)). Everything after labeling is ordinary
+  PyTorch and scikit-learn.
 
-```bash
-uv run python scripts/build_split_manifest.py \
-  --dataroot /path/to/nuscenes \
-  --output /path/to/split.json
+Details: [Architecture](docs/ARCHITECTURE.md) ·
+[Data Spec](docs/DATA_SPEC.md) · [Evaluation Plan](docs/EVALUATION_PLAN.md) ·
+[Findings](docs/FINDINGS.md)
 
-uv run python scripts/build_strem_eligible_streams.py \
-  --dataroot /path/to/nuscenes \
-  --raw-stream-dir /path/to/raw_streams \
-  --output-dir /path/to/eligible_streams
-```
-
-[Findings](docs/FINDINGS.md) records what the experiments observed and the
-reasoning built on it, in the order the evidence arrived.
-
-See [Architecture](docs/ARCHITECTURE.md), [Data Spec](docs/DATA_SPEC.md), and
-[Evaluation Plan](docs/EVALUATION_PLAN.md) for the frozen experiment details.
-
-## What You Can Run
-
-This repository holds code, specifications, documentation, and aggregate result
-reports. It holds no dataset, no image, no model weight, and no label. Four
-things are therefore possible, and they are not equally possible.
-
-**Read the code and the reported results.** Nothing is needed. Every number
-quoted in these documents comes from a JSON file under
-[`results/`](results/README.md), so a claim can be checked against the report
-that produced it.
-
-**Run the tests.** Clone, then:
-
-```bash
-uv sync --locked --all-groups --all-extras
-uv run pytest
-```
-
-The suite passes without any dataset. Four tests are skipped unless `STREM_BIN`
-points at the pinned matcher; installing the `ml` extra, as above, is what lets
-the GRU and public-Pool tests run.
-
-**Run one pipeline stage.** This needs nuScenes, which is not redistributable:
-register at [nuscenes.org](https://www.nuscenes.org/) and accept its licence.
-`v1.0-mini` is enough for a smoke run of the split and window stages; the formal
-experiment uses `v1.0-trainval`. Only the metadata and the `CAM_FRONT` images
-are read, so the full sensor download is unnecessary.
-
-**Reproduce the experiment.** Not currently possible outside the author's
-environment. Scene mining calls Strem v0.3.0, an external research project whose
-repository is not public, so the stages that produce labels — the converter,
-eligibility streams, and window labels — cannot run without it. The stages after
-labelling are ordinary PyTorch and scikit-learn and need only the dataset.
-
-That boundary is a property of the dependency, not a missing file: `STREM_BIN`
-and `STREM_CONVERTER` are pinned by SHA-256 precisely so that a substituted
-build cannot silently change what a label means. See
-[Strem Skill](docs/STREM_SKILL.md) for the release contract.
-
-## Scope Boundary
+## Scope
 
 Core: scene mining, data cleaning, five-frame classification, bad-case mining,
-fixed-budget data selection, controlled retraining, and evaluation.
-
-Not core: Agent, RAG, LLM orchestration, SFT/LoRA, vector databases, Spark,
-Airflow, multi-sensor fusion, prediction/planning/control, online learning, or
-production safety claims.
+fixed-budget data selection, controlled retraining, honest evaluation.
+Not core: agents, RAG, SFT, vector databases, multi-sensor fusion,
+planning/control, online learning, production claims.
 
 ## License
 
 MIT — see [LICENSE](LICENSE). nuScenes data and the Strem binary are separate
 works under their own licences and are not part of this repository.
+
+## 中文简介
+
+**自动驾驶场景挖掘与高价值数据闭环**：单人离线研究项目，在 nuScenes 上跑通并
+逐环节实测一个数据闭环——形式化规则挖掘稀有时序场景、固定标注预算下盲选数据、
+重训练、在从未接触过的整段行车日志上检验挖掘是否真的胜过随机。
+
+| 问题 | 结论 |
+| --- | --- |
+| 相似度挖掘有效吗？(v0.8) | **无效。** 验证集显著（3.7σ）但 held-out 失效（0.3σ）；对照实验定位主因：选数据的依据与评估共用了行车日志 |
+| 重新设计后闭环成立吗？(v0.10) | **成立。** 集成分歧选择在 10 段全新日志上胜过随机 `+0.062`（7.6σ，判据在揭示前冻结），三个预算档全正 |
+| VLM 自动标注能替代精确标签吗？(v0.11) | **此作业点上能。** F1 仅 0.49 的 VLM 标签拿到精确标签 86% 的训练收益，统计上不可区分，成本 `$0.026`/窗 |
+
+仓库只含代码、场景规格、文档与聚合结果（`results/`），不含数据、图像、权重与
+标签。测试无需数据集即可全部运行；完整复现需自行申请 nuScenes，且场景挖掘依赖
+未公开的 Strem 匹配器（SHA-256 锁定）。完整实验叙事按证据到达顺序记录在
+[docs/FINDINGS.md](docs/FINDINGS.md)，负结果全部保留。
