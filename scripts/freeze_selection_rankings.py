@@ -23,9 +23,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    kwargs = {}
-    if args.budgets:
-        kwargs["budgets"] = tuple(sorted(args.budgets))
+    from driving_scene_data_loop.selection import BUDGETS
+
     report = freeze_selection_rankings(
         pool_rows_path=args.pool_dir / "pool_windows.jsonl",
         pool_embeddings_path=args.pool_dir / "pool_embeddings.npy",
@@ -33,7 +32,7 @@ def main() -> None:
         fn_rows_path=args.fn_dir / "fn_bank.jsonl",
         fn_embeddings_path=args.fn_dir / "fn_embeddings.npy",
         output_dir=args.output_dir,
-        **kwargs,
+        budgets=tuple(sorted(args.budgets)) if args.budgets else BUDGETS,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))
 
