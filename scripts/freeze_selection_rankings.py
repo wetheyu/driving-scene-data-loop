@@ -14,8 +14,18 @@ def main() -> None:
     parser.add_argument("--pool-dir", type=Path, required=True)
     parser.add_argument("--fn-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--budget",
+        type=int,
+        action="append",
+        dest="budgets",
+        help="Repeatable nested budgets; defaults to the frozen v0.8 budgets.",
+    )
     args = parser.parse_args()
 
+    kwargs = {}
+    if args.budgets:
+        kwargs["budgets"] = tuple(sorted(args.budgets))
     report = freeze_selection_rankings(
         pool_rows_path=args.pool_dir / "pool_windows.jsonl",
         pool_embeddings_path=args.pool_dir / "pool_embeddings.npy",
@@ -23,6 +33,7 @@ def main() -> None:
         fn_rows_path=args.fn_dir / "fn_bank.jsonl",
         fn_embeddings_path=args.fn_dir / "fn_embeddings.npy",
         output_dir=args.output_dir,
+        **kwargs,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))
 
