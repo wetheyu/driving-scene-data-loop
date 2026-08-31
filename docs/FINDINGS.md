@@ -174,13 +174,13 @@ more atypical scenes, which are less likely to be positive. This is the mechanis
 behind the 0.15x lift in 4.1, and it is a design consequence rather than a bug:
 each step was individually reasonable, and their composition inverted the signal.
 
-Stated in long-tail terms, this task has two tails. The scenarios themselves are
-the first: 3.50%, 3.78%, and 5.36% of L0 windows are positive. Inside those
-positives sits a second tail of atypical views — rain-blurred, occluded, unusual
+This task has two layers of scarcity. The first is plain class imbalance:
+3.50%, 3.78%, and 5.36% of L0 windows are positive. Inside those positives
+sits the genuinely long-tailed layer — atypical views — rain-blurred, occluded, unusual
 geometry — and the bank's representative rule targets exactly that second tail.
 
-Retrieval works on the first tail and fails on the second, because typical rare
-scenes resemble each other while atypical ones do not resemble anything in
+Retrieval works on the first layer and fails on the second, because typical
+positives resemble each other while atypical ones do not resemble anything in
 particular. "Atypical" is not a visual category, so those windows do not form a
 cluster an embedding can retrieve against. This is also why production long-tail
 mining leans on rule and metadata triggers, which name the tail explicitly,

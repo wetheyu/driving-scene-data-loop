@@ -49,8 +49,9 @@ nuScenes v1.0-trainval  (850 scenes, 68 logs, 34,149 CAM_FRONT keyframes)
 ## Frozen Scenarios
 
 Executable specifications live in [`specs/task_spec_v2`](specs/task_spec_v2).
-Positive rates are 3.5–5.4% per class — a long-tailed *label* distribution,
-which is what the loop needs. The scenarios themselves are frequent urban
+Positive rates are 3.5–5.4% per class — a roughly 20:1 class imbalance,
+which is what the loop needs. (Not a *long-tailed* distribution: three
+near-equal minority classes form no tail.) The scenarios themselves are frequent urban
 interactions, deliberately so: rarer definitions measurably lacked statistical
 support at this dataset's size (Gate A rejected them), so the loop's
 methodology is validated on measurable sparse classes and is itself agnostic
