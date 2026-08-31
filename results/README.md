@@ -30,7 +30,7 @@ data. Each directory name is the private run that produced the file, under
 | `vlm-smoke-v1/smoke_label_report.json` | the 30-window Development smoke that froze the VLM prompt with zero iterations |
 | `vlm-labels-v1/*.json` | protocol v0.11: the frozen VLM run identity and metered cost, the 900-window label quality against the Oracle, and the training-label profile |
 | `n12-v010-disagreement-900-vlm/gru_report.json` | the controlled downstream arm trained on VLM labels instead of Oracle labels over the identical 900 IDs |
-| `v012-diagnostics/*.json` | the D1-D3 scoping diagnostics: ensemble-size ablation with its sanity gate, the label-noise dose-response that places the VLM arm on a curve, and the lc50 cross-operating-point contrasts |
+| `v012-diagnostics/*.json` | the D1-D4 scoping diagnostics: ensemble-size ablation with its sanity gate, the label-noise dose-response that places the VLM arm on a curve, the lc50 cross-operating-point contrasts, and the clean-query similarity ablation with its bank, selection, and reveal aggregates |
 
 ## What these files are not
 

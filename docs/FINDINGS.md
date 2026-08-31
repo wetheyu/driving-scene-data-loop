@@ -650,10 +650,10 @@ measurement agrees with it.
 Nothing here is VLM training. It is API inference against a frozen prompt, and it
 is never to be described as fine-tuning or SFT experience.
 
-## 16. Three scoping diagnostics: what the v0.10 result does and does not license
+## 16. Four scoping diagnostics: what the v0.10 result does and does not license
 
 Declared as protocol v0.12 before running, executed 2026-09-01, all
-Development-level, no new Oracle budget. Each answers one question a reviewer
+Development-level; D1-D3 spend no Oracle budget and D4 declares its spend. Each answers one question a reviewer
 of sections 14-15 would ask next. Reports: `results/v012-diagnostics/`.
 
 ### D1 — the selector needs its whole ensemble
@@ -718,6 +718,37 @@ Development, which compresses exactly the contrast being measured; that
 mechanism is stated as a hypothesis, not a finding. D3 therefore bounds the
 direction of the decay (consistent with the v0.8 null at full data), not its
 magnitude; a held-out-grade answer at lc50 would need a fresh evaluation carve.
+
+### D4 — with the coupling removed, similarity still buys nothing
+
+The ablation v0.10 deliberately deferred: the v0.8 similarity recipe with a
+clean query bank. Queries came from the ten L0 logs outside the small seed —
+disjoint from the pool, from Test2, and from Development — through the same
+bank construction (seed-17 Base-small predictions, frozen max-F1 thresholds),
+yielding a bank of 271 events over 239 windows, four times richer than v0.8's.
+The frozen v0.8 integrated recipe then ranked the Pool2-restricted pool; a
+pre-reveal capacity amendment moved the top budget to 600 (the proximity-hold
+queue exhausts at 900 — the same infeasibility class as v0.10's 1200), and the
+reveal consumed 178 new windows (422 of the 600 were already revealed).
+
+Twelve-seed Development contrasts against the random-600 mean, beside the
+disagreement arm on the identical instrument:
+
+| Arm (vs random-600 mean) | corridor AP | Macro |
+| --- | ---: | ---: |
+| clean-query similarity | `−0.0112 ± 0.0103` (−1.1σ) | `−0.0025` (−0.5σ) |
+| disagreement | `+0.0444 ± 0.0158` (**+2.8σ**) | `+0.0128` (+2.1σ) |
+
+The reading is sharp because both arms sit on the same compression-prone
+instrument: it clearly shows disagreement's edge and shows none for similarity.
+This sharpens the v0.8 attribution into its final form. The coupling explains
+the *mirage* — why a worthless selection looked significant on Development —
+and D4 shows there was nothing behind the mirage to recover: decoupled, with a
+richer bank, at the sensitive operating point, similarity is indistinguishable
+from random. The v0.8 failure was overdetermined, and the v0.10 selector
+switch is vindicated by direct comparison rather than by argument. What this
+does not test: other similarity variants (an FP-side bank, other embeddings)
+remain open, and the readout is Development-level like every D-series number.
 
 ## Claim boundary
 
