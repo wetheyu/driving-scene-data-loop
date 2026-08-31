@@ -91,7 +91,12 @@ def build_false_negative_bank(
         if window["partition"] != partition:
             continue
         window_id = cast(str, window["window_id"])
-        if window_id in seen_development_ids or window_id not in predictions:
+        if window_id not in predictions:
+            # The bank's source is the predicted set: a declared window list may
+            # restrict predictions to part of the partition. The closing check
+            # still requires every prediction to have joined exactly once.
+            continue
+        if window_id in seen_development_ids:
             raise FalseNegativeBankError(f"invalid {partition} prediction join: {window_id}")
         seen_development_ids.add(window_id)
         prediction = predictions[window_id]
