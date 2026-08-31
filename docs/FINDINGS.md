@@ -642,6 +642,75 @@ measurement agrees with it.
 Nothing here is VLM training. It is API inference against a frozen prompt, and it
 is never to be described as fine-tuning or SFT experience.
 
+## 16. Three scoping diagnostics: what the v0.10 result does and does not license
+
+Declared as protocol v0.12 before running, executed 2026-09-01, all
+Development-level, no new Oracle budget. Each answers one question a reviewer
+of sections 14-15 would ask next. Reports: `results/v012-diagnostics/`.
+
+### D1 — the selector needs its whole ensemble
+
+Recomputing the twelve per-seed Pool2 probability sets and rebuilding the full
+ranking pipeline from ensemble subsets (twelve seeded subsets per size), the
+fraction of the frozen top-900 selection a subset recovers is:
+
+| members | 2 | 4 | 6 | 8 | 12 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| overlap@900 | 0.26 | 0.37 | 0.43 | 0.54 | 1.00 (sanity gate) |
+| overlap@300 | 0.13 | 0.29 | 0.37 | 0.48 | 1.00 |
+
+The sanity gate — the recomputed full ensemble must reproduce the frozen
+selection exactly — passed, which doubles as an integrity re-verification of
+the frozen artifact. The reading is a negative one, reported as such: the
+disagreement *ranking* is not stable under ensemble shrinking, and the head of
+the list is less stable than its tail, so the selector's inference cost cannot
+be cut by dropping members while preserving the chosen set. Whether a cheaper
+ensemble preserves the *downstream value* despite choosing different windows is
+a separate question that would cost new reveals; overlap is the conservative
+proxy, not the answer.
+
+### D2 — the loop absorbs structured noise, not random noise
+
+Flipping decided Oracle labels at declared rates (masks untouched,
+deterministic per window and class) and retraining with the identical recipe:
+
+| labels | corridor AP − Base | Macro − Base |
+| --- | ---: | ---: |
+| Oracle, 0% flips | `+0.1288 ± 0.0246` (5.2σ) | `+0.0299` (3.3σ) |
+| 10% flips | `+0.0816 ± 0.0297` (2.7σ) | `+0.0154` (1.2σ) |
+| 20% flips | `+0.0110 ± 0.0326` (0.3σ) | `−0.0149` (−1.2σ) |
+| 30% flips | `−0.0653 ± 0.0454` (−1.4σ) | `−0.0477` (−3.3σ) |
+| **VLM (Macro-F1 0.49)** | **`+0.1105 ± 0.0265` (4.2σ)** | `+0.0257` (3.0σ) |
+
+The curve is monotone with its zero-crossing between 20% and 30% random flips,
+and 30% is actively harmful — noisy enough labels are worse than no data. The
+VLM row is the point of the exercise: labels whose headline disagreement with
+the Oracle approaches half the decided positives retrain like *well under 10%*
+random noise. Section 15's result is therefore not "noise doesn't matter" but
+"**the structure of the noise matters more than its rate**": the VLM's errors
+are semantically correlated near-boundary false positives, which displace the
+decision boundary far less than the same count of random contradictions. Two
+caveats bound the comparison: the VLM arm masks its own `uncertain` verdicts
+and so trains on fewer decided labels than the noise arms, and all rows are
+Development readings.
+
+### D3 — the selection effect shrinks with data, and Development under-reads it
+
+Retraining the disagreement and three random arms at the lc50 operating point
+with the same revealed labels: the corridor contrast against the random mean is
+`+0.0101 ± 0.0143` (0.7σ), against `+0.0166 ± 0.0116` (1.4σ) for the same
+instrument at lc25. Adding the 900 windows still helps strongly at lc50
+(`+0.0802`, 8.2σ over its base), so the data is not exhausted — the *selector's
+edge over random* is what shrinks.
+
+The essential calibration: at lc25 this same Development contrast reads 1.4σ
+while Test2 read 7.6σ. Development systematically under-reads between-arm
+differences — plausibly because every arm's checkpoint is chosen on
+Development, which compresses exactly the contrast being measured; that
+mechanism is stated as a hypothesis, not a finding. D3 therefore bounds the
+direction of the decay (consistent with the v0.8 null at full data), not its
+magnitude; a held-out-grade answer at lc50 would need a fresh evaluation carve.
+
 ## Claim boundary
 
 These are Development and selection observations on one dataset, one

@@ -1,0 +1,167 @@
+{
+  "artifact": "development_paired_contrasts",
+  "evidence_level": "Development diagnostic; carries no held-out claim",
+  "rows": [
+    {
+      "contrast": "disagreement - random201",
+      "effect": 0.022972,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": 1.965,
+      "stderr": 0.01169
+    },
+    {
+      "contrast": "disagreement - random201",
+      "effect": 0.003375,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 3.075,
+      "stderr": 0.001098
+    },
+    {
+      "contrast": "disagreement - random201",
+      "effect": 0.037062,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 1.935,
+      "stderr": 0.01915
+    },
+    {
+      "contrast": "disagreement - random201",
+      "effect": 0.021137,
+      "metric": "macro",
+      "sigma": 4.199,
+      "stderr": 0.005034
+    },
+    {
+      "contrast": "disagreement - random202",
+      "effect": 0.0243,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": 2.464,
+      "stderr": 0.009862
+    },
+    {
+      "contrast": "disagreement - random202",
+      "effect": -0.007017,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.8,
+      "stderr": 0.003898
+    },
+    {
+      "contrast": "disagreement - random202",
+      "effect": 0.002508,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 0.162,
+      "stderr": 0.015514
+    },
+    {
+      "contrast": "disagreement - random202",
+      "effect": 0.006597,
+      "metric": "macro",
+      "sigma": 1.801,
+      "stderr": 0.003662
+    },
+    {
+      "contrast": "disagreement - random203",
+      "effect": -0.006919,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -0.596,
+      "stderr": 0.011604
+    },
+    {
+      "contrast": "disagreement - random203",
+      "effect": -0.002636,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.414,
+      "stderr": 0.001864
+    },
+    {
+      "contrast": "disagreement - random203",
+      "effect": -0.009187,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -0.731,
+      "stderr": 0.012576
+    },
+    {
+      "contrast": "disagreement - random203",
+      "effect": -0.006247,
+      "metric": "macro",
+      "sigma": -1.266,
+      "stderr": 0.004933
+    },
+    {
+      "contrast": "disagreement - lc50base",
+      "effect": -0.009003,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -0.71,
+      "stderr": 0.012688
+    },
+    {
+      "contrast": "disagreement - lc50base",
+      "effect": -0.002636,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -0.93,
+      "stderr": 0.002834
+    },
+    {
+      "contrast": "disagreement - lc50base",
+      "effect": 0.080229,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 8.235,
+      "stderr": 0.009742
+    },
+    {
+      "contrast": "disagreement - lc50base",
+      "effect": 0.022863,
+      "metric": "macro",
+      "sigma": 3.619,
+      "stderr": 0.006317
+    },
+    {
+      "contrast": "random201 - lc50base",
+      "effect": -0.031975,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -2.174,
+      "stderr": 0.014706
+    },
+    {
+      "contrast": "random201 - lc50base",
+      "effect": -0.006012,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -2.565,
+      "stderr": 0.002343
+    },
+    {
+      "contrast": "random201 - lc50base",
+      "effect": 0.043167,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 2.136,
+      "stderr": 0.020208
+    },
+    {
+      "contrast": "random201 - lc50base",
+      "effect": 0.001727,
+      "metric": "macro",
+      "sigma": 0.219,
+      "stderr": 0.007895
+    }
+  ],
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "seed_count": 12,
+  "seeds": [
+    "17",
+    "29",
+    "43",
+    "61",
+    "79",
+    "97",
+    "113",
+    "131",
+    "149",
+    "167",
+    "181",
+    "199"
+  ]
+}

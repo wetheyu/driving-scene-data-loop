@@ -1,0 +1,251 @@
+{
+  "artifact": "development_paired_contrasts",
+  "evidence_level": "Development diagnostic; carries no held-out claim",
+  "rows": [
+    {
+      "contrast": "oracle - base",
+      "effect": -0.030951,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -2.627,
+      "stderr": 0.011782
+    },
+    {
+      "contrast": "oracle - base",
+      "effect": -0.008187,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.958,
+      "stderr": 0.004182
+    },
+    {
+      "contrast": "oracle - base",
+      "effect": 0.128772,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 5.235,
+      "stderr": 0.024599
+    },
+    {
+      "contrast": "oracle - base",
+      "effect": 0.029878,
+      "metric": "macro",
+      "sigma": 3.306,
+      "stderr": 0.009038
+    },
+    {
+      "contrast": "noise10 - base",
+      "effect": -0.028424,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -2.251,
+      "stderr": 0.012625
+    },
+    {
+      "contrast": "noise10 - base",
+      "effect": -0.006961,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.858,
+      "stderr": 0.003746
+    },
+    {
+      "contrast": "noise10 - base",
+      "effect": 0.0816,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 2.746,
+      "stderr": 0.029715
+    },
+    {
+      "contrast": "noise10 - base",
+      "effect": 0.015405,
+      "metric": "macro",
+      "sigma": 1.206,
+      "stderr": 0.012769
+    },
+    {
+      "contrast": "noise20 - base",
+      "effect": -0.059765,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -5.071,
+      "stderr": 0.011785
+    },
+    {
+      "contrast": "noise20 - base",
+      "effect": 0.004147,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 1.119,
+      "stderr": 0.003706
+    },
+    {
+      "contrast": "noise20 - base",
+      "effect": 0.010956,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 0.336,
+      "stderr": 0.032594
+    },
+    {
+      "contrast": "noise20 - base",
+      "effect": -0.014887,
+      "metric": "macro",
+      "sigma": -1.182,
+      "stderr": 0.012593
+    },
+    {
+      "contrast": "noise30 - base",
+      "effect": -0.068747,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -5.729,
+      "stderr": 0.012001
+    },
+    {
+      "contrast": "noise30 - base",
+      "effect": -0.009098,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -2.858,
+      "stderr": 0.003184
+    },
+    {
+      "contrast": "noise30 - base",
+      "effect": -0.065282,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -1.438,
+      "stderr": 0.045391
+    },
+    {
+      "contrast": "noise30 - base",
+      "effect": -0.047709,
+      "metric": "macro",
+      "sigma": -3.296,
+      "stderr": 0.014476
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": -0.023813,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -1.656,
+      "stderr": 0.01438
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": -0.009387,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -2.492,
+      "stderr": 0.003766
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": 0.110451,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 4.162,
+      "stderr": 0.026539
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": 0.02575,
+      "metric": "macro",
+      "sigma": 3.032,
+      "stderr": 0.008493
+    },
+    {
+      "contrast": "noise10 - oracle",
+      "effect": 0.002528,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": 0.2,
+      "stderr": 0.012646
+    },
+    {
+      "contrast": "noise10 - oracle",
+      "effect": 0.001226,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 0.609,
+      "stderr": 0.002014
+    },
+    {
+      "contrast": "noise10 - oracle",
+      "effect": -0.047172,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -2.198,
+      "stderr": 0.021466
+    },
+    {
+      "contrast": "noise10 - oracle",
+      "effect": -0.014473,
+      "metric": "macro",
+      "sigma": -2.258,
+      "stderr": 0.006409
+    },
+    {
+      "contrast": "noise20 - oracle",
+      "effect": -0.028813,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -2.508,
+      "stderr": 0.011488
+    },
+    {
+      "contrast": "noise20 - oracle",
+      "effect": 0.012334,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 2.123,
+      "stderr": 0.005811
+    },
+    {
+      "contrast": "noise20 - oracle",
+      "effect": -0.117815,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -5.798,
+      "stderr": 0.020321
+    },
+    {
+      "contrast": "noise20 - oracle",
+      "effect": -0.044765,
+      "metric": "macro",
+      "sigma": -5.759,
+      "stderr": 0.007773
+    },
+    {
+      "contrast": "noise30 - oracle",
+      "effect": -0.037796,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -3.16,
+      "stderr": 0.011961
+    },
+    {
+      "contrast": "noise30 - oracle",
+      "effect": -0.000911,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -0.233,
+      "stderr": 0.003905
+    },
+    {
+      "contrast": "noise30 - oracle",
+      "effect": -0.194054,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -5.322,
+      "stderr": 0.036461
+    },
+    {
+      "contrast": "noise30 - oracle",
+      "effect": -0.077587,
+      "metric": "macro",
+      "sigma": -7.671,
+      "stderr": 0.010114
+    }
+  ],
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "seed_count": 12,
+  "seeds": [
+    "17",
+    "29",
+    "43",
+    "61",
+    "79",
+    "97",
+    "113",
+    "131",
+    "149",
+    "167",
+    "181",
+    "199"
+  ]
+}

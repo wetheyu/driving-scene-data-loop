@@ -1,0 +1,62 @@
+{
+  "artifact": "ensemble_size_ablation",
+  "metric": "fraction of the frozen top-K selection recovered by the subset ranking",
+  "protocol": "v0.12-D1",
+  "question": "how many ensemble members does the disagreement selector need",
+  "reference": "frozen disagreement_v010 ranking",
+  "results": {
+    "2": {
+      "overlap_at_300": {
+        "mean": 0.134167,
+        "sd": 0.038221
+      },
+      "overlap_at_900": {
+        "mean": 0.262778,
+        "sd": 0.027045
+      }
+    },
+    "4": {
+      "overlap_at_300": {
+        "mean": 0.290556,
+        "sd": 0.061494
+      },
+      "overlap_at_900": {
+        "mean": 0.366759,
+        "sd": 0.040423
+      }
+    },
+    "6": {
+      "overlap_at_300": {
+        "mean": 0.366111,
+        "sd": 0.081734
+      },
+      "overlap_at_900": {
+        "mean": 0.430648,
+        "sd": 0.030917
+      }
+    },
+    "8": {
+      "overlap_at_300": {
+        "mean": 0.480833,
+        "sd": 0.081651
+      },
+      "overlap_at_900": {
+        "mean": 0.543056,
+        "sd": 0.060976
+      }
+    }
+  },
+  "sanity_full_ensemble_reproduces_frozen": {
+    "300": 1.0,
+    "900": 1.0
+  },
+  "schema_version": "1.0",
+  "subset_seed": 17,
+  "subset_sizes": [
+    2,
+    4,
+    6,
+    8
+  ],
+  "subsets_per_size": 12
+}
