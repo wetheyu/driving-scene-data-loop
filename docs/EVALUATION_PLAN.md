@@ -752,6 +752,54 @@ never described as VLM training experience. No held-out set is reopened for it.
 The VLM never overrides a Strem label, and a disagreement is reported as a
 disagreement rather than resolved in the VLM's favour.
 
+## Post-hoc diagnostics D1–D3 (v0.12)
+
+Declared 2026-09-01, before any of the three runs. All three are
+**Development-level, exploratory diagnostics**: they spend no Oracle budget
+(only already-revealed labels), touch no held-out set, and none of them can
+upgrade or downgrade the v0.10 held-out conclusion. Each answers one scoping
+question a reviewer of the v0.10 result would ask.
+
+### D1 — ensemble-size ablation (selector cost)
+
+Question: how many of the twelve Base-small models does the disagreement
+selector actually need? Method: recompute per-seed Pool2 probabilities from the
+twelve frozen checkpoints; for each subset size `n ∈ {2, 4, 6, 8}` draw twelve
+seeded random subsets, rebuild the full v0.10 ranking pipeline from the subset
+standard deviation, and report the overlap of the top-300 and top-900 selections
+with the frozen `disagreement_v010` ranking (mean ± sd over subsets). Sanity
+gate: the recomputed `n = 12` ranking must reproduce the frozen ranking's
+selection sets; if it does not, the recomputation — not the frozen artifact — is
+wrong and the diagnostic stops. Reading: high overlap at small `n` means the
+selector's inference cost can shrink proportionally.
+
+### D2 — label-noise dose-response (how much noise the loop absorbs)
+
+Question: the v0.11 result says F1-0.49 labels retrain as well as exact labels;
+what does the whole curve look like? Method: take the revealed
+`disagreement_v010` top-900 Oracle labels and flip each **decided** label
+(positive ↔ negative; masked entries untouched) independently with probability
+`p ∈ {0.10, 0.20, 0.30}`, deterministically seeded per `(window_id, class)`.
+Train each level with the identical lc25 + `narrow-fast-12seed` recipe as
+`v010-disagreement-900`. Reading: the corridor and Macro AP versus `p` curve on
+Development, with the existing Oracle arm as `p = 0` and the VLM arm placed on
+the same axes for context. A monotone, initially-flat curve explains the v0.11
+result mechanically; a cliff locates the loop's noise tolerance.
+
+### D3 — cross-operating-point check (does the effect survive more data?)
+
+Question: v0.10 measured the selector at the lc25 point chosen for maximum
+sensitivity; how much survives at lc50? Method: retrain
+`v010-disagreement-900` and the three `v010-random20X-900` arms with
+`lc_windows_50.jsonl` as the private windows file — same revealed labels, same
+recipe, nothing else moved. Reading: the Development seed-paired contrast
+(disagreement − random mean) at N=900, expected smaller than the lc25-point
+effect; the interesting quantity is the decay, not a pass/fail.
+
+These diagnostics report what they find. None of them is a registered
+confirmatory claim, and their results are labeled Development-level wherever
+they are quoted.
+
 ## Metrics
 
 Primary:
