@@ -753,7 +753,7 @@ never described as VLM training experience. No held-out set is reopened for it.
 The VLM never overrides a Strem label, and a disagreement is reported as a
 disagreement rather than resolved in the VLM's favour.
 
-## Post-hoc diagnostics D1–D3 (v0.12)
+## Post-hoc diagnostics D1–D4 (v0.12)
 
 Declared 2026-09-01, before any of the three runs. All three are
 **Development-level, exploratory diagnostics**: they spend no Oracle budget
@@ -796,6 +796,41 @@ sensitivity; how much survives at lc50? Method: retrain
 recipe, nothing else moved. Reading: the Development seed-paired contrast
 (disagreement − random mean) at N=900, expected smaller than the lc25-point
 effect; the interesting quantity is the decay, not a pass/fail.
+
+### D4 — the clean-query similarity ablation (declared 2026-09-01, before any step ran)
+
+The one ablation v0.10 deliberately did not buy: the v0.8 similarity strategy
+with its coupling removed. Exploratory, Development-level, pre-registered here
+before the query bank exists.
+
+**Query source.** The ten L0 logs outside `L0-small`: Base-small never trained
+on them, they are disjoint from Pool2 and Test2 (not U logs) and from
+Development — a labeled query source isolated from both the selection pool and
+the evaluation partition in exactly the way the v0.8 bank was not.
+
+**Faithful reconstruction, declared deviations.** The bank is built as in v0.8
+— seed-17 Base-small predictions, the run's frozen max-F1 thresholds, the same
+FN definition and event-deduplication — but from the ten-log partition instead
+of Development. Selection reuses the frozen v0.8 integrated recipe
+(similarity + boundary uncertainty + KMeans diversity, `M=2000`, `K=30`,
+temporal separation, round-robin) over a Pool2-restricted pool whose
+probabilities come from the Base-small ensemble mean and whose thresholds come
+from the Base-small report; embeddings are the frozen 768-d window vectors.
+Budgets `300 ⊂ 600 ⊂ 900`.
+
+**Spend.** Revealing the 900-row prefix consumes up to 900 of Pool2's 2,212
+unrevealed windows, approved as this diagnostic's cost; the remainder is
+reserved for a future loop round.
+
+**Training and reading.** Arm `d4-similarity-clean-900`: identical lc25 +
+`narrow-fast-12seed` recipe, Development seed-paired contrast against the three
+existing random-900 arms' mean, read beside the disagreement arm's same-
+instrument reading (`+0.017`, 1.4σ). Development under-reads between-arm
+contrasts (the D3 calibration), so the readout distinguishes "clearly weak"
+from "comparable" and nothing finer. Either way it sharpens the v0.8
+attribution: a weak clean-query arm supports "similarity was intrinsically
+weak"; a comparable one supports "the coupling was the main killer" and
+downgrades the selector-switch narrative. No held-out claim in either case.
 
 These diagnostics report what they find. None of them is a registered
 confirmatory claim, and their results are labeled Development-level wherever
