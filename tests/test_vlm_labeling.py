@@ -257,6 +257,9 @@ def test_evaluation_scores_decided_windows_and_profiles_the_rest(tmp_path: Path)
     first = report["per_class"][SCENARIOS[0]]
     assert (first["true_positives"], first["true_negatives"]) == (1, 1)
     assert first["f1"] == 1.0
+    assert first["recall_including_abstentions"] == 1.0
+    second_hold = report["per_class"][SCENARIOS[1]]
+    assert second_hold["recall_including_abstentions"] == 0.0
     second = report["per_class"][SCENARIOS[1]]
     assert second["false_positives"] == 1
     assert second["undecidable_rate_on_decided"] == 0.5

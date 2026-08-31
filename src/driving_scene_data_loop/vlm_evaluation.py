@@ -151,6 +151,10 @@ def _score_class(
     scored = sum(counts.values())
     precision = _ratio(counts["tp"], counts["tp"] + counts["fp"])
     recall = _ratio(counts["tp"], counts["tp"] + counts["fn"])
+    # Decided-only recall reads like positive coverage but is not: a positive the
+    # VLM abstained on is invisible to it. Both readings are emitted so no
+    # downstream quotation can accidentally upgrade one into the other.
+    recall_all = _ratio(counts["tp"], oracle_states.get("positive", 0))
     if not scored:
         f1: float | None = None
     elif precision and recall:
@@ -167,6 +171,8 @@ def _score_class(
         "true_negatives": counts["tn"],
         "precision": precision,
         "recall": recall,
+        "recall_rule": "tp over VLM-decided oracle positives only",
+        "recall_including_abstentions": recall_all,
         "f1": f1,
         "undecidable_rate_on_decided": _ratio(undecidable_on_decided, oracle_decided),
         "vlm_verdicts": vlm_states,

@@ -581,11 +581,19 @@ field set, so the boundary is a property of the code path.
 
 ### The labels are mediocre
 
-| Class | Precision | Recall | F1 | VLM `uncertain` |
-| --- | ---: | ---: | ---: | ---: |
-| near-zone | 0.400 | 0.800 | 0.533 | 24.6% |
-| proximity hold | 0.302 | 0.865 | 0.448 | 28.8% |
-| corridor | 0.474 | 0.529 | 0.500 | 10.3% |
+| Class | Precision | Recall (decided-only) | Recall incl. abstentions | F1 | VLM `uncertain` |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| near-zone | 0.400 | 0.800 | **0.471** | 0.533 | 24.6% |
+| proximity hold | 0.302 | 0.865 | **0.681** | 0.448 | 28.8% |
+| corridor | 0.474 | 0.529 | **0.346** | 0.500 | 10.3% |
+
+**Correction (2026-09-01 audit).** The recall column follows the plan's metric
+definition — `uncertain` excluded from numerator and denominator — which means
+it reads like positive coverage but is not: a positive the VLM abstained on is
+invisible to it. Counting abstentions as misses, the VLM recovers only 35% of
+all true corridor positives. The downstream comparison is unaffected (training
+masks the same abstentions), but any coverage claim must quote the second
+recall column, and the evaluator now emits both.
 
 Macro-F1 `0.494`; schema-valid `99.1%`; `evidence_frames` out of range or missing
 under a positive verdict: `0` of 2,700. The error is overwhelmingly

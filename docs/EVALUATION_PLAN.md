@@ -714,7 +714,8 @@ Computed against the already-revealed Oracle labels for the same IDs:
 
 - per class Precision, Recall, F1 over windows the Oracle calls `positive` or
   `negative`, with VLM `uncertain` excluded from the numerator and denominator
-  but reported as its own rate;
+  but reported as its own rate — and, since the decided-only recall reads like
+  coverage but is not, recall including abstentions is reported beside it;
 - windows the Oracle calls `ignore` or `invalid` are profiled separately, never
   scored as errors — they are the definitionally ambiguous region;
 - schema-invalid rate, and the rate of `evidence_frames` outside `0..4` or empty
