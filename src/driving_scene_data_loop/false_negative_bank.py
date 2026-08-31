@@ -108,7 +108,10 @@ def build_false_negative_bank(
             source_index = source_indices[scenario_id]
             label = window["labels"][source_index]
             mask = window["loss_mask"][source_index]
-            if (
+            # Training-stage prediction files carry targets and are cross-checked;
+            # frozen prediction files are label-free by design, and truth comes
+            # from the private windows file either way.
+            if "labels" in prediction and (
                 prediction["labels"][class_index] != label
                 or prediction["loss_mask"][class_index] != mask
             ):
