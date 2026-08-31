@@ -1,0 +1,106 @@
+{
+  "artifact": "frozen_selection_rankings",
+  "budgets": [
+    300,
+    600
+  ],
+  "files": {
+    "mining": "mining_ranked.jsonl",
+    "random": "random_ranked.jsonl"
+  },
+  "maximum_ranked_count": 600,
+  "policy": {
+    "class_merge": "round-robin in frozen scenario order",
+    "cluster_algorithm": "MiniBatchKMeans",
+    "cluster_count_per_class": 30,
+    "cluster_seed": 17,
+    "random_seed": 101,
+    "shortlist_size_per_class": 2000,
+    "temporal_separation_keyframes": 5,
+    "uncertainty": "absolute logit distance to frozen class threshold"
+  },
+  "prefixes": {
+    "mining": {
+      "300": {
+        "cluster_profile": {
+          "pedestrian_ego_near_zone_entry": {
+            "coverage": 30,
+            "maximum_cluster_share": 0.04
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "coverage": 30,
+            "maximum_cluster_share": 0.05
+          },
+          "vehicle_relative_corridor_entry": {
+            "coverage": 30,
+            "maximum_cluster_share": 0.04
+          }
+        },
+        "count": 300,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 100,
+          "pedestrian_vehicle_center_proximity_hold": 100,
+          "vehicle_relative_corridor_entry": 100
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {
+          "pedestrian_ego_near_zone_entry": {
+            "coverage": 30,
+            "maximum_cluster_share": 0.075
+          },
+          "pedestrian_vehicle_center_proximity_hold": {
+            "coverage": 30,
+            "maximum_cluster_share": 0.06
+          },
+          "vehicle_relative_corridor_entry": {
+            "coverage": 30,
+            "maximum_cluster_share": 0.06
+          }
+        },
+        "count": 600,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 200,
+          "pedestrian_vehicle_center_proximity_hold": 200,
+          "vehicle_relative_corridor_entry": 200
+        },
+        "unique_windows": 600
+      }
+    },
+    "random": {
+      "300": {
+        "cluster_profile": {},
+        "count": 300,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 300
+      },
+      "600": {
+        "cluster_profile": {},
+        "count": 600,
+        "log_coverage": 15,
+        "query_class_counts": {
+          "pedestrian_ego_near_zone_entry": 0,
+          "pedestrian_vehicle_center_proximity_hold": 0,
+          "vehicle_relative_corridor_entry": 0
+        },
+        "unique_windows": 600
+      }
+    }
+  },
+  "primary_budget": 300,
+  "public_pool_window_count": 5311,
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0"
+}

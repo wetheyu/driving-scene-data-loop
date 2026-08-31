@@ -1,0 +1,195 @@
+{
+  "artifact": "development_paired_contrasts",
+  "evidence_level": "Development diagnostic; carries no held-out claim",
+  "rows": [
+    {
+      "contrast": "d4sim - base",
+      "effect": -0.012728,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -1.122,
+      "stderr": 0.011344
+    },
+    {
+      "contrast": "d4sim - base",
+      "effect": -0.006708,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.506,
+      "stderr": 0.004456
+    },
+    {
+      "contrast": "d4sim - base",
+      "effect": 0.072252,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 3.411,
+      "stderr": 0.021182
+    },
+    {
+      "contrast": "d4sim - base",
+      "effect": 0.017605,
+      "metric": "macro",
+      "sigma": 2.341,
+      "stderr": 0.007519
+    },
+    {
+      "contrast": "d4sim - random201",
+      "effect": 0.01968,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": 2.403,
+      "stderr": 0.008189
+    },
+    {
+      "contrast": "d4sim - random201",
+      "effect": 0.001821,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 1.637,
+      "stderr": 0.001113
+    },
+    {
+      "contrast": "d4sim - random201",
+      "effect": 0.005613,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 0.358,
+      "stderr": 0.015688
+    },
+    {
+      "contrast": "d4sim - random201",
+      "effect": 0.009038,
+      "metric": "macro",
+      "sigma": 1.51,
+      "stderr": 0.005987
+    },
+    {
+      "contrast": "d4sim - random202",
+      "effect": -0.007597,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -0.759,
+      "stderr": 0.010004
+    },
+    {
+      "contrast": "d4sim - random202",
+      "effect": -0.006438,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.631,
+      "stderr": 0.003947
+    },
+    {
+      "contrast": "d4sim - random202",
+      "effect": -0.004308,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -0.316,
+      "stderr": 0.013615
+    },
+    {
+      "contrast": "d4sim - random202",
+      "effect": -0.006114,
+      "metric": "macro",
+      "sigma": -0.931,
+      "stderr": 0.006568
+    },
+    {
+      "contrast": "d4sim - random203",
+      "effect": 0.005906,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": 0.525,
+      "stderr": 0.011258
+    },
+    {
+      "contrast": "d4sim - random203",
+      "effect": -0.002309,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.643,
+      "stderr": 0.001405
+    },
+    {
+      "contrast": "d4sim - random203",
+      "effect": -0.034906,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -2.762,
+      "stderr": 0.012636
+    },
+    {
+      "contrast": "d4sim - random203",
+      "effect": -0.010436,
+      "metric": "macro",
+      "sigma": -1.57,
+      "stderr": 0.006646
+    },
+    {
+      "contrast": "disagreement - base",
+      "effect": -0.0251,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -2.051,
+      "stderr": 0.012235
+    },
+    {
+      "contrast": "disagreement - base",
+      "effect": -0.004074,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -0.798,
+      "stderr": 0.005106
+    },
+    {
+      "contrast": "disagreement - base",
+      "effect": 0.127814,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 4.365,
+      "stderr": 0.029281
+    },
+    {
+      "contrast": "disagreement - base",
+      "effect": 0.03288,
+      "metric": "macro",
+      "sigma": 3.656,
+      "stderr": 0.008993
+    },
+    {
+      "contrast": "d4sim - disagreement",
+      "effect": 0.012372,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": 0.966,
+      "stderr": 0.012803
+    },
+    {
+      "contrast": "d4sim - disagreement",
+      "effect": -0.002634,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -2.002,
+      "stderr": 0.001316
+    },
+    {
+      "contrast": "d4sim - disagreement",
+      "effect": -0.055562,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -3.142,
+      "stderr": 0.017684
+    },
+    {
+      "contrast": "d4sim - disagreement",
+      "effect": -0.015275,
+      "metric": "macro",
+      "sigma": -1.807,
+      "stderr": 0.008455
+    }
+  ],
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "seed_count": 12,
+  "seeds": [
+    "17",
+    "29",
+    "43",
+    "61",
+    "79",
+    "97",
+    "113",
+    "131",
+    "149",
+    "167",
+    "181",
+    "199"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "artifact": "oracle_revealed_labels",
+  "budget_rule": "ignore and invalid consume budget and are never replaced",
+  "budgets": [
+    300,
+    600
+  ],
+  "files": {
+    "rows": "revealed_labels.jsonl"
+  },
+  "label_order": "labels, loss_mask, label_states, and event_group_ids follow scenario_ids",
+  "methods": {
+    "mining": {
+      "budgets": {
+        "300": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 900,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 14,
+              "label_states": {
+                "ignore": 21,
+                "invalid": 0,
+                "negative": 268,
+                "positive": 11
+              },
+              "positive_yield": 0.03666666666666667,
+              "usable_labels": 279
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 18,
+              "label_states": {
+                "ignore": 23,
+                "invalid": 0,
+                "negative": 263,
+                "positive": 14
+              },
+              "positive_yield": 0.04666666666666667,
+              "usable_labels": 277
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 21,
+              "label_states": {
+                "ignore": 13,
+                "invalid": 0,
+                "negative": 272,
+                "positive": 15
+              },
+              "positive_yield": 0.05,
+              "usable_labels": 287
+            }
+          },
+          "scene_coverage": 130,
+          "unique_windows": 300,
+          "usable_labels": 843,
+          "windows": 300
+        },
+        "600": {
+          "log_coverage": 15,
+          "maximum_possible_labels": 1800,
+          "per_class": {
+            "pedestrian_ego_near_zone_entry": {
+              "distinct_positive_event_groups": 27,
+              "label_states": {
+                "ignore": 38,
+                "invalid": 0,
+                "negative": 540,
+                "positive": 22
+              },
+              "positive_yield": 0.03666666666666667,
+              "usable_labels": 562
+            },
+            "pedestrian_vehicle_center_proximity_hold": {
+              "distinct_positive_event_groups": 42,
+              "label_states": {
+                "ignore": 38,
+                "invalid": 0,
+                "negative": 524,
+                "positive": 38
+              },
+              "positive_yield": 0.06333333333333334,
+              "usable_labels": 562
+            },
+            "vehicle_relative_corridor_entry": {
+              "distinct_positive_event_groups": 33,
+              "label_states": {
+                "ignore": 24,
+                "invalid": 0,
+                "negative": 551,
+                "positive": 25
+              },
+              "positive_yield": 0.041666666666666664,
+              "usable_labels": 576
+            }
+          },
+          "scene_coverage": 163,
+          "unique_windows": 600,
+          "usable_labels": 1700,
+          "windows": 600
+        }
+      },
+      "ranked_count": 600
+    }
+  },
+  "primary_budget": 300,
+  "private_windows_run": "window-dataset-v1",
+  "revealed_window_count": 600,
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0"
+}

@@ -1,0 +1,63 @@
+{
+  "artifact": "l0_false_negative_bank",
+  "bank_event_count": 271,
+  "bank_unique_window_count": 239,
+  "base": {
+    "checkpoint": "gru_seed_17.pt",
+    "run": "n12-lc25",
+    "scenario_ids": [
+      "pedestrian_ego_near_zone_entry",
+      "pedestrian_vehicle_center_proximity_hold",
+      "vehicle_relative_corridor_entry"
+    ],
+    "seed": 17
+  },
+  "classes": {
+    "pedestrian_ego_near_zone_entry": {
+      "event_groups_with_all_positive_windows_false_negative": 94,
+      "event_groups_with_any_false_negative": 104,
+      "minimum_event_gate": 5,
+      "passed_minimum_event_gate": true,
+      "positive_event_groups": 109,
+      "raw_false_negative_windows": 188,
+      "threshold": 0.6631935834884644,
+      "unique_representative_windows": 87
+    },
+    "pedestrian_vehicle_center_proximity_hold": {
+      "event_groups_with_all_positive_windows_false_negative": 40,
+      "event_groups_with_any_false_negative": 53,
+      "minimum_event_gate": 5,
+      "passed_minimum_event_gate": true,
+      "positive_event_groups": 75,
+      "raw_false_negative_windows": 189,
+      "threshold": 0.1668693721294403,
+      "unique_representative_windows": 44
+    },
+    "vehicle_relative_corridor_entry": {
+      "event_groups_with_all_positive_windows_false_negative": 78,
+      "event_groups_with_any_false_negative": 114,
+      "minimum_event_gate": 5,
+      "passed_minimum_event_gate": true,
+      "positive_event_groups": 134,
+      "raw_false_negative_windows": 290,
+      "threshold": 0.4075378477573395,
+      "unique_representative_windows": 110
+    }
+  },
+  "definition": "Ground-Truth-positive windows below the frozen Base threshold, deduplicated by scenario_id and event_group_id",
+  "embedding": {
+    "dimension": 768,
+    "dtype": "float32",
+    "formula": "L2(concat(mean(f0..f4), f4-f0))",
+    "model_id": "facebook/dinov2-small",
+    "model_revision": "ed25f3a31f01632728cabb09d1542f84ab7b0056"
+  },
+  "files": {
+    "embeddings": "fn_embeddings.npy",
+    "rows": "fn_bank.jsonl"
+  },
+  "partition": "l0",
+  "representative_rule": "lowest Base probability; ties use lexicographically smallest window_id",
+  "schema_version": "1.0",
+  "source_window_count": 6459
+}
