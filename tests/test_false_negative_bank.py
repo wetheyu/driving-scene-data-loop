@@ -121,7 +121,7 @@ def test_bank_maps_class_names_deduplicates_events_and_ignores_u(tmp_path: Path)
     ]
     embeddings = np.load(output_dir / "fn_embeddings.npy")
     near_zero = next(row for row in rows if row["event_group_id"] == "near-event-0")
-    assert result["development_window_count"] == len(predictions)
+    assert result["source_window_count"] == len(predictions)
     assert result["bank_event_count"] == 15
     assert result["bank_unique_window_count"] == 15
     assert near_zero["window_id"] == "near-a-aaa"

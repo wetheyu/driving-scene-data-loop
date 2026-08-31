@@ -105,10 +105,18 @@ NOISE_ARMS = tuple(
 )
 
 
+# Diagnostic D4: the v0.8 similarity recipe with a clean query bank, revealed
+# and trained like any other arm; declared exploratory in the Evaluation Plan.
+D4_ARMS = (
+    OracleArm("d4-similarity-clean-900", "mining", 900, pre_registered=False),
+)
+
+
 def get_oracle_arm(name: str) -> OracleArm:
     """Return one arm, pre-registered or Development-informed, by name."""
 
-    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS + NOISE_ARMS:
+    arms = ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS + NOISE_ARMS + D4_ARMS
+    for arm in arms:
         if arm.name == name:
             return arm
     raise FeedbackRetrainingError(f"unknown feedback arm: {name}")

@@ -30,7 +30,7 @@ def main() -> None:
     parser.add_argument("--windows", type=Path, required=True)
     parser.add_argument("--feature-dir", type=Path, required=True)
     parser.add_argument(
-        "--partition", choices=["development", "frozen_test", "u"], required=True
+        "--partition", choices=["development", "frozen_test", "u", "l0"], required=True
     )
     parser.add_argument(
         "--window-list",

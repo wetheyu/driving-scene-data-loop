@@ -71,6 +71,7 @@ def build_false_negative_bank(
     feature_model_revision: str,
     output_dir: Path,
     minimum_events_per_class: int = 5,
+    partition: str = "development",
 ) -> JsonObject:
     """Find window FNs and retain the lowest-score view of each real event."""
 
@@ -78,7 +79,7 @@ def build_false_negative_bank(
         raise FalseNegativeBankError("output directory must not already exist")
 
     scenario_ids, thresholds, checkpoint = _load_base_protocol(base_report_path)
-    predictions = _load_predictions(predictions_path, len(scenario_ids))
+    predictions = _load_predictions(predictions_path, len(scenario_ids), partition)
     scenario_order = {scenario_id: index for index, scenario_id in enumerate(scenario_ids)}
     seen_development_ids: set[str] = set()
     raw_fn_windows = {scenario_id: 0 for scenario_id in scenario_ids}
@@ -87,11 +88,11 @@ def build_false_negative_bank(
     representatives: dict[tuple[str, str], _Candidate] = {}
 
     for window in _read_jsonl(windows_path):
-        if window["partition"] != "development":
+        if window["partition"] != partition:
             continue
         window_id = cast(str, window["window_id"])
         if window_id in seen_development_ids or window_id not in predictions:
-            raise FalseNegativeBankError(f"invalid Development prediction join: {window_id}")
+            raise FalseNegativeBankError(f"invalid {partition} prediction join: {window_id}")
         seen_development_ids.add(window_id)
         prediction = predictions[window_id]
 
@@ -153,7 +154,7 @@ def build_false_negative_bank(
                     representatives[key] = candidate
 
     if seen_development_ids != set(predictions):
-        raise FalseNegativeBankError("predictions and Development windows are not one-to-one")
+        raise FalseNegativeBankError(f"predictions and {partition} windows are not one-to-one")
 
     ordered = sorted(
         representatives.values(),
@@ -217,8 +218,8 @@ def build_false_negative_bank(
 
     report: JsonObject = {
         "schema_version": "1.0",
-        "artifact": "development_false_negative_bank",
-        "partition": "development",
+        "artifact": f"{partition}_false_negative_bank",
+        "partition": partition,
         "definition": (
             "Ground-Truth-positive windows below the frozen Base threshold, "
             "deduplicated by scenario_id and event_group_id"
@@ -239,7 +240,7 @@ def build_false_negative_bank(
             "dimension": 768,
             "dtype": "float32",
         },
-        "development_window_count": len(seen_development_ids),
+        "source_window_count": len(seen_development_ids),
         "bank_event_count": len(rows),
         "bank_unique_window_count": len({row["window_id"] for row in rows}),
         "classes": classes,
@@ -277,13 +278,15 @@ def _load_base_protocol(path: Path) -> tuple[tuple[str, ...], dict[str, float], 
     return scenario_ids, thresholds, checkpoint
 
 
-def _load_predictions(path: Path, class_count: int) -> dict[str, JsonObject]:
+def _load_predictions(
+    path: Path, class_count: int, partition: str = "development"
+) -> dict[str, JsonObject]:
     result: dict[str, JsonObject] = {}
     for row in _read_jsonl(path):
         window_id = cast(str, row["window_id"])
         probabilities = np.asarray(row["probabilities"], dtype=np.float64)
         if (
-            row["partition"] != "development"
+            row["partition"] != partition
             or probabilities.shape != (class_count,)
             or not np.isfinite(probabilities).all()
             or bool((probabilities < 0.0).any())

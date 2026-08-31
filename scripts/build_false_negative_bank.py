@@ -24,6 +24,11 @@ def main() -> None:
     parser.add_argument("--base-report", type=Path, required=True)
     parser.add_argument("--feature-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--partition",
+        default="development",
+        help="Source partition for the bank; queries must stay disjoint from evaluation.",
+    )
     args = parser.parse_args()
 
     manifest_path = args.feature_dir / "feature_manifest.json"
@@ -42,6 +47,7 @@ def main() -> None:
         feature_model_id=feature_manifest["model_id"],
         feature_model_revision=feature_manifest["model_revision"],
         output_dir=args.output_dir,
+        partition=args.partition,
     )
     print(json.dumps(report, allow_nan=False, sort_keys=True))
 

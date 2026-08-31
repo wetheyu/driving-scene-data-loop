@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import cast
 
 from driving_scene_data_loop.feedback_retraining import (
+    D4_ARMS,
     DEVELOPMENT_INFORMED_ARMS,
     NOISE_ARMS,
     ORACLE_ARMS,
@@ -33,7 +34,10 @@ def main() -> None:
         "--arm",
         choices=[
             arm.name
-            for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS + NOISE_ARMS
+            for arm in (
+                ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS
+                + VLM_ARMS + NOISE_ARMS + D4_ARMS
+            )
         ],
         required=True,
     )
