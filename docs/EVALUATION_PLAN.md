@@ -818,13 +818,21 @@ probabilities come from the Base-small ensemble mean and whose thresholds come
 from the Base-small report; embeddings are the frozen 768-d window vectors.
 Budgets `300 ⊂ 600 ⊂ 900`.
 
-**Spend.** Revealing the 900-row prefix consumes up to 900 of Pool2's 2,212
+**Pre-reveal amendment (2026-09-01):** at 900 the proximity-hold queue exhausts
+its candidates under the frozen shortlist and temporal-separation rules on the
+5,311-window pool — the same class of capacity infeasibility that moved the
+v0.10 top budget, resolved the same way: the top budget becomes `600`
+(`300 ⊂ 600`), the arm becomes `d4-similarity-clean-600`, and every comparison
+target exists at 600 (the random-600 and disagreement-600 arms are already
+trained). Recorded before any D4 label was revealed.
+
+**Spend.** Revealing the 600-row prefix consumes up to 600 of Pool2's 2,212
 unrevealed windows, approved as this diagnostic's cost; the remainder is
 reserved for a future loop round.
 
-**Training and reading.** Arm `d4-similarity-clean-900`: identical lc25 +
-`narrow-fast-12seed` recipe, Development seed-paired contrast against the three
-existing random-900 arms' mean, read beside the disagreement arm's same-
+**Training and reading.** Arm `d4-similarity-clean-600` (see the amendment):
+identical lc25 + `narrow-fast-12seed` recipe, Development seed-paired contrast
+against the three existing random-600 arms' mean, read beside the disagreement arm's same-
 instrument reading (`+0.017`, 1.4σ). Development under-reads between-arm
 contrasts (the D3 calibration), so the readout distinguishes "clearly weak"
 from "comparable" and nothing finer. Either way it sharpens the v0.8

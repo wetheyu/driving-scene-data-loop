@@ -108,7 +108,7 @@ NOISE_ARMS = tuple(
 # Diagnostic D4: the v0.8 similarity recipe with a clean query bank, revealed
 # and trained like any other arm; declared exploratory in the Evaluation Plan.
 D4_ARMS = (
-    OracleArm("d4-similarity-clean-900", "mining", 900, pre_registered=False),
+    OracleArm("d4-similarity-clean-600", "mining", 600, pre_registered=False),
 )
 
 
