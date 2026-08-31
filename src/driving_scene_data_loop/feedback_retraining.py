@@ -37,6 +37,7 @@ class OracleArm:
 LABEL_SOURCE_ARTIFACTS = {
     "oracle": "oracle_revealed_labels",
     "vlm": "vlm_labeled_windows",
+    "oracle_noise": "oracle_noise_injected",
 }
 
 
@@ -91,10 +92,23 @@ VLM_ARMS = (
 )
 
 
+# Diagnostic D2: the same frozen IDs with decided Oracle labels flipped at a
+# declared rate, to place the VLM result on a noise dose-response curve.
+NOISE_ARMS = tuple(
+    OracleArm(
+        f"v010-disagreement-900-noise{rate}",
+        "disagreement_v010",
+        900,
+        label_source="oracle_noise",
+    )
+    for rate in (10, 20, 30)
+)
+
+
 def get_oracle_arm(name: str) -> OracleArm:
     """Return one arm, pre-registered or Development-informed, by name."""
 
-    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS:
+    for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS + NOISE_ARMS:
         if arm.name == name:
             return arm
     raise FeedbackRetrainingError(f"unknown feedback arm: {name}")

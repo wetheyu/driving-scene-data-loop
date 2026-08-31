@@ -9,6 +9,7 @@ from typing import cast
 
 from driving_scene_data_loop.feedback_retraining import (
     DEVELOPMENT_INFORMED_ARMS,
+    NOISE_ARMS,
     ORACLE_ARMS,
     V010_ARMS,
     VLM_ARMS,
@@ -32,7 +33,7 @@ def main() -> None:
         "--arm",
         choices=[
             arm.name
-            for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS
+            for arm in ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS + NOISE_ARMS
         ],
         required=True,
     )

@@ -23,6 +23,12 @@ revealed. [中文简介在文末](#中文简介).
 | Does the redesigned loop beat random? (v0.10) | **Yes.** Ensemble-disagreement selection beats the random distribution by `+0.0619 ± 0.0082` corridor AP (**7.6σ**) on ten held-out logs it never touched, under a criterion frozen before any label was revealed. The yield-maximising selector fails the same bar | [Findings §14](docs/FINDINGS.md) |
 | Can a remote VLM replace the metric labeling Oracle? (v0.11) | **At this operating point, yes.** Labels at Macro-F1 `0.494` retrained to 86% of the Oracle's gain, statistically indistinguishable (`−0.018 ± 0.020`), at `$0.026` per window — and label F1 predicted none of that | [Findings §15](docs/FINDINGS.md) |
 
+**Scope of these claims:** one dataset (nuScenes), one representation, one
+downstream model, and — for the v0.10 result — a deliberately data-scarce
+operating point where the learning curve is steep; at the data-rich operating
+point the same question measured null (that is the v0.8 row). The v0.11
+downstream contrast is Development-level, since both held-out sets were spent.
+
 The scenario specification is frozen at `v0.8-three-class-loop`; protocols
 v0.10 and v0.11 build on it without editing it. The full narrative, in the
 order the evidence arrived, is [Findings](docs/FINDINGS.md).

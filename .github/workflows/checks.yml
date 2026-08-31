@@ -13,10 +13,23 @@ jobs:
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: "3.12"
-      # The ml extra (torch) is deliberately absent: its tests skip themselves,
-      # and the Strem integration tests skip without STREM_BIN.
+      # The ml extra (torch) lives in the separate job below; the Strem
+      # integration tests skip without STREM_BIN everywhere.
       - run: uv sync --locked --all-groups --extra vlm
       - run: uv run ruff check .
       - run: uv run mypy src scripts tests
       - run: uv run pytest
       - run: uv lock --check
+
+  checks-ml:
+    # The training loop is the one path the fast job never exercises: without
+    # torch its tests skip themselves. This job installs the CPU wheel and runs
+    # only the torch-gated tests, so the trainer keeps continuous coverage.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --locked --all-groups --all-extras
+      - run: uv run pytest tests/test_gru_baseline.py tests/test_public_pool.py tests/test_dino_pooling.py -q

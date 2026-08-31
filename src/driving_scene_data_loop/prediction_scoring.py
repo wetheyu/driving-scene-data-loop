@@ -244,3 +244,74 @@ def score_runs(
         encoding="utf-8",
     )
     return report
+
+def development_paired_contrasts(
+    run_reports: dict[str, Path],
+    contrasts: tuple[tuple[str, str], ...],
+) -> JsonObject:
+    """Seed-paired Development contrasts read straight from training reports.
+
+    For diagnostics only: Development carries no headline claim, and this reads
+    the per-seed normal-order APs the training stage already computed rather
+    than re-deriving anything.
+    """
+
+    per_run: dict[str, dict[str, dict[str, float]]] = {}
+    scenario_ids: tuple[str, ...] | None = None
+    for name, path in run_reports.items():
+        report = cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))
+        run_scenarios = tuple(cast(list[str], report["scenario_ids"]))
+        if scenario_ids is None:
+            scenario_ids = run_scenarios
+        elif run_scenarios != scenario_ids:
+            raise PredictionScoringError(f"scenario order differs in run {name}")
+        seeds: dict[str, dict[str, float]] = {}
+        for seed, record in cast(JsonObject, report["runs"]).items():
+            normal = cast(JsonObject, cast(JsonObject, record)["normal_order"])
+            classes = cast(JsonObject, normal["classes"])
+            values = {
+                scenario_id: float(
+                    cast(
+                        "float", cast(JsonObject, classes[scenario_id])["average_precision"]
+                    )
+                )
+                for scenario_id in run_scenarios
+            }
+            values["macro"] = sum(values.values()) / len(run_scenarios)
+            seeds[seed] = values
+        per_run[name] = seeds
+
+    assert scenario_ids is not None
+    shared = set.intersection(*(set(seeds) for seeds in per_run.values()))
+    if len(shared) < 2:
+        raise PredictionScoringError("paired contrasts need at least two shared seeds")
+    ordered = sorted(shared, key=int)
+
+    rows: list[JsonObject] = []
+    for left, right in contrasts:
+        if left not in per_run or right not in per_run:
+            raise PredictionScoringError(f"unknown run in contrast {left} - {right}")
+        for key in (*scenario_ids, "macro"):
+            diffs = [per_run[left][seed][key] - per_run[right][seed][key] for seed in ordered]
+            mean = sum(diffs) / len(diffs)
+            variance = sum((d - mean) ** 2 for d in diffs) / (len(diffs) - 1)
+            stderr = (variance / len(diffs)) ** 0.5
+            rows.append(
+                {
+                    "contrast": f"{left} - {right}",
+                    "metric": key,
+                    "effect": round(mean, 6),
+                    "stderr": round(stderr, 6),
+                    "sigma": round(mean / stderr, 3) if stderr else None,
+                }
+            )
+    return {
+        "schema_version": "1.0",
+        "artifact": "development_paired_contrasts",
+        "evidence_level": "Development diagnostic; carries no held-out claim",
+        "seed_count": len(ordered),
+        "seeds": ordered,
+        "scenario_ids": list(scenario_ids),
+        "rows": rows,
+    }
+
