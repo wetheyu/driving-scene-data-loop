@@ -692,9 +692,10 @@ deterministic per window and class) and retraining with the identical recipe:
 
 The curve is monotone with its zero-crossing between 20% and 30% random flips,
 and 30% is actively harmful — noisy enough labels are worse than no data. The
-VLM row is the point of the exercise: labels whose headline disagreement with
-the Oracle approaches half the decided positives retrain like *well under 10%*
-random noise. Section 15's result is therefore not "noise doesn't matter" but
+VLM row is the point of the exercise: labels that misfire on roughly two
+thirds of their positive verdicts (118 of 184 on Oracle-decided windows, while
+the overall decided error rate is only 7%) retrain like *well under 10%* random
+noise. Section 15's result is therefore not "noise doesn't matter" but
 "**the structure of the noise matters more than its rate**": the VLM's errors
 are semantically correlated near-boundary false positives, which displace the
 decision boundary far less than the same count of random contradictions. Two
