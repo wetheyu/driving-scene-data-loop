@@ -2,36 +2,36 @@
 
 [![checks](https://github.com/wetheyu/driving-scene-data-loop/actions/workflows/checks.yml/badge.svg)](https://github.com/wetheyu/driving-scene-data-loop/actions/workflows/checks.yml)
 
-A one-person offline research project that closes an autonomous-driving data
+An offline, one-person research project that closes an autonomous-driving data
 loop on nuScenes and measures every link of it: mine rare temporal scenes with
-a formal matcher, train a small visual model, select new data under a fixed
-annotation budget without seeing labels, retrain, and check on held-out logs
-whether the selection genuinely helped.
+a formal matcher, select new data under a fixed annotation budget without
+seeing labels, retrain, and check on held-out logs whether the selection
+genuinely helped. Negative results are kept. [中文简介在文末](#中文简介).
 
 > Under the same annotation budget, does mined data improve a held-out metric
 > more than random data — and when it does not, why exactly not?
 
-Improvement is a hypothesis, not a premise. Negative results are kept, and the
-commit history is the timestamped record of what was frozen before what was
-revealed. [中文简介在文末](#中文简介).
+## Results
 
-## Headline Results
-
-| Question | Answer | Record |
+| Protocol | Question | Answer |
 | --- | --- | --- |
-| Does bad-case-similarity selection transfer? (v0.8) | **No.** A Development effect of `+0.0247` (3.7σ) died on held-out logs (`+0.0033`, 0.3σ). The mechanism was diagnosed, not excused: the mining queries came from the partition that judged them | [Findings §8–13](docs/FINDINGS.md) |
-| Does the redesigned loop beat random? (v0.10) | **Yes.** Ensemble-disagreement selection beats the random distribution by `+0.0619 ± 0.0082` corridor AP (**7.6σ**) on ten held-out logs it never touched, under a criterion frozen before any label was revealed. The yield-maximising selector fails the same bar | [Findings §14](docs/FINDINGS.md) |
-| Can a remote VLM replace the metric labeling Oracle? (v0.11) | **At this operating point, yes.** Labels at Macro-F1 `0.494` retrained to 86% of the Oracle's gain, statistically indistinguishable (`−0.018 ± 0.020`), at `$0.026` per window — and label F1 predicted none of that | [Findings §15](docs/FINDINGS.md) |
+| v0.8 | Does bad-case-similarity selection transfer? | **No.** A Development effect of `+0.0247` (3.7σ) died on held-out logs (`+0.0033`, 0.3σ). The cause was diagnosed, not excused: the mining queries came from the partition that judged them. [Findings §8–13](docs/FINDINGS.md) |
+| v0.10 | Does the redesigned loop beat random? | **Yes.** Ensemble-disagreement selection beats the random distribution by `+0.0619 ± 0.0082` corridor AP (**7.6σ**) on ten held-out logs it never touched, under a criterion frozen before any label was revealed; 14% of the extra labels buy 85% of the full-data gain (random: 55%). The yield-maximising selector fails the same bar. [Findings §14](docs/FINDINGS.md) |
+| v0.11 | Can a remote VLM replace the metric labeling Oracle? | **At this operating point, yes.** Labels at Macro-F1 `0.494` retrained to 86% of the Oracle's gain, statistically indistinguishable (`−0.018 ± 0.020`), at `$0.026` per window — and label F1 predicted none of that. [Findings §15](docs/FINDINGS.md) |
 
-**Scope of these claims:** one dataset (nuScenes), one representation, one
-downstream model, and — for the v0.10 result — a deliberately data-scarce
-operating point where the learning curve is steep; at the data-rich operating
-point the same question measured null (that is the v0.8 row). The v0.11
-downstream contrast is Development-level, since both held-out sets were spent.
+What these claims cover, and nothing more:
 
-The scenario specification is frozen at `v0.8-three-class-loop`; protocols
-v0.10 and v0.11 build on it without editing it. The full narrative, in the
-order the evidence arrived, is [Findings](docs/FINDINGS.md).
+- one dataset (nuScenes), one representation (frozen DINOv2), one small
+  downstream model (GRU);
+- the v0.10 effect was measured at a deliberately data-scarce operating point
+  with a steep learning curve — at the data-rich point the same question
+  measured null (the v0.8 row);
+- the v0.11 downstream contrast is Development-level, because both held-out
+  sets were already spent.
+
+The scenario specification is frozen at `v0.8-three-class-loop`; v0.10 and
+v0.11 build on it without editing it. The full narrative, in the order the
+evidence arrived, is [Findings](docs/FINDINGS.md).
 
 ## The Loop
 
@@ -46,16 +46,14 @@ nuScenes v1.0-trainval  (850 scenes, 68 logs, 34,149 CAM_FRONT keyframes)
   -> seed-paired scoring on a held-out set that is opened exactly once
 ```
 
-## Frozen Scenarios
+## Scenarios
 
-Executable specifications live in [`specs/task_spec_v2`](specs/task_spec_v2).
-Positive rates are 3.5–5.4% per class — a roughly 20:1 class imbalance,
-which is what the loop needs. (Not a *long-tailed* distribution: three
-near-equal minority classes form no tail.) The scenarios themselves are frequent urban
-interactions, deliberately so: rarer definitions measurably lacked statistical
-support at this dataset's size (Gate A rejected them), so the loop's
-methodology is validated on measurable sparse classes and is itself agnostic
-to scenario rarity.
+Three executable specifications, frozen in [`specs/task_spec_v2`](specs/task_spec_v2).
+Positive rates are 3.5–5.4% per class: a roughly 20:1 class imbalance, not a
+long-tailed distribution (three near-equal minority classes form no tail).
+They are frequent urban interactions on purpose — rarer definitions lacked
+statistical support at this dataset's size (Gate A rejected them), and the
+method itself is agnostic to scenario rarity.
 
 | Label | Formal meaning | Not claimed |
 | --- | --- | --- |
@@ -76,11 +74,11 @@ crosses a partition:
 | Simulated unlabeled pool | 25 | hidden-label candidate pool |
 | Held-out test | 18 official-val logs | opened once |
 
-Strem labels each class as `positive`, `negative`, `ignore` (event overlap
-without a bounded match), or `invalid`; the last two are masked from loss, and
-a Strem failure is never a negative. Public pool records carry frame, scene,
-log, and time references only — no label, binding, 3D box, or Strem result —
-and focused tests enforce that boundary.
+Each window carries one of four label states per class — `positive`,
+`negative`, `ignore` (event overlap without a bounded match), `invalid` — and
+the last two are masked from loss; a Strem failure is never a negative. Public
+pool records carry frame, scene, log, and time references only: no label,
+binding, 3D box, or Strem result, and tests enforce that boundary.
 
 ## Code Map
 
@@ -100,6 +98,8 @@ and focused tests enforce that boundary.
 
 Twenty-three scripts under [`scripts/`](scripts) are the stage entry points;
 stages chain by fixed artifact filenames and refuse to overwrite outputs.
+Every number quoted in the docs traces to a JSON report under
+[`results/`](results/README.md).
 
 ## Running It
 
@@ -110,10 +110,9 @@ uv run mypy src scripts tests        # strict
 uv run pytest                        # passes with no dataset present
 ```
 
-- **Reading the results** needs nothing: every number quoted in the docs traces
-  to a JSON report under [`results/`](results/README.md).
+- **Reading the results** needs nothing beyond this repository.
 - **Tests** run from a bare clone; torch-dependent tests skip without the `ml`
-  extra, and the Strem integration tests skip unless `STREM_BIN` points at the
+  extra, and Strem integration tests skip unless `STREM_BIN` points at the
   pinned matcher.
 - **Pipeline stages** need nuScenes, which is not redistributable — register at
   [nuscenes.org](https://www.nuscenes.org/). `v1.0-mini` metadata plus
@@ -150,7 +149,7 @@ works under their own licences and are not part of this repository.
 | 问题 | 结论 |
 | --- | --- |
 | 相似度挖掘有效吗？(v0.8) | **无效。** 验证集显著（3.7σ）但 held-out 失效（0.3σ）；对照实验定位主因：选数据的依据与评估共用了行车日志 |
-| 重新设计后闭环成立吗？(v0.10) | **成立。** 集成分歧选择在 10 段全新日志上胜过随机 `+0.062`（7.6σ，判据在揭示前冻结），三个预算档全正 |
+| 重新设计后闭环成立吗？(v0.10) | **成立。** 集成分歧选择在 10 段全新日志上胜过随机 `+0.062`（7.6σ，判据在揭示前冻结），三个预算档全正；14% 的新增标注拿到全量标注 85% 的增益（随机 55%） |
 | VLM 自动标注能替代精确标签吗？(v0.11) | **此作业点上能。** F1 仅 0.49 的 VLM 标签拿到精确标签 86% 的训练收益，统计上不可区分，成本 `$0.026`/窗 |
 
 仓库只含代码、场景规格、文档与聚合结果（`results/`），不含数据、图像、权重与
