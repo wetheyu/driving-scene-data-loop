@@ -566,7 +566,7 @@ second, corrected attempt. What it is not: evidence for the v0.8 similarity
 pipeline, for yield-based selection, or for anything at the data-rich
 operating point where v0.8 showed effects are unmeasurable.
 
-## 15. Protocol v0.11: a VLM that gets half the labels wrong buys the same model
+## 15. Protocol v0.11: a VLM at Macro-F1 0.49 buys most of the same model
 
 The loop so far bought its labels from a private metric Oracle. Industrially that
 is the expensive half, so v0.11 asked what a remote VLM produces on exactly the
@@ -750,6 +750,38 @@ from random. The v0.8 failure was overdetermined, and the v0.10 selector
 switch is vindicated by direct comparison rather than by argument. What this
 does not test: other similarity variants (an FP-side bank, other embeddings)
 remain open, and the readout is Development-level like every D-series number.
+
+### D5 — a wider student keeps the corridor reading and loses the Macro one
+
+Declared in the Evaluation Plan before any run (2026-09-29). The three runs
+behind the v0.11 comparison were repeated with the student widened from
+hidden 48 to hidden 128 (`wide-fast-12seed`) and nothing else moved. The same
+command lines at hidden 48 reproduced the committed VLM arm's per-seed corridor
+AP exactly (maximum difference 0.0), so the inputs are the v0.11 inputs.
+
+| Development, 12 seed-paired | hidden 48 (v0.11) | hidden 128 (D5) |
+| --- | --- | --- |
+| corridor Oracle − Base | +0.1288 ± 0.0246 (5.2σ) | +0.0540 ± 0.0182 (3.0σ) |
+| corridor VLM − Base | +0.1105 ± 0.0265 (4.2σ) | +0.0419 ± 0.0167 (2.5σ) |
+| corridor VLM − Oracle | −0.0183 ± 0.0201 (0.9σ) | −0.0121 ± 0.0078 (−1.5σ) |
+| corridor gain ratio | 86% | 78% |
+| Macro VLM − Oracle | −0.0041 ± 0.0071 (0.6σ) | −0.0095 ± 0.0035 (−2.8σ) |
+| Macro gain ratio | 86% | 27% |
+
+Read by the declared rule. On corridor, the pre-registered class, VLM − Oracle
+stays within 2σ: the v0.11 corridor reading is not an artifact of the small
+student. On Macro it falls below −2σ, so Macro-level parity is scoped to the
+hidden-48 student. The Macro gap comes from near-zone entry, where the wide
+student trained on VLM labels ends below Base (−0.0273 ± 0.0084, −3.2σ) while the
+Oracle arm does not (−0.0092, −1.1σ). A higher-capacity student is more
+sensitive to the VLM's errors on the class where they are least structured.
+
+Two caveats travel with it. The wide Base is already stronger on corridor
+(0.437 against 0.368 at hidden 48), so both arms have less headroom and the
+gains roughly halve; ratios at different headroom are not directly comparable.
+And the wide VLM arm's checkpoints peak earlier than the wide Oracle arm's,
+which fits a student memorising label noise but is an observation, not a
+tested mechanism. Development-level, like every D-series number.
 
 ## Claim boundary
 

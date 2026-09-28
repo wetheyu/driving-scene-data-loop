@@ -27,7 +27,8 @@ What these claims cover, and nothing more:
   with a steep learning curve — at the data-rich point the same question
   measured null (the v0.8 row);
 - the v0.11 downstream contrast is Development-level, because both held-out
-  sets were already spent.
+  sets were already spent, and it holds on corridor but not on Macro-AP once the
+  student is widened to hidden 128 ([Findings §16, D5](docs/FINDINGS.md)).
 
 The scenario specification is frozen at `v0.8-three-class-loop`; v0.10 and
 v0.11 build on it without editing it. The full narrative, in the order the
@@ -150,7 +151,7 @@ works under their own licences and are not part of this repository.
 | --- | --- |
 | 相似度挖掘有效吗？(v0.8) | **无效。** 验证集显著（3.7σ）但 held-out 失效（0.3σ）；对照实验定位主因：选数据的依据与评估共用了行车日志 |
 | 重新设计后闭环成立吗？(v0.10) | **成立。** 集成分歧选择在 10 段全新日志上胜过随机 `+0.062`（7.6σ，判据在揭示前冻结），三个预算档全正；14% 的新增标注拿到全量标注 85% 的增益（随机 55%） |
-| VLM 自动标注能替代精确标签吗？(v0.11) | **此作业点上能。** F1 仅 0.49 的 VLM 标签拿到精确标签 86% 的训练收益，统计上不可区分，成本 `$0.026`/窗 |
+| VLM 自动标注能替代精确标签吗？(v0.11) | **此作业点上能。** F1 仅 0.49 的 VLM 标签拿到精确标签 86% 的训练收益，统计上不可区分，成本 `$0.026`/窗；学生模型加宽到 hidden 128 后走廊类仍成立、Macro 不成立（D5） |
 
 仓库只含代码、场景规格、文档与聚合结果（`results/`），不含数据、图像、权重与
 标签。测试无需数据集即可全部运行；完整复现需自行申请 nuScenes，且场景挖掘依赖
