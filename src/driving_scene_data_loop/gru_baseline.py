@@ -117,6 +117,13 @@ TRAINING_CONFIGS: dict[str, TrainingConfig] = {
             seeds=(17, 29, 43, 61, 79, 97, 113, 131, 149, 167, 181, 199),
             hidden_size=48,
         ),
+        # Diagnostic D5: the 12-seed recipe at the original width, so the v0.11
+        # label-source comparison can be repeated with a higher-capacity student.
+        TrainingConfig(
+            name="wide-fast-12seed",
+            seeds=(17, 29, 43, 61, 79, 97, 113, 131, 149, 167, 181, 199),
+            hidden_size=HIDDEN_SIZE,
+        ),
         # The most aggressive capacity cut worth trying at 384-d inputs.
         TrainingConfig(
             name="tiny-slow",
@@ -485,19 +492,19 @@ def train_gru_baselines(
         "development_window_count": int(development_rows.sum()),
         "config": {
             "input_shape": [5, 384],
-            "hidden_size": HIDDEN_SIZE,
+            "hidden_size": config.hidden_size,
             "layers": 1,
             "direction": "unidirectional",
-            "dropout_after_final_hidden": 0.2,
+            "dropout_after_final_hidden": config.dropout,
             "optimizer": "AdamW",
             "learning_rate": learning_rate,
             "initialization": (
                 "random" if warm_start_dir is None else f"warm_start:{warm_start_dir.name}"
             ),
-            "weight_decay": WEIGHT_DECAY,
-            "batch_size": BATCH_SIZE,
-            "max_epochs": MAX_EPOCHS,
-            "patience": PATIENCE,
+            "weight_decay": config.weight_decay,
+            "batch_size": config.batch_size,
+            "max_epochs": config.max_epochs,
+            "patience": config.patience,
             "seeds": list(config.seeds),
             "num_threads": num_threads,
             "checkpoint_metric": "development_macro_average_precision",

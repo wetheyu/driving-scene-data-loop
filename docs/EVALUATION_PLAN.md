@@ -844,6 +844,42 @@ These diagnostics report what they find. None of them is a registered
 confirmatory claim, and their results are labeled Development-level wherever
 they are quoted.
 
+### D5 — student-capacity check on the v0.11 result (declared 2026-09-29, before any D5 run)
+
+Question: the v0.11 VLM labels (Macro-F1 `0.494`) retrained to 86% of the
+Oracle arm's corridor gain with the `narrow-fast-12seed` student (hidden 48).
+Is that ratio a property of the labels, or of a low-capacity student that
+cannot fit their errors? Method: repeat the three runs of the v0.11 comparison
+with only the student's width changed — `wide-fast-12seed`, which is
+`narrow-fast-12seed` with hidden 128 (the original v1 width), same twelve seeds,
+rate, dropout, patience and batch. Runs: Base (`lc_windows_25.jsonl`, no
+feedback), `v010-disagreement-900` on the revealed Oracle labels, and
+`v010-disagreement-900-vlm` on the v0.11 VLM training labels. Same private
+windows, public Pool2 file, label directories and feature cache as the hidden-48
+runs; no label is revealed and no held-out set is touched.
+
+**Path check before reading.** The same command lines with `narrow-fast-12seed`
+must reproduce the committed hidden-48 VLM arm's per-seed Development corridor
+AP; if they do not, the reconstruction is wrong and D5 stops.
+
+**Reading, fixed now.** Development seed-paired contrasts on corridor and Macro
+AP: VLM − Base, Oracle − Base, VLM − Oracle, and the gain ratio
+`(VLM − Base) / (Oracle − Base)`. If VLM − Oracle stays within 2σ of zero, the
+86% reading is not an artifact of the small student. If VLM − Oracle falls below
+`−2σ`, a wider student is more sensitive to these label errors, and the v0.11
+statement is scoped to the hidden-48 student. Development under-reads
+between-arm contrasts (D3), so a within-2σ reading means "comparable at this
+instrument's resolution", not "equal". No held-out claim either way.
+
+**Report metadata fix, recorded with this declaration.** Until this change, the
+`config` block of every `gru_report.json` printed the module defaults for
+`hidden_size`, `dropout_after_final_hidden`, `weight_decay`, `batch_size`,
+`max_epochs` and `patience` instead of the run's training config. The
+`training_config` block always recorded the protocol actually used (checkpoint
+weight shapes confirm hidden 48 for the `narrow-fast-12seed` runs); committed
+reports keep their original bytes, and `training_config` is the authoritative
+block for any run before this change.
+
 ## Metrics
 
 Primary:
