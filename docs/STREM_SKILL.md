@@ -37,7 +37,8 @@ Converter SHA-256:
 f1833b3a2ed6ed91d2a701a0e66695c5f92d2e05375d23e1043c8522828aa952
 ```
 
-macOS arm64:
+macOS arm64 (the pinned file is no longer available; a rebuild from the same
+commit has a different hash and is refused):
 
 ```text
 Path: ~/strem-releases/v0.3.0/strem-darwin-arm64

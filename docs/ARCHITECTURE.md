@@ -167,6 +167,22 @@ or a workflow engine.
 | 9 | `prepare_public_pool.py` | `public_pool.py` | `pool_windows.jsonl`, `pool_embeddings.npy`, `pool_report.json` |
 | 10 | `freeze_selection_rankings.py` | `selection.py` | `random_ranked.jsonl`, `mining_ranked.jsonl`, `selection_report.json` |
 | 10b | `freeze_random_variance.py` | `selection.py` | `random_seed102_ranked.jsonl`, `random_seed103_ranked.jsonl`, `random_variance_report.json` |
+| 11 | `reveal_selected_labels.py` | `oracle_reveal.py` | `revealed_labels.jsonl`, `label_profile.json` |
+| 12 | `train_feedback_gru.py` | `feedback_retraining.py`, `gru_baseline.py` | `gru_report.json`, checkpoints, Development predictions |
+| 12b | `freeze_score_ranked_selection.py` | `selection.py` | `mining_v2_score_ranked_ranked.jsonl`, `score_ranked_report.json` (Development-informed) |
+| 13 | `predict_with_checkpoints.py` | `gru_baseline.py` | `predictions_seed_*.jsonl`, `manifest.json` (label-free) |
+| 14 | `score_predictions.py` | `prediction_scoring.py` | per-seed AP and seed-paired contrasts |
+| v0.10 | `prepare_v010_partitions.py` | — | `pool2_windows.jsonl`, `test2_eval_ids.txt`, `v010_partitions_manifest.json` |
+| v0.10 | `prepare_pool2_inference.py` | `gru_baseline.py` | `pool2_windows.jsonl` with ensemble mean and std, `pool2_report.json` |
+| v0.10 | `freeze_v010_rankings.py` | `selection.py` | disagreement, prob-ranked, and three Random rankings, `v010_selection_report.json` |
+| v0.11 | `prepare_vlm_smoke_batch.py` | — | Development smoke windows, ranking, and `oracle/` |
+| v0.11 | `label_windows_with_vlm.py` | `vlm_labeling.py` | `vlm_labels.jsonl`, `vlm_run_manifest.json` |
+| v0.11 | `evaluate_vlm_labels.py` | `vlm_evaluation.py` | `vlm_label_report.json` |
+| v0.11 | `build_vlm_training_labels.py` | `vlm_labeling.py` | VLM-labelled `revealed_labels.jsonl`, `label_profile.json` |
+| D1 | `analyze_ensemble_size.py` | `selection.py`, `gru_baseline.py` | ensemble-size overlap report |
+| D2 | `build_noise_injected_labels.py` | — | noise-flipped `revealed_labels.jsonl`, `label_profile.json` |
+| D2–D5 | `report_development_contrasts.py` | `prediction_scoring.py` | Development seed-paired contrasts |
+| D4 | `prepare_d4_pool.py` | — | Pool2-restricted v0.8-style pool directory |
 
 Stage 4 writes the private and public views in one pass; that is where the
 Oracle boundary is created. Stages 9, 10, and 10b may read only the public view.
@@ -175,10 +191,11 @@ and never rewrites the frozen stage-10 artifact.
 Every stage refuses to write into an existing output directory, so a rerun
 produces a new named artifact instead of silently replacing one.
 
-Oracle reveal now joins frozen selected IDs to `windows.jsonl` without changing
+Oracle reveal joins frozen selected IDs to `windows.jsonl` without changing
 their ranks. Feedback retraining reuses the stage-7 GRU and changes only the
-added selected windows; later Frozen-Test scoring reads already-written frozen
-prediction files.
+added selected windows; held-out scoring reads already-written, label-free
+prediction files. Every stage writes its JSON and JSONL through `json_files.py`,
+so an artifact's bytes do not depend on which stage produced it.
 
 One-off TaskDesign galleries and candidate generators are no longer maintained
 code. Their observed conclusions remain documented, while the three accepted

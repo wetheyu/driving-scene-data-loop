@@ -96,8 +96,9 @@ binding, 3D box, or Strem result, and tests enforce that boundary.
 | `oracle_reveal.py` / `feedback_retraining.py` | reveal selected IDs only; retrain declared arms |
 | `prediction_scoring.py` | torch-free per-seed AP and seed-paired contrasts |
 | `vlm_labeling.py` / `vlm_evaluation.py` | public-only VLM requests; scoring against the Oracle |
+| `json_files.py` | the one byte format every JSON/JSONL artifact is written in |
 
-Twenty-three scripts under [`scripts/`](scripts) are the stage entry points;
+Twenty-seven scripts under [`scripts/`](scripts) are the stage entry points;
 stages chain by fixed artifact filenames and refuse to overwrite outputs.
 Every number quoted in the docs traces to a JSON report under
 [`results/`](results/README.md).

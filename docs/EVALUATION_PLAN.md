@@ -2,10 +2,10 @@
 
 Specification: Frozen for `v0.8-three-class-loop`
 
-Observed model results: DINO cache, LR baselines, three-class GRU Gate B
-diagnostics, a formal three-class Development FN bank, and label-free public
-Pool inference. Selection and Oracle reveal are observed; feedback retraining
-and held-out scoring remain unobserved.
+Status: every stage through protocol v0.11 and diagnostics D1–D5 has run, and
+both held-out sets are spent — `frozen_test` once for v0.8 and Test2 once for
+v0.10. Protocol v0.13 is declared and **Planned**. Results live in
+[Findings](FINDINGS.md); this document keeps each protocol as it was frozen.
 
 ## Questions
 
@@ -1005,7 +1005,9 @@ remote at zero-shot) and `C − B` (what the adapter adds). Per-class precision
 for C is read against A's precision failure.
 
 **Cost:** GPU hours times the measured hourly price, reported separately for
-training and for 900-window inference, beside v0.11's `$0.0263` per window.
+training and for 900-window inference, beside v0.11's `$0.0263` per window. The
+rental ceiling is CNY 150 (expected 40–50 at about CNY 6 per A800-hour);
+reaching it stops the protocol, and whatever gate it stopped at is reported.
 
 ### Data boundary
 

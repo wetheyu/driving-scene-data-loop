@@ -785,8 +785,9 @@ tested mechanism. Development-level, like every D-series number.
 
 ## Claim boundary
 
-These are Development and selection observations on one dataset, one
-representation, and one downstream model. No Held-out Test number exists yet.
+Sections 1–12, 15, and 16 are Development and selection observations on one
+dataset, one representation, and one downstream model; the only held-out
+readings are sections 13 (v0.8) and 14 (v0.10).
 The unbiased-sample estimates rest on 1,710 windows with 67 to 86 positives per
 class, so decile-level rates carry real uncertainty; the round-robin dilution and
 the threshold arithmetic are exact computations and do not. Nothing here shows

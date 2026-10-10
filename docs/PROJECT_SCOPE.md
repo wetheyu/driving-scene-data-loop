@@ -270,5 +270,6 @@ Current facts:
   no Oracle fields. The 600-row Random and integrated Mining rankings are now
   frozen with nested `150/300/600` prefixes; every list has
   unique IDs and passes temporal separation. Oracle reveal retained 2,220 unique
-  selected windows after the rankings froze; it found no invalid target. VLM
-  labels, feedback-retraining results, and Held-out Test values do not yet exist.
+  selected windows after the rankings froze; it found no invalid target. The
+  feedback-retraining arms, both held-out readings, the VLM labels, and the
+  D1–D5 diagnostics have since run; [Findings](FINDINGS.md) holds every result.

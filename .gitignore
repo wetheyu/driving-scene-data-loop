@@ -41,3 +41,6 @@ artifacts/
 
 # maintainer-private material, never committed
 private/
+
+# maintainer-private Claude Code context, never committed
+CLAUDE.local.md

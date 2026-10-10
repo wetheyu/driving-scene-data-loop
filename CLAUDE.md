@@ -11,30 +11,45 @@ follow its documentation reading order (`docs/PROJECT_SCOPE.md` →
 `docs/FINDINGS.md` → `docs/ROADMAP.md` → `docs/DEVELOPMENT_ENVIRONMENT.md`)
 before touching a stage you have not worked on. Key points that shape every edit:
 
-- This is a one-person offline research experiment frozen at
-  `v0.8-three-class-loop`, not a service or a reusable platform. Implement the
-  smallest direct solution: plain functions, small dataclasses, JSONL + `.npy`.
-  Do not add registries, managers, plugin layers, defensive fallback trees, or
-  hostile-input handling without an observed failure that blocks the experiment.
+- This is a one-person offline research experiment, not a service or a reusable
+  platform. The scenario specification is frozen at `v0.8-three-class-loop`;
+  later protocols (v0.10, v0.11, diagnostics D1–D5, the Planned v0.13) build on
+  it without editing it. Implement the smallest direct solution: plain
+  functions, small dataclasses, JSONL + `.npy`. Do not add registries, managers,
+  plugin layers, defensive fallback trees, or hostile-input handling without an
+  observed failure that blocks the experiment.
 - Validation exists only to protect labels, split isolation, model inputs,
   selector leakage, and fair evaluation. Those checks are required; general
   defensive programming is not.
 - English for code, identifiers, comments, protocol documents, logs, and CLI
-  text. Chinese for discussion with the maintainer; maintainer-private notes
-  live under the untracked `private/` directory and never enter Git.
-  `FINDINGS.md` holds the facts.
+  text. Chinese for discussion with the maintainer. `FINDINGS.md` holds the facts.
 - Never present a plan, fixture, or synthetic value as a real result; mark
   unimplemented work `Planned`. Preserve negative results — this project does not
   tune until the desired answer appears.
-- Do not silently change the research question, scenario definitions, split,
-  budget, Strem boundary, or evaluation protocol. Update the owning document when
-  behavior changes.
+- A new experiment is declared in `docs/EVALUATION_PLAN.md` *before* it runs, and
+  its reading rule is fixed there. Do not silently change the research question,
+  scenario definitions, split, budget, Strem boundary, or evaluation protocol;
+  update the owning document when behavior changes.
+- The repository is public. Maintainer-private material lives in the gitignored
+  `private/` directory (indexed by `private/README.md`) and never enters Git.
+
+## Project State
+
+| Protocol | Status | Where |
+| --- | --- | --- |
+| v0.8 bad-case similarity selection | done; held-out null (`+0.0033`, 0.3σ) | Findings §8–13 |
+| v0.10 ensemble-disagreement selection | done; Test2 `+0.0619 ± 0.0082` corridor AP, 7.6σ | Findings §14 |
+| v0.11 remote-VLM labels | done; Macro-F1 `0.494`, 86% of the Oracle gain (Development) | Findings §15 |
+| D1–D5 scoping diagnostics | done; Development-level | Findings §16 |
+| v0.13 open-weight VLM, zero-shot and LoRA | declared, **Planned** | Evaluation Plan |
+
+Both held-out sets are spent (`frozen_test` for v0.8, Test2 for v0.10) and are
+never reopened. Any new held-out claim needs a freshly carved set first.
 
 ## Commands
 
 ```bash
-uv sync --locked --all-groups        # runtime + dev (no torch)
-uv sync --locked --all-groups --all-extras   # adds the `ml` extra (torch, transformers)
+uv sync --locked --all-groups --all-extras   # runtime + dev + ml (torch, transformers) + vlm
 uv run ruff check .
 uv run mypy src scripts tests        # strict mode
 uv run pytest
@@ -42,6 +57,7 @@ uv lock --check
 ```
 
 Always go through `uv run`; a bare `python3` may be a different interpreter.
+Sync with `--all-extras`: a plain `--all-groups` sync uninstalls torch.
 
 Single test / single case:
 
@@ -62,12 +78,27 @@ The adapter verifies version and SHA-256 against the pins in
 `strem_adapter.py` / `strem_converter.py` and refuses anything else — never point
 it at a research-worktree build such as `~/strem/target/release/strem`.
 
+## Environment
+
+Every committed result was produced on Procyon, a university Linux CPU host that
+is **no longer available**; all private artifacts survive in an offline backup.
+The pinned macOS Strem binary is lost (a rebuild has a different hash and is
+refused), so Strem-dependent stages and the real-binary tests need a Linux
+x86_64 host with the pinned Linux binary. Everything else runs on the macOS
+laptop. Measured on 2026-10-11: regenerating fourteen stages on macOS from the
+backup reproduced rankings, reveals, and label files byte for byte and GRU
+outputs within `1e-6`, but LR baselines differ by up to `0.0021` AP across
+platforms. Details: `docs/DEVELOPMENT_ENVIRONMENT.md`.
+
 ## Pipeline Architecture
 
-Twenty-three scripts under `scripts/` are the stage entry points; `src/driving_scene_data_loop/`
-holds the logic. Stages chain by fixed artifact filenames, so the output directory
-of one stage is the input directory of the next. Every stage refuses to write into an
-existing output path, so a rerun needs a new directory.
+Twenty-seven scripts under `scripts/` are the stage entry points;
+`src/driving_scene_data_loop/` holds the logic. Stages chain by fixed artifact
+filenames, so the output directory of one stage is the input directory of the
+next. Every stage refuses to write into an existing output path, so a rerun needs
+a new directory. Every JSON report and JSONL row is written through
+`json_files.py` (`write_report`, `write_jsonl`, `jsonl_line`), which fixes the
+byte format.
 
 ```text
 build_split_manifest.py      --dataroot --output               -> split.json
@@ -82,14 +113,14 @@ build_window_dataset.py      --dataroot --stream-dir --split-manifest --spec-dir
 extract_dino_features.py     --windows --media-root --output-dir --cache-dir
                                                                 -> frame_features.npy, frame_index.jsonl, feature_manifest.json
 train_lr_baselines.py        --windows --feature-dir --output-dir -> lr_baseline_report.json
-train_gru_baseline.py        --windows --feature-dir --output-dir -> gru_report.json + predictions
+train_gru_baseline.py        --windows --feature-dir --output-dir -> gru_report.json + checkpoints + predictions
 build_false_negative_bank.py --windows --predictions --base-report --feature-dir --output-dir
                                                                 -> fn_bank.jsonl, fn_embeddings.npy, fn_bank_report.json
 prepare_public_pool.py       --public-windows --base-report --feature-dir --output-dir
                                                                 -> pool_windows.jsonl, pool_embeddings.npy, pool_report.json
 freeze_selection_rankings.py --pool-dir --fn-dir --output-dir    -> selection_report.json + ranked lists
 freeze_random_variance.py    --pool-dir --output-dir             -> random_seed{102,103}_ranked.jsonl + random_variance_report.json
-reveal_selected_labels.py    --private-windows --ranking ... --output-dir
+reveal_selected_labels.py    --windows --ranking ... --output-dir
                                                                 -> revealed_labels.jsonl + label_profile.json
 train_feedback_gru.py        --arm --private-windows --public-windows --oracle-dir
                              --feature-dir --output-dir           -> gru_report.json + Development predictions
@@ -98,6 +129,15 @@ predict_with_checkpoints.py  --run-dir --windows --feature-dir --partition --out
                                                                 -> predictions_seed_*.jsonl + manifest.json
 score_predictions.py         --windows --partition --run NAME=DIR ... --output
                                                                 -> per-seed AP + seed-paired contrasts
+
+# protocol v0.10
+prepare_v010_partitions.py   --private-windows --public-windows --revealed ... --output-dir
+                                                                -> pool2_windows.jsonl, test2_eval_ids.txt, manifest
+prepare_pool2_inference.py   --pool2-windows --base-run-dir --feature-dir --output-dir
+                                                                -> pool2_windows.jsonl (+ ensemble mean/std), pool2_report.json
+freeze_v010_rankings.py      --pool2-dir --output-dir            -> disagreement / prob-ranked / random201-203 rankings
+
+# protocol v0.11
 prepare_vlm_smoke_batch.py   --windows --output-dir             -> smoke_windows.jsonl (public view)
                                                                    + smoke_ranking.jsonl + oracle/
 label_windows_with_vlm.py    --ranking --public-windows --media-root --output-dir
@@ -107,7 +147,19 @@ evaluate_vlm_labels.py       --vlm-labels --oracle-dir --method --budget --outpu
 build_vlm_training_labels.py --vlm-labels --ranking --budget --output-dir
                                                                 -> revealed_labels.jsonl + label_profile.json
                                                                    (vlm_labeled_windows identity, Oracle never opened)
+
+# diagnostics D1-D5
+analyze_ensemble_size.py     --pool-dir --frozen-ranking --base-run-dir --feature-dir --output   (D1)
+build_noise_injected_labels.py --oracle-dir --rate-percent --output-dir                         (D2)
+prepare_d4_pool.py           --pool2-inference-dir --v08-pool-dir --base-report --output-dir     (D4)
+report_development_contrasts.py --run NAME=REPORT ... --contrast LEFT-RIGHT ... --output         (D2-D5)
 ```
+
+Feedback arms are declared in `feedback_retraining.py` (`ALL_ARMS`); an arm's
+label directory must carry the artifact identity of its declared label source
+(`oracle`, `vlm`, `oracle_noise`). Trained checkpoints are reloaded through
+`gru_baseline.load_checkpoint_model`, which reads width and class count from the
+weights.
 
 The final evaluation is two-stage: `predict_with_checkpoints.py` writes frozen
 per-seed prediction files (no labels), `score_predictions.py` joins labels and
@@ -141,10 +193,12 @@ Stage responsibilities that are easy to get wrong:
 - **Scenario order is filename sort order** of `specs/task_spec_v2/*.json`:
   near-zone entry, proximity hold, corridor entry. Label vectors, thresholds, and
   every report table index in that order.
-- **Public/private separation.** `u_windows.jsonl` and `pool_windows.jsonl` carry
-  only the fields in `window_dataset.PUBLIC_U_FIELDS` plus DINO embeddings and
-  Base probabilities. Labels, Strem results, bindings, instance tokens, 3D boxes,
-  and visibility are Oracle-only. Selected IDs freeze *before* any Oracle reveal.
+- **Public/private separation.** `u_windows.jsonl`, `pool_windows.jsonl`, and
+  `pool2_windows.jsonl` carry only the fields in `window_dataset.PUBLIC_U_FIELDS`
+  plus Base probabilities (and, for Pool2, their ensemble spread). Labels, Strem
+  results, bindings, instance tokens, 3D boxes, and visibility are Oracle-only.
+  Selected IDs freeze *before* any Oracle reveal, and VLM requests are built
+  from public rows only.
 
 ## Frozen Constants
 
@@ -160,30 +214,37 @@ private artifacts, so treat any change as a protocol change:
   `(124,116,104)`, `use_fast=False`, 384-d `pooler_output` float32
   (`dino_features.py`).
 - window representation for selection: `L2(concat(mean(f0..f4), f4-f0))` → 768-d.
-- GRU: seeds `(17, 29, 43)`, hidden 128, AdamW `lr=1e-3` / `wd=1e-4`, batch 128,
-  ≤ 50 epochs, patience 5, Gate-B margin `+0.05` over prevalence
+- GRU `v1-frozen`: seeds `(17, 29, 43)`, hidden 128, AdamW `lr=1e-3` / `wd=1e-4`,
+  batch 128, ≤ 50 epochs, patience 5, Gate-B margin `+0.05` over prevalence
   (`gru_baseline.py`). Base thresholds come from seed 17 max-F1 on Development.
-- selection: random seed `101`, cluster seed `17`, shortlist `M=2000`,
-  `MiniBatchKMeans(K=30)`, temporal separation `5`, nested budgets
-  `150 ⊂ 300 ⊂ 600` (`selection.py`). Budget experiments reuse prefixes of the
-  frozen 600-row lists rather than re-running selection.
+- v0.8 selection: random seed `101` (variance seeds `102, 103`), cluster seed
+  `17`, shortlist `M=2000`, `MiniBatchKMeans(K=30)`, temporal separation `5`,
+  nested budgets `150 ⊂ 300 ⊂ 600` (`selection.py`). Budget experiments reuse
+  prefixes of the frozen lists rather than re-running selection.
+- v0.10: seed set `L0-small` (the lc25 subset), Test2 carved by
+  `sha256("test2-v010\0" + log_token)` order with a 55-corridor-event guard,
+  Random seeds `201, 202, 203`, nested budgets `300 ⊂ 600 ⊂ 900`.
+- v0.11: `gpt-5.6-terra`, frozen prompt hash `d418e9bb…`, strict JSON schema
+  (`vlm_labeling.py`).
 - Gate B is a diagnostic only. It never removes a Gate-A class from loss,
   selection, retraining, or the final Macro-AP.
 
 ## Repository Layout Notes
 
 - src-layout package `driving_scene_data_loop`, Python 3.12 only, mypy `strict`,
-  ruff line length 100 with `E4,E7,E9,F,I,UP,B`.
-- Formal data is nuScenes `v1.0-trainval` on the remote Procyon CPU host; the
-  local `data/raw/nuscenes` mini split is smoke-testing only.
-- `data/`, `models/`, `artifacts/`, `dist/`, and all run outputs are gitignored.
-  Private media, features, checkpoints, and run artifacts never enter Git or a
-  model-provider upload. The single declared exception is the v0.11 VLM stage,
-  which sends the five CAM_FRONT frames of a frozen selected window and the
-  public scenario descriptions — never labels, Strem evidence, bindings, boxes,
-  or features — under the boundary in `docs/DATA_SPEC.md`.
+  ruff line length 100 with `E4,E5,E7,E9,F,I,UP,B`.
+- Formal data is nuScenes `v1.0-trainval`; the local `data/raw/nuscenes` mini
+  split is smoke-testing only.
+- `data/`, `models/`, `artifacts/`, `dist/`, `private/`, and all run outputs are
+  gitignored. Private media, features, checkpoints, and run artifacts never enter
+  Git or a model-provider upload. The single declared exception is the v0.11 VLM
+  stage, which sends the five CAM_FRONT frames of a frozen selected window and
+  the public scenario descriptions — never labels, Strem evidence, bindings,
+  boxes, or features — under the boundary in `docs/DATA_SPEC.md`. v0.13 runs
+  open weights on a rented GPU under its own boundary in the same document.
 - `results/` holds the committed aggregate report JSON for each private run, and
   is the source for every number quoted in the docs. Add a report there when a
   stage completes; never add its rows, embeddings, or labels.
 - `specs/task_spec_v2/` holds the three immutable Gate-A scenario automata; they
   are frozen inputs, not code to edit.
+- Commits carry no AI co-author trailer or other AI attribution.

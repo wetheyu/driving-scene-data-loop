@@ -2,6 +2,31 @@
 
 Specification: Frozen for `v0.8-three-class-loop`
 
+## Current State (2026-10-11)
+
+- **Procyon is no longer available.** Access ended when the author left the lab
+  on 2026-09-30; the host's NFS home directory is no longer reachable. Before
+  that, every private artifact — the data root below, feature caches,
+  checkpoints, runs, the pinned Linux Strem binary, and the nuScenes metadata
+  plus CAM_FRONT subset — was copied to an offline backup with file counts
+  checked against the server. The Procyon sections below describe the host as
+  it was when every committed result was produced.
+- **The pinned macOS Strem binary is gone.** A rebuild from commit `c7edd94`
+  reports the right version but a different SHA-256, and the adapter refuses
+  it, as it should. Strem-dependent stages and the two real-binary tests need a
+  Linux x86_64 host with the pinned Linux binary.
+- **The laptop runs everything else.** With `--all-extras` it passes the full
+  suite except the two real-Strem tests.
+- **Cross-platform reproduction, measured.** On 2026-10-11, fourteen stages were
+  regenerated on macOS arm64 from the backed-up inputs and compared with the
+  Procyon originals. Rankings, Oracle reveals, VLM label files, noise-injected
+  labels, and the D1 ablation reproduced byte for byte; GRU inference outputs
+  and selection embeddings agreed within `1e-6`, with identical selections. The
+  LR baselines did not: L-BFGS converged in different iteration counts, and
+  Development AP moved by up to `0.0021` (LastFrame corridor `0.3534` against
+  `0.3513`). The committed LR numbers are Procyon's; an LR comparison across
+  platforms carries that tolerance.
+
 ## Local Environment
 
 Observed:
@@ -11,7 +36,7 @@ Observed:
 - src-layout Python package;
 - Ruff, mypy, pytest, and a checked uv lockfile;
 - local nuScenes mini metadata for smoke tests;
-- external Strem v0.3.0 macOS release.
+- no usable Strem binary (see *Current State*).
 
 Use `uv run`; the shell's bare `python3` may point to another Python.
 
@@ -27,8 +52,8 @@ uv lock --check
 These commands verify implemented code only. Separate private run artifacts are
 the evidence for completed formal event mining, feature extraction, model
 training, the Development FN bank, label-free public-Pool inference, and the
-frozen selection rankings. Oracle reveal is complete. Feedback retraining and
-final evaluation remain incomplete.
+frozen selection rankings, Oracle reveals, feedback retraining, both held-out
+readings, the VLM stage, and the D1–D5 diagnostics.
 
 ## Dependencies
 
@@ -246,8 +271,9 @@ Procyon CPU is sufficient. The indexed cache is private under the project data
 root and is reused by every classifier instead of re-encoding overlapping
 windows.
 
-AWS Tokyo is not configured and is not part of the current plan. Reconsidering a
-paid GPU requires an explicit budget decision.
+AWS Tokyo is not configured. A paid GPU requires an explicit budget decision;
+protocol v0.13 is that decision, scoped to one rented single-GPU host with a
+declared spend ceiling.
 
 ## Remote VLM Gate
 
@@ -269,8 +295,10 @@ remain:
    project data root;
 6. record call count, latency, and cost without adding a provider framework.
 
-The formal VLM run starts only after Mining IDs freeze. It does not require an
-LLM planner, Agent, local VLM weights, or SFT infrastructure.
+The formal VLM run starts only after Mining IDs freeze. v0.11 needed no LLM
+planner, Agent, local VLM weights, or SFT infrastructure. Protocol v0.13 adds
+open VLM weights and one LoRA adapter on a rented single-GPU host, under the
+*Rented GPU Boundary* in `docs/DATA_SPEC.md`.
 
 ## Simple Reproducibility Record
 
