@@ -11,6 +11,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, cast
 
+import numpy as np
+
 from driving_scene_data_loop.json_files import read_json, read_jsonl, write_report
 from driving_scene_data_loop.vlm_labeling import VERDICTS
 
@@ -32,32 +34,15 @@ def evaluate_vlm_labels(
     budget: int,
     output_dir: Path,
     run_manifest_path: Path | None = None,
+    protocol: str = "v0.11",
 ) -> JsonObject:
     """Join one budget prefix of a method to the Oracle and score the labels."""
 
     if output_dir.exists():
         raise VlmEvaluationError("output directory must not already exist")
 
-    oracle_profile = read_json(oracle_dir / "label_profile.json")
-    if oracle_profile.get("artifact") != ORACLE_ARTIFACT:
-        raise VlmEvaluationError("oracle directory is not an Oracle reveal")
-    scenario_ids = tuple(cast(list[str], oracle_profile["scenario_ids"]))
-
-    oracle_rows = {
-        cast(str, row["window_id"]): row
-        for row in read_jsonl(oracle_dir / "revealed_labels.jsonl")
-        if row.get("method") == method and cast(int, row["rank"]) <= budget
-    }
-    if len(oracle_rows) != budget:
-        raise VlmEvaluationError(f"Oracle prefix is incomplete for {method} at {budget}")
-
-    vlm_rows = {cast(str, row["window_id"]): row for row in read_jsonl(vlm_labels_path)}
-    missing = set(oracle_rows) - set(vlm_rows)
-    if missing:
-        raise VlmEvaluationError(f"{len(missing)} ranked windows have no VLM label")
-    for row in vlm_rows.values():
-        if tuple(cast(list[str], row["scenario_ids"])) != scenario_ids:
-            raise VlmEvaluationError("VLM and Oracle scenario order differ")
+    scenario_ids, oracle_rows = load_oracle_prefix(oracle_dir, method, budget)
+    vlm_rows = load_vlm_labels(vlm_labels_path, oracle_rows, scenario_ids)
 
     per_class = {
         scenario_id: _score_class(
@@ -84,7 +69,7 @@ def evaluate_vlm_labels(
     report: JsonObject = {
         "schema_version": "1.0",
         "artifact": "vlm_label_quality",
-        "protocol": "v0.11",
+        "protocol": protocol,
         "method": method,
         "budget": budget,
         "scenario_ids": list(scenario_ids),
@@ -105,6 +90,133 @@ def evaluate_vlm_labels(
     output_dir.mkdir(parents=True)
     write_report(output_dir / REPORT_FILENAME, report)
     return report
+
+
+def load_oracle_prefix(
+    oracle_dir: Path, method: str, budget: int
+) -> tuple[tuple[str, ...], dict[str, JsonObject]]:
+    """Read one method's revealed budget prefix, keyed by window ID."""
+
+    oracle_profile = read_json(oracle_dir / "label_profile.json")
+    if oracle_profile.get("artifact") != ORACLE_ARTIFACT:
+        raise VlmEvaluationError("oracle directory is not an Oracle reveal")
+    scenario_ids = tuple(cast(list[str], oracle_profile["scenario_ids"]))
+    oracle_rows = {
+        cast(str, row["window_id"]): row
+        for row in read_jsonl(oracle_dir / "revealed_labels.jsonl")
+        if row.get("method") == method and cast(int, row["rank"]) <= budget
+    }
+    if len(oracle_rows) != budget:
+        raise VlmEvaluationError(f"Oracle prefix is incomplete for {method} at {budget}")
+    return scenario_ids, oracle_rows
+
+
+def load_vlm_labels(
+    path: Path, oracle_rows: dict[str, JsonObject], scenario_ids: tuple[str, ...]
+) -> dict[str, JsonObject]:
+    """Read VLM label rows and require one for every Oracle window, in class order."""
+
+    vlm_rows = {cast(str, row["window_id"]): row for row in read_jsonl(path)}
+    missing = set(oracle_rows) - set(vlm_rows)
+    if missing:
+        raise VlmEvaluationError(f"{len(missing)} ranked windows have no VLM label")
+    for row in vlm_rows.values():
+        if tuple(cast(list[str], row["scenario_ids"])) != scenario_ids:
+            raise VlmEvaluationError("VLM and Oracle scenario order differ")
+    return vlm_rows
+
+
+def paired_macro_f1_bootstrap(
+    *,
+    oracle_rows: dict[str, JsonObject],
+    left: dict[str, JsonObject],
+    right: dict[str, JsonObject],
+    scenario_ids: tuple[str, ...],
+    resamples: int = 10_000,
+    seed: int = 17,
+) -> JsonObject:
+    """Bootstrap Macro-F1(left) - Macro-F1(right) by resampling windows jointly.
+
+    Both labelers are scored on the same resampled windows, so the interval is
+    paired. F1 counts only Oracle-decided windows with a decided verdict, exactly
+    as `_score_class` does; coverage reports how many Oracle-decided windows each
+    labeler decided at all, because F1 alone rewards abstaining.
+    """
+
+    window_ids = sorted(oracle_rows)
+    counts = {
+        side: _confusion_arrays(oracle_rows, labels, window_ids, scenario_ids)
+        for side, labels in (("left", left), ("right", right))
+    }
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, len(window_ids), size=(resamples, len(window_ids)))
+
+    def macro(side: str, index: np.ndarray[Any, Any] | None) -> np.ndarray[Any, Any]:
+        f1s = []
+        for tp, fp, fn in counts[side]:
+            if index is None:
+                totals = [np.asarray([array.sum()]) for array in (tp, fp, fn)]
+            else:
+                totals = [array[index].sum(axis=1) for array in (tp, fp, fn)]
+            denominator = 2 * totals[0] + totals[1] + totals[2]
+            f1s.append(np.where(denominator > 0, 2 * totals[0] / np.maximum(denominator, 1), 0.0))
+        return cast(np.ndarray[Any, Any], np.mean(f1s, axis=0))
+
+    point = float(macro("left", None)[0] - macro("right", None)[0])
+    differences = macro("left", draws) - macro("right", draws)
+    low, high = np.percentile(differences, [2.5, 97.5])
+    return {
+        "difference": round(point, 6),
+        "ci95": [round(float(low), 6), round(float(high), 6)],
+        "resamples": resamples,
+        "seed": seed,
+        "left_macro_f1": round(float(macro("left", None)[0]), 6),
+        "right_macro_f1": round(float(macro("right", None)[0]), 6),
+        "left_coverage": _coverage(oracle_rows, left, window_ids, scenario_ids),
+        "right_coverage": _coverage(oracle_rows, right, window_ids, scenario_ids),
+    }
+
+
+def _confusion_arrays(
+    oracle_rows: dict[str, JsonObject],
+    labels: dict[str, JsonObject],
+    window_ids: list[str],
+    scenario_ids: tuple[str, ...],
+) -> list[tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]]:
+    result = []
+    for class_index in range(len(scenario_ids)):
+        oracle = [cast(list[str], oracle_rows[w]["label_states"])[class_index] for w in window_ids]
+        verdict = [cast(list[str], labels[w]["verdicts"])[class_index] for w in window_ids]
+        tp = [o == "positive" and v == "positive" for o, v in zip(oracle, verdict, strict=True)]
+        fp = [o == "negative" and v == "positive" for o, v in zip(oracle, verdict, strict=True)]
+        fn = [o == "positive" and v == "negative" for o, v in zip(oracle, verdict, strict=True)]
+        result.append(tuple(np.asarray(values, dtype=np.int64) for values in (tp, fp, fn)))
+    return cast(
+        list[tuple[np.ndarray[Any, Any], np.ndarray[Any, Any], np.ndarray[Any, Any]]], result
+    )
+
+
+def _coverage(
+    oracle_rows: dict[str, JsonObject],
+    labels: dict[str, JsonObject],
+    window_ids: list[str],
+    scenario_ids: tuple[str, ...],
+) -> float:
+    """Mean over classes of decided verdicts on Oracle-decided windows."""
+
+    rates = []
+    for class_index in range(len(scenario_ids)):
+        decided = [
+            w for w in window_ids
+            if cast(list[str], oracle_rows[w]["label_states"])[class_index]
+            in ("positive", "negative")
+        ]
+        answered = sum(
+            cast(list[str], labels[w]["verdicts"])[class_index] in ("positive", "negative")
+            for w in decided
+        )
+        rates.append(answered / len(decided))
+    return round(sum(rates) / len(rates), 6)
 
 
 def _score_class(

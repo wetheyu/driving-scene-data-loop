@@ -183,6 +183,10 @@ or a workflow engine.
 | D2 | `build_noise_injected_labels.py` | — | noise-flipped `revealed_labels.jsonl`, `label_profile.json` |
 | D2–D5 | `report_development_contrasts.py` | `prediction_scoring.py` | Development seed-paired contrasts |
 | D4 | `prepare_d4_pool.py` | — | Pool2-restricted v0.8-style pool directory |
+| v0.13 | `prepare_vlm_v013_bundle.py` | `vlm_finetune.py` | upload bundle: L0 SFT targets, public request rows, resized frames, prompt, LoRA recipe |
+| v0.13 | `run_vlm_vllm.py` | — (GPU host, vLLM only) | `replies.jsonl`, `runner_manifest.json` |
+| v0.13 | `parse_vlm_replies.py` | `vlm_labeling.py` | `vlm_labels.jsonl`, hashed `vlm_run_manifest.json`, sanity gate |
+| v0.13 | `compare_vlm_labelers.py` | `vlm_evaluation.py` | per-arm label reports, `v013_comparison.json` |
 
 Stage 4 writes the private and public views in one pass; that is where the
 Oracle boundary is created. Stages 9, 10, and 10b may read only the public view.

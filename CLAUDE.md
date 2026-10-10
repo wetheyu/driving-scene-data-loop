@@ -92,7 +92,7 @@ platforms. Details: `docs/DEVELOPMENT_ENVIRONMENT.md`.
 
 ## Pipeline Architecture
 
-Twenty-seven scripts under `scripts/` are the stage entry points;
+Thirty-one scripts under `scripts/` are the stage entry points;
 `src/driving_scene_data_loop/` holds the logic. Stages chain by fixed artifact
 filenames, so the output directory of one stage is the input directory of the
 next. Every stage refuses to write into an existing output path, so a rerun needs
@@ -153,6 +153,16 @@ analyze_ensemble_size.py     --pool-dir --frozen-ranking --base-run-dir --featur
 build_noise_injected_labels.py --oracle-dir --rate-percent --output-dir                         (D2)
 prepare_d4_pool.py           --pool2-inference-dir --v08-pool-dir --base-report --output-dir     (D4)
 report_development_contrasts.py --run NAME=REPORT ... --contrast LEFT-RIGHT ... --output         (D2-D5)
+
+# protocol v0.13 (Planned): bundle locally, run on the rented GPU, score locally
+prepare_vlm_v013_bundle.py   --private-windows --ranking --pool2-windows --media-root --lf-template --output-dir
+                                                                -> L0 SFT targets, public request rows, 640x360 frames,
+                                                                   prompt.json, train_lora.yaml (no scored/sanity label)
+run_vlm_vllm.py              --bundle --requests --model [--lora] --arm --output-dir   (GPU host, vLLM env only)
+                                                                -> replies.jsonl + runner_manifest.json
+parse_vlm_replies.py         --replies-dir --output-dir [--sanity] -> vlm_labels.jsonl + hashed manifest (+ sanity gate)
+compare_vlm_labelers.py      --oracle-dir --arm-a --arm-b --arm-c --output-dir
+                                                                -> per-arm reports + paired-bootstrap criterion
 ```
 
 Feedback arms are declared in `feedback_retraining.py` (`ALL_ARMS`); an arm's

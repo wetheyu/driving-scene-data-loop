@@ -147,6 +147,16 @@ def scenario_prompt(scenario_ids: tuple[str, ...]) -> str:
     )
 
 
+def user_text(scenario_ids: tuple[str, ...]) -> str:
+    """The frozen text that follows the five frames in every labeling request."""
+
+    return (
+        "Scenarios to judge:\n\n"
+        f"{scenario_prompt(scenario_ids)}\n\n"
+        "Return one verdict for each of the three scenarios above."
+    )
+
+
 def build_request_params(
     *,
     public_window: JsonObject,
@@ -177,16 +187,7 @@ def build_request_params(
         content.append(
             {"type": "input_image", "image_url": f"data:image/jpeg;base64,{encoded}"}
         )
-    content.append(
-        {
-            "type": "input_text",
-            "text": (
-                "Scenarios to judge:\n\n"
-                f"{scenario_prompt(scenario_ids)}\n\n"
-                "Return one verdict for each of the three scenarios above."
-            ),
-        }
-    )
+    content.append({"type": "input_text", "text": user_text(scenario_ids)})
     return {
         "model": model,
         "max_output_tokens": MAX_OUTPUT_TOKENS,
