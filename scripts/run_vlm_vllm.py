@@ -12,11 +12,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import sys
 import time
 from pathlib import Path
 from typing import Any
 
 CHUNK = 100
+# FlashInfer's sampler compiles CUDA kernels at start-up and the host has no
+# nvcc. Decoding is greedy, so the PyTorch sampler returns the same argmax.
+RUNTIME_ENV = {"VLLM_USE_FLASHINFER_SAMPLER": "0"}
 
 
 def main() -> None:
@@ -34,6 +39,9 @@ def main() -> None:
     if (args.arm == "C") != (args.lora is not None):
         raise SystemExit("arm C needs --lora and arm B must not have one")
 
+    os.environ.update(RUNTIME_ENV)
+    # Tools vLLM shells out to (ninja) live beside this interpreter.
+    os.environ["PATH"] = f"{Path(sys.executable).parent}:{os.environ['PATH']}"
     import vllm  # type: ignore[import-not-found,unused-ignore]
     from vllm import LLM, SamplingParams  # type: ignore[import-not-found,unused-ignore]
 
@@ -102,6 +110,7 @@ def main() -> None:
         "prompt_sha256": prompt["prompt_sha256"],
         "decoding": {"temperature": 0.0, "max_tokens": prompt["max_output_tokens"],
                      "structured_output": "frozen v0.11 json schema"},
+        "runtime_env": RUNTIME_ENV,
         "vllm_version": vllm.__version__,
         "torch_version": torch.__version__,
         "gpu": torch.cuda.get_device_name(0),
