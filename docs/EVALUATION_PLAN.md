@@ -880,6 +880,149 @@ weight shapes confirm hidden 48 for the `narrow-fast-12seed` runs); committed
 reports keep their original bytes, and `training_config` is the authoritative
 block for any run before this change.
 
+## Protocol v0.13 — an open-weight VLM as the labeler, zero-shot and LoRA-tuned
+
+Declared 2026-10-11, before any open-weight model has produced an output.
+Status: **Planned**. This is a new stage with its own claim boundary; the v0.11
+red line ("no SFT and no weight update of any VLM") governed v0.11 and still
+does — no v0.11 number is rerun, edited, or reinterpreted here.
+
+> v0.11 measured a remote VLM reproducing the Strem labels from five monocular
+> frames at Macro-F1 `0.494`, with precision, not recall, as the failure
+> (`0.40 / 0.30` precision on the two pedestrian classes against `0.80 / 0.86`
+> recall). Can an open-weight VLM, adapted with LoRA on Oracle labels from
+> training logs only, label the same 900 windows more accurately than the
+> frozen remote VLM — and how much of any gain is the adaptation rather than
+> the model?
+
+This is the labeling half of the loop again: the Strem Oracle needs 3D
+annotations, the Pool has only pixels, and the question is how close a model
+that sees only pixels can get. Label quality only; see *Not in this protocol*.
+
+### Arms
+
+All three are scored on the same 900 window IDs, the `disagreement_v010`
+900-row prefix, against the already-revealed Oracle labels in
+`oracle-reveal-v010`.
+
+| Arm | Labeler | State |
+| --- | --- | --- |
+| A | `gpt-5.6-terra`, zero-shot (v0.11) | existing `vlm-labels-v1`, not rerun |
+| B | `Qwen3-VL-8B-Instruct`, zero-shot | new |
+| C | `Qwen3-VL-8B-Instruct` + LoRA adapter trained on L0 | new |
+
+The 900 windows are the adversarial slice the Base ensemble disagreed on.
+Absolute F1 on them does not describe random windows; the arms are compared to
+each other on identical inputs, which is what the slice supports.
+
+### Frozen identity
+
+| Field | Value |
+| --- | --- |
+| model | `Qwen/Qwen3-VL-8B-Instruct` at revision `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`; weight-file hashes recorded in the manifest |
+| prompt | the v0.11 `SYSTEM_PROMPT` and scenario text unchanged (hash `d418e9bb…`); the user turn is the v0.11 text after the five images |
+| output | the v0.11 `OUTPUT_SCHEMA`, enforced by vLLM structured output; replies parsed by the unchanged `parse_verdicts` |
+| images | the five CAM_FRONT keyframes in temporal order, resized from 1600x900 to 640x360 before the processor; the processor's own rounding is recorded, not chosen |
+| decoding | greedy (temperature 0), at most 2,000 output tokens |
+| serving | vLLM, version recorded in the manifest |
+
+B and C differ only in the adapter. The same images, prompt, schema, and
+decoding serve both.
+
+### Training set (arm C)
+
+- **Partition:** L0 only — 8,390 windows from 13 logs, disjoint by whole-log
+  split from Pool2 and therefore from all 900 scored windows (verified at
+  declaration: zero shared logs). TaskDesign, Development, Pool2, Test2, and
+  `frozen_test` contribute nothing.
+- **Rows:** all 1,978 L0 windows with at least one `positive` or `ignore` state,
+  plus 1,978 all-`negative` windows drawn with seed `17`: **3,956** rows.
+- **Targets:** one reply in the v0.11 schema per window, in scenario-table
+  order. `positive -> positive` with `evidence_frames [0,1,2,3,4]`;
+  `negative -> negative` with `[]`; `ignore -> uncertain` with `[]` (an event
+  overlaps the window but no bounded match exists — the definitional ambiguity
+  `uncertain` was written for). `confidence` is `1.0` for decided verdicts and
+  `0.5` for `uncertain`; `limitation` is `""`. These filler fields are
+  constants of the target format, not model judgements, and are never scored.
+  L0 has zero `invalid` states.
+
+### Training recipe (arm C), fixed
+
+LLaMA-Factory (version recorded), LoRA on every linear layer of the language
+model, rank 16, alpha 32, dropout 0.05; vision encoder and projector frozen;
+AdamW, learning rate `1e-4`, cosine schedule with 3% warmup, 2 epochs, effective
+batch 16, bf16, seed `17`, maximum sequence length 4,096. The final checkpoint is
+the adapter — no checkpoint selection, no hyperparameter search, one training
+run.
+
+### Gates, in order
+
+1. **Pipeline smoke (B).** Ten Development windows, public fields only, no
+   label read. Passes when every reply parses. A failure here may be fixed
+   freely: no scored output exists yet.
+2. **Fallback decisions close here.** Only three changes are allowed, each
+   recorded with its cause, and each must be made before any 900-window output
+   exists: training out of memory -> smaller per-device batch with gradient
+   accumulation that keeps the effective batch at 16; still out of memory ->
+   448x252 images for B and C together; the toolchain cannot load Qwen3-VL ->
+   `Qwen2.5-VL-7B-Instruct` at a revision pinned at that moment.
+3. **Formal B** on the 900 windows. Written and hashed; **not scored**.
+4. **Train C** with the recipe above.
+5. **Sanity (C).** 300 Development windows drawn with seed `17`, public fields
+   only, **no label read**. Passes when the schema-valid rate is at least 95%
+   and every class receives at least one `positive` and one `negative` verdict
+   (a collapse check). On failure, one rerun is allowed for a pipeline defect
+   (template, parsing, image order) found by inspection; the recipe never moves.
+   A second failure is reported as the result.
+6. **Formal C** on the 900 windows. Written and hashed.
+7. **Scoring opens** only after both B and C outputs are hashed into the
+   manifest, so B's score cannot inform C.
+
+### Metrics and the pre-registered criterion
+
+Per class and Macro, the v0.11 label metrics from `evaluate_vlm_labels`
+unchanged: precision, recall, and F1 over Oracle-decided windows with
+`uncertain` excluded, abstention rate, recall including abstentions, Oracle
+`ignore` profiled separately, schema-valid rate, and the evidence probe.
+
+**Primary:** `Macro-F1(C) − Macro-F1(A)`, with a paired percentile bootstrap
+over the 900 windows (10,000 resamples, seed `17`; each resample recomputes the
+three per-class F1s and their mean).
+
+**C beats A** when the 95% interval lies above zero **and** C's mean coverage
+(Oracle-decided windows that receive a decided verdict, averaged over classes)
+is no lower than A's. F1 over decided windows rewards abstention, so a win
+bought by abstaining more is not a win.
+
+| Reading | Interpretation |
+| --- | --- |
+| C beats A | a pixel-only labeler adapted on training-log labels surpasses the frozen remote VLM on the hard slice |
+| interval spans zero | no measurable difference at this sample size (34 to 47 Oracle positives per class) |
+| interval below zero | adaptation on about 2,000 eventful windows does not reach the remote model |
+
+Context contrasts, reported without a decision rule: `B − A` (open versus
+remote at zero-shot) and `C − B` (what the adapter adds). Per-class precision
+for C is read against A's precision failure.
+
+**Cost:** GPU hours times the measured hourly price, reported separately for
+training and for 900-window inference, beside v0.11's `$0.0263` per window.
+
+### Data boundary
+
+Specified in `DATA_SPEC.md`, *Rented GPU Boundary (v0.13)*. In short: the rented
+host receives L0 training targets and media plus public fields of the scored and
+sanity windows; the Oracle labels of the 900 and of Development never leave the
+local machine, and scoring runs locally.
+
+### Not in this protocol
+
+- No downstream retraining with C's labels. Both held-out sets are spent, so it
+  could only be Development-level evidence; it stays **Planned**.
+- No held-out set is reopened, no prompt is edited, and no arm is rerun after
+  scoring opens.
+- The adapter never overrides a Strem label. A disagreement is reported as a
+  disagreement.
+
 ## Metrics
 
 Primary:

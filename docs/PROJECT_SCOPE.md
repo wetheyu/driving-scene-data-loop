@@ -207,7 +207,9 @@ it.
 If completed, the project may claim a single-round offline bad-case-driven scene
 mining and data-feedback experiment on nuScenes trainval, plus evaluation of a
 remote VLM as a structured automatic labeler. It may not claim VLM training or
-SFT, production active learning, PB-scale systems, perception detection,
+SFT beyond protocol v0.13 (one declared LoRA adapter on an open-weight VLM,
+measured on label quality only — not foundation-model training and not a
+downstream gain), production active learning, PB-scale systems, perception detection,
 prediction, planning, control, real safety validation, or improvements not
 observed.
 

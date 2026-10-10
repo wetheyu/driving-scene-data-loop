@@ -279,6 +279,15 @@ No extra tuning occurs after the Held-out Test is opened. If Mining does
 not beat Random or its VLM-label run trails Oracle labels, report and diagnose the result
 instead of changing the protocol until it wins.
 
+## Stage F — Open-Weight VLM Labeler, Zero-Shot and LoRA — Planned
+
+Declared 2026-10-11 as protocol v0.13 in the Evaluation Plan; nothing has run.
+`Qwen3-VL-8B-Instruct` labels the v0.11 900 windows zero-shot and again with a
+LoRA adapter trained on 3,956 L0 windows, on one rented GPU. Compared against
+the v0.11 remote VLM on label quality only, by a paired-bootstrap Macro-F1
+criterion with a coverage guard. Downstream retraining with these labels stays
+Planned.
+
 ## Optional Only After Completion
 
 - extra clustering algorithms or K tuning;

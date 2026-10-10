@@ -133,6 +133,8 @@ class with at least five independent Development FN events enters the loop.
 Not core: LLM, Agent, RAG, SFT, LoRA, vector databases, workflow platforms,
 multi-sensor fusion, online learning, production deployment, or safety claims.
 The VLM work is a bounded auto-label evaluation, not foundation-model training.
+Protocol v0.13 (`docs/EVALUATION_PLAN.md`) is the one declared exception: a
+single LoRA adapter on an open-weight VLM, judged on label quality only.
 
 ## Change and Completion Rules
 

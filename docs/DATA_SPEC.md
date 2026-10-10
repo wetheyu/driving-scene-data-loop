@@ -343,6 +343,27 @@ selection budget. Provider, model version, prompt, schema, image preprocessing,
 latency, and cost freeze before the formal run. Frozen Test is never used to
 edit the prompt.
 
+## Rented GPU Boundary (v0.13)
+
+Protocol v0.13 serves and adapts an open-weight VLM on a rented single-GPU host.
+That host is project compute under the maintainer's sole control, not a model
+provider: nothing is sent to any provider API, and the host's disks are deleted
+when the protocol ends. Only the trained LoRA adapter, the raw replies, and the
+run manifest come back.
+
+| Data | On the rented host |
+| --- | --- |
+| L0 training targets (3,956 windows, derived from Oracle label states) | yes — training partition only |
+| CAM_FRONT media for those windows and for the scored and sanity windows | yes |
+| public fields (`PUBLIC_U_FIELDS`) of the 900 scored and 300 sanity windows | yes |
+| Oracle labels of the 900, Development, Test2, or `frozen_test` | **never** |
+| Strem output, bindings, instance tokens, 3D boxes, distances, visibility | **never** |
+| DINO features, GRU checkpoints, Base probabilities | **never** |
+
+Scoring joins replies to the Oracle on the local machine. The SFT dataset builder
+refuses any row outside the L0 partition and asserts that no training window
+shares a log with a scored or sanity window.
+
 ## DINO Feature Contract
 
 Use `facebook/dinov2-small` at revision
