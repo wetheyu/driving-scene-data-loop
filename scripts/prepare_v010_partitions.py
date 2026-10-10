@@ -14,6 +14,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from driving_scene_data_loop.json_files import jsonl_line, write_report
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -69,7 +71,7 @@ def main() -> None:
             row = json.loads(line)
             if row["log_token"] in test2_logs or row["window_id"] in revealed_ids:
                 continue
-            out.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
+            out.write(jsonl_line(row))
             pool2_count += 1
     (args.output_dir / "test2_eval_ids.txt").write_text(
         "\n".join(test2_eval_ids) + "\n", encoding="utf-8"
@@ -86,10 +88,7 @@ def main() -> None:
         "pool2_windows": pool2_count,
         "guard": f"corridor events >= {args.min_corridor_events}, extend by one log",
     }
-    (args.output_dir / "v010_partitions_manifest.json").write_text(
-        json.dumps(manifest, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(args.output_dir / "v010_partitions_manifest.json", manifest)
     print(json.dumps({k: v for k, v in manifest.items()
                       if k not in ("test2_logs_hash_ordered",)}, sort_keys=True))
 

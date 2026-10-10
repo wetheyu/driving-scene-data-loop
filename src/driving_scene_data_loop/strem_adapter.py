@@ -105,7 +105,7 @@ class StremAdapter:
         expected_sha256 = STREM_SHA256_BY_PLATFORM.get(platform_key)
         if expected_sha256 is None:
             raise StremAdapterError(f"no Strem release is registered for {platform_key}")
-        if _sha256(self.binary_path) != expected_sha256:
+        if file_sha256(self.binary_path) != expected_sha256:
             raise StremAdapterError("STREM_BIN does not match the pinned v0.3.0 release")
 
         version = self._run([str(self.binary_path), "--version"])
@@ -134,7 +134,9 @@ def _path_from_environment() -> Path:
     return Path(value)
 
 
-def _sha256(path: Path) -> str:
+def file_sha256(path: Path) -> str:
+    """Hash a pinned external artifact in 1 MiB chunks."""
+
     digest = hashlib.sha256()
     with path.open("rb") as source:
         for chunk in iter(lambda: source.read(1024 * 1024), b""):

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
+from driving_scene_data_loop.json_files import write_report
 from driving_scene_data_loop.projection import (
     ELIGIBLE_VISIBILITY_TOKENS,
     MINIMUM_CLIPPED_AREA_FRACTION,
@@ -184,10 +185,7 @@ def build_cam_front_eligible_streams(
         eligible_annotation_count=eligible_annotation_count,
         eligible_by_category=tuple(sorted(eligible_by_category.items())),
     )
-    (output_dir / SUMMARY_FILENAME).write_text(
-        json.dumps(result.to_dict(), allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / SUMMARY_FILENAME, result.to_dict())
     return result
 
 

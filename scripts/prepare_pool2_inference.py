@@ -10,7 +10,9 @@ from typing import cast
 import numpy as np
 import torch  # type: ignore[import-not-found,unused-ignore]
 
-from driving_scene_data_loop.gru_baseline import GlobalGRU, build_sequence_features
+from driving_scene_data_loop.false_negative_bank import load_feature_index
+from driving_scene_data_loop.gru_baseline import build_sequence_features, load_checkpoint_model
+from driving_scene_data_loop.json_files import jsonl_line, write_report
 from driving_scene_data_loop.lr_baselines import (
     load_frame_features,
     validate_formal_feature_manifest,
@@ -36,10 +38,7 @@ def main() -> None:
         args.feature_dir / "frame_features.npy",
         int(cast(int, feature_cache["frame_count"])),
     )
-    feature_index: dict[str, int] = {}
-    for line in (args.feature_dir / "frame_index.jsonl").open(encoding="utf-8"):
-        row = json.loads(line)
-        feature_index[row["media_ref"]] = row["feature_index"]
+    feature_index = load_feature_index(args.feature_dir / "frame_index.jsonl")
 
     windows: list[dict[str, object]] = []
     seen: set[str] = set()
@@ -61,13 +60,7 @@ def main() -> None:
     checkpoints = sorted(args.base_run_dir.glob("gru_seed_*.pt"))
     per_seed: list[np.ndarray[tuple[int, ...], np.dtype[np.float32]]] = []
     for checkpoint in checkpoints:
-        state = torch.load(checkpoint, map_location="cpu", weights_only=True)
-        model = GlobalGRU(
-            int(state["classifier.weight"].shape[0]),
-            int(state["classifier.weight"].shape[1]),
-        )
-        model.load_state_dict(state)
-        model.eval()
+        model = load_checkpoint_model(checkpoint)
         with torch.inference_mode():
             per_seed.append(torch.sigmoid(model(inputs)).numpy())
     stack = np.stack(per_seed)                      # [seeds, windows, classes]
@@ -82,7 +75,7 @@ def main() -> None:
             row["pool_index"] = index
             row["base_probabilities"] = [float(v) for v in mean[index]]
             row["probability_std"] = [float(v) for v in std[index]]
-            out.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
+            out.write(jsonl_line(row))
 
     report = {
         "schema_version": "1.0",
@@ -101,10 +94,7 @@ def main() -> None:
         "window_count": len(windows),
         "files": {"rows": "pool2_windows.jsonl"},
     }
-    (args.output_dir / "pool2_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(args.output_dir / "pool2_report.json", report)
     print(json.dumps({"windows": len(windows), "seeds": len(checkpoints)}))
 
 

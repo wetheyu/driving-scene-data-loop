@@ -18,6 +18,8 @@ from typing import cast
 import numpy as np
 from sklearn.metrics import average_precision_score  # type: ignore[import-untyped]
 
+from driving_scene_data_loop.json_files import write_report
+
 JsonObject = dict[str, object]
 
 
@@ -239,11 +241,9 @@ def score_runs(
         "seed_paired_contrasts": contrasts,
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_path, report)
     return report
+
 
 def development_paired_contrasts(
     run_reports: dict[str, Path],

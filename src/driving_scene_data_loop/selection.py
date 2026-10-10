@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import math
 from dataclasses import dataclass, replace
 from pathlib import Path
@@ -12,6 +11,7 @@ import numpy as np
 from numpy.typing import NDArray
 from sklearn.cluster import MiniBatchKMeans  # type: ignore[import-untyped]
 
+from driving_scene_data_loop.json_files import read_json, read_jsonl, write_jsonl, write_report
 from driving_scene_data_loop.window_dataset import PUBLIC_U_FIELDS
 
 JsonObject = dict[str, Any]
@@ -81,7 +81,7 @@ def freeze_selection_rankings(
     if shortlist_size <= 0 or cluster_count <= 0:
         raise SelectionError("shortlist size and cluster count must be positive")
 
-    pool_report = _read_json(pool_report_path)
+    pool_report = read_json(pool_report_path)
     scenario_ids = cast(tuple[str, ...], tuple(pool_report["scenario_ids"]))
     if len(scenario_ids) != 3 or any(
         budget <= 0 or budget % len(scenario_ids) != 0 for budget in budgets
@@ -140,7 +140,7 @@ def freeze_selection_rankings(
     for method, rows in rankings.items():
         filename = f"{method}_ranked.jsonl"
         files[method] = filename
-        _write_jsonl(output_dir / filename, rows)
+        write_jsonl(output_dir / filename, rows)
 
     report: JsonObject = {
         "schema_version": "1.0",
@@ -166,10 +166,7 @@ def freeze_selection_rankings(
         },
         "files": files,
     }
-    (output_dir / "selection_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "selection_report.json", report)
     return report
 
 
@@ -197,7 +194,7 @@ def freeze_random_variance_rankings(
     if not budgets or tuple(sorted(set(budgets))) != budgets:
         raise SelectionError("budgets must be positive, unique, and increasing")
 
-    pool_report = _read_json(pool_report_path)
+    pool_report = read_json(pool_report_path)
     scenario_ids = cast(tuple[str, ...], tuple(pool_report["scenario_ids"]))
     pool_rows = _read_pool_rows(pool_rows_path, len(scenario_ids))
 
@@ -212,7 +209,7 @@ def freeze_random_variance_rankings(
     for seed, rows in rankings.items():
         filename = f"random_seed{seed}_ranked.jsonl"
         files[str(seed)] = filename
-        _write_jsonl(output_dir / filename, rows)
+        write_jsonl(output_dir / filename, rows)
 
     report: JsonObject = {
         "schema_version": "1.0",
@@ -237,10 +234,7 @@ def freeze_random_variance_rankings(
         },
         "files": files,
     }
-    (output_dir / "random_variance_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "random_variance_report.json", report)
     return report
 
 
@@ -279,7 +273,7 @@ def freeze_score_ranked_rankings(
     if not budgets or tuple(sorted(set(budgets))) != budgets:
         raise SelectionError("budgets must be positive, unique, and increasing")
 
-    pool_report = _read_json(pool_report_path)
+    pool_report = read_json(pool_report_path)
     scenario_ids = cast(tuple[str, ...], tuple(pool_report["scenario_ids"]))
     if len(scenario_ids) != 3 or any(
         budget <= 0 or budget % len(scenario_ids) != 0 for budget in budgets
@@ -315,7 +309,7 @@ def freeze_score_ranked_rankings(
 
     output_dir.mkdir(parents=True)
     filename = f"{method}_ranked.jsonl"
-    _write_jsonl(output_dir / filename, ranking)
+    write_jsonl(output_dir / filename, ranking)
 
     report: JsonObject = {
         "schema_version": "1.0",
@@ -337,12 +331,8 @@ def freeze_score_ranked_rankings(
         "prefixes": {method: _prefix_summary(ranking, budgets, scenario_ids)},
         "files": {method: filename},
     }
-    (output_dir / "score_ranked_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "score_ranked_report.json", report)
     return report
-
 
 
 def freeze_v010_rankings(
@@ -372,7 +362,7 @@ def freeze_v010_rankings(
     if not random_seeds or tuple(sorted(set(random_seeds))) != random_seeds:
         raise SelectionError("random seeds must be unique and increasing")
 
-    pool_report = _read_json(pool_report_path)
+    pool_report = read_json(pool_report_path)
     scenario_ids = cast(tuple[str, ...], tuple(pool_report["scenario_ids"]))
     if len(scenario_ids) != 3 or any(
         budget <= 0 or budget % len(scenario_ids) != 0 for budget in budgets
@@ -436,7 +426,7 @@ def freeze_v010_rankings(
     for method, rows in rankings.items():
         filename = f"{method}_ranked.jsonl"
         files[method] = filename
-        _write_jsonl(output_dir / filename, rows)
+        write_jsonl(output_dir / filename, rows)
 
     report: JsonObject = {
         "schema_version": "1.0",
@@ -462,10 +452,7 @@ def freeze_v010_rankings(
         },
         "files": files,
     }
-    (output_dir / "v010_selection_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "v010_selection_report.json", report)
     return report
 
 
@@ -726,7 +713,7 @@ def _read_pool_rows(
     extra_fields: frozenset[str] = frozenset(),
 ) -> list[JsonObject]:
     allowed = set(PUBLIC_U_FIELDS) | {"pool_index", "base_probabilities"} | extra_fields
-    rows = _read_jsonl(path)
+    rows = read_jsonl(path)
     for index, row in enumerate(rows):
         probabilities = np.asarray(row.get("base_probabilities"), dtype=np.float64)
         if (
@@ -743,7 +730,7 @@ def _read_pool_rows(
 
 
 def _read_fn_rows(path: Path, scenario_ids: tuple[str, ...]) -> list[JsonObject]:
-    rows = _read_jsonl(path)
+    rows = read_jsonl(path)
     for index, row in enumerate(rows):
         if row.get("bank_index") != index or row.get("scenario_id") not in scenario_ids:
             raise SelectionError(f"invalid FN row at index {index}")
@@ -757,20 +744,3 @@ def _load_embeddings(path: Path, expected_rows: int) -> NDArray[np.float32]:
     if not np.isfinite(value).all():
         raise SelectionError(f"non-finite embedding matrix: {path}")
     return cast(NDArray[np.float32], value)
-
-
-def _write_jsonl(path: Path, rows: list[JsonObject]) -> None:
-    with path.open("w", encoding="utf-8") as destination:
-        for row in rows:
-            destination.write(
-                json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n"
-            )
-
-
-def _read_json(path: Path) -> JsonObject:
-    return cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))
-
-
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]

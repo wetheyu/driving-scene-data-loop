@@ -8,12 +8,7 @@ from pathlib import Path
 from typing import cast
 
 from driving_scene_data_loop.feedback_retraining import (
-    D4_ARMS,
-    DEVELOPMENT_INFORMED_ARMS,
-    NOISE_ARMS,
-    ORACLE_ARMS,
-    V010_ARMS,
-    VLM_ARMS,
+    ALL_ARMS,
     get_oracle_arm,
     load_feedback_windows,
 )
@@ -32,13 +27,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--arm",
-        choices=[
-            arm.name
-            for arm in (
-                ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS
-                + VLM_ARMS + NOISE_ARMS + D4_ARMS
-            )
-        ],
+        choices=[arm.name for arm in ALL_ARMS],
         required=True,
     )
     parser.add_argument("--private-windows", type=Path, required=True)

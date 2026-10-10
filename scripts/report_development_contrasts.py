@@ -6,6 +6,7 @@ import argparse
 import json
 from pathlib import Path
 
+from driving_scene_data_loop.json_files import write_report
 from driving_scene_data_loop.prediction_scoring import development_paired_contrasts
 
 
@@ -46,10 +47,7 @@ def main() -> None:
         contrasts.append((left, right))
 
     document = development_paired_contrasts(run_reports, tuple(contrasts))
-    args.output.write_text(
-        json.dumps(document, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(args.output, document)
     print(json.dumps(document, allow_nan=False, sort_keys=True))
 
 

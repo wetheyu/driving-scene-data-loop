@@ -19,6 +19,7 @@ from driving_scene_data_loop.dino_features import (
     MODEL_ID,
     MODEL_REVISION,
 )
+from driving_scene_data_loop.json_files import write_report
 
 JsonObject = dict[str, object]
 
@@ -244,10 +245,7 @@ def train_lr_baselines(
         "seed": seed,
         "baselines": reports,
     }
-    (output_dir / "lr_baseline_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "lr_baseline_report.json", report)
     return report
 
 

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
@@ -10,6 +9,7 @@ from typing import Any, cast
 import numpy as np
 
 from driving_scene_data_loop.false_negative_bank import load_feature_index
+from driving_scene_data_loop.json_files import read_json, read_jsonl
 from driving_scene_data_loop.lr_baselines import BaselineWindowData, load_baseline_windows
 from driving_scene_data_loop.window_dataset import PUBLIC_U_FIELDS
 
@@ -112,11 +112,16 @@ D4_ARMS = (
 )
 
 
+# Every declared arm, in declaration order. The training CLI offers exactly these.
+ALL_ARMS = (
+    ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS + NOISE_ARMS + D4_ARMS
+)
+
+
 def get_oracle_arm(name: str) -> OracleArm:
     """Return one arm, pre-registered or Development-informed, by name."""
 
-    arms = ORACLE_ARMS + DEVELOPMENT_INFORMED_ARMS + V010_ARMS + VLM_ARMS + NOISE_ARMS + D4_ARMS
-    for arm in arms:
+    for arm in ALL_ARMS:
         if arm.name == name:
             return arm
     raise FeedbackRetrainingError(f"unknown feedback arm: {name}")
@@ -133,7 +138,7 @@ def load_feedback_windows(
 ) -> BaselineWindowData:
     """Join L0/Development with one selected, revealed Pool prefix."""
 
-    profile = _read_json(reveal_profile_path)
+    profile = read_json(reveal_profile_path)
     expected_artifact = LABEL_SOURCE_ARTIFACTS.get(arm.label_source)
     if expected_artifact is None or profile.get("artifact") != expected_artifact:
         raise FeedbackRetrainingError(
@@ -196,7 +201,7 @@ def load_feedback_windows(
 def _read_revealed_prefix(path: Path, arm: OracleArm) -> list[JsonObject]:
     rows = [
         row
-        for row in _read_jsonl(path)
+        for row in read_jsonl(path)
         if row.get("method") == arm.method and cast(int, row.get("rank", 0)) <= arm.budget
     ]
     if [row.get("rank") for row in rows] != list(range(1, arm.budget + 1)):
@@ -211,7 +216,7 @@ def _read_selected_public_rows(
     selected_ids: set[str],
 ) -> dict[str, JsonObject]:
     result: dict[str, JsonObject] = {}
-    for row in _read_jsonl(path):
+    for row in read_jsonl(path):
         window_id = row.get("window_id")
         if window_id not in selected_ids:
             continue
@@ -249,12 +254,3 @@ def _parse_targets(
         labels.append(int(label) if mask else -1)
         masks.append(mask)
     return labels, masks
-
-
-def _read_json(path: Path) -> JsonObject:
-    return cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))
-
-
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]

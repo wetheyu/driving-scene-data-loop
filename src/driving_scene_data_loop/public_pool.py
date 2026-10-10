@@ -11,7 +11,8 @@ import torch  # type: ignore[import-not-found,unused-ignore]
 from numpy.typing import NDArray
 
 from driving_scene_data_loop.false_negative_bank import build_selection_embedding
-from driving_scene_data_loop.gru_baseline import GlobalGRU
+from driving_scene_data_loop.gru_baseline import GlobalGRU, load_checkpoint_model
+from driving_scene_data_loop.json_files import jsonl_line, read_json, write_report
 from driving_scene_data_loop.window_dataset import PUBLIC_U_FIELDS
 
 JsonObject = dict[str, Any]
@@ -40,7 +41,7 @@ def prepare_public_pool(
         raise PublicPoolError("batch_size must be positive")
 
     windows = _read_public_windows(public_windows_path)
-    report = _read_json(base_report_path)
+    report = read_json(base_report_path)
     if report.get("base_seed") != 17:
         raise PublicPoolError("public-Pool inference requires Base seed 17")
     scenario_ids = cast(tuple[str, ...], tuple(report["scenario_ids"]))
@@ -74,12 +75,9 @@ def prepare_public_pool(
             frame_indices,
         )
 
-    state = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
-    # Derive the head's width from the checkpoint rather than assuming the
-    # default, so a Base trained under a different config still loads correctly.
-    hidden_size = int(state["classifier.weight"].shape[1])
-    model = GlobalGRU(len(scenario_ids), hidden_size)
-    model.load_state_dict(state)
+    model = load_checkpoint_model(checkpoint_path)
+    if model.classifier.out_features != len(scenario_ids):
+        raise PublicPoolError("Base checkpoint and report disagree on the class count")
     probabilities = _predict(model, sequences, batch_size)
 
     output_dir.mkdir(parents=True)
@@ -91,9 +89,7 @@ def prepare_public_pool(
             row = dict(window)
             row["pool_index"] = pool_index
             row["base_probabilities"] = probability.tolist()
-            destination.write(
-                json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n"
-            )
+            destination.write(jsonl_line(row))
     np.save(output_dir / "pool_embeddings.npy", embeddings)
 
     output_report: JsonObject = {
@@ -120,10 +116,7 @@ def prepare_public_pool(
             "embeddings": "pool_embeddings.npy",
         },
     }
-    (output_dir / "pool_report.json").write_text(
-        json.dumps(output_report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "pool_report.json", output_report)
     return output_report
 
 
@@ -161,7 +154,3 @@ def _read_public_windows(path: Path) -> list[JsonObject]:
     if not windows:
         raise PublicPoolError("public Pool is empty")
     return windows
-
-
-def _read_json(path: Path) -> JsonObject:
-    return cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))

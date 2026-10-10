@@ -14,6 +14,8 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+from driving_scene_data_loop.json_files import write_jsonl, write_report
+
 JsonObject = dict[str, Any]
 
 
@@ -92,13 +94,8 @@ def main() -> None:
         "files": {"rows": "revealed_labels.jsonl"},
     }
     args.output_dir.mkdir(parents=True)
-    with (args.output_dir / "revealed_labels.jsonl").open("w", encoding="utf-8") as out:
-        for row in rows:
-            out.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
-    (args.output_dir / "label_profile.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_jsonl(args.output_dir / "revealed_labels.jsonl", rows)
+    write_report(args.output_dir / "label_profile.json", report)
     print(json.dumps(report, allow_nan=False, sort_keys=True))
 
 

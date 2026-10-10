@@ -19,6 +19,7 @@ from torch.utils.data import (  # type: ignore[import-not-found,unused-ignore]
     TensorDataset,
 )
 
+from driving_scene_data_loop.json_files import write_report
 from driving_scene_data_loop.lr_baselines import BaselineWindowData
 
 JsonObject = dict[str, object]
@@ -174,6 +175,21 @@ class GlobalGRU(nn.Module):  # type: ignore[misc,unused-ignore]
         return self.classifier(  # type: ignore[no-any-return,unused-ignore]
             self.dropout(hidden[-1])
         )
+
+
+def load_checkpoint_model(path: Path) -> GlobalGRU:
+    """Rebuild one trained GRU from its checkpoint, in evaluation mode.
+
+    Width and class count are read from the saved weights, so a checkpoint loads
+    under whichever declared training config produced it.
+    """
+
+    state = torch.load(path, map_location="cpu", weights_only=True)
+    head = state["classifier.weight"]
+    model = GlobalGRU(int(head.shape[0]), int(head.shape[1]))
+    model.load_state_dict(state)
+    model.eval()
+    return model
 
 
 @dataclass(frozen=True, slots=True)
@@ -529,10 +545,7 @@ def train_gru_baselines(
         "base_seed": base_seed,
         "base_thresholds": base_thresholds,
     }
-    (output_dir / "gru_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "gru_report.json", report)
     return report
 
 

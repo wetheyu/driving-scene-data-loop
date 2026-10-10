@@ -17,7 +17,9 @@ from typing import cast
 import numpy as np
 import torch  # type: ignore[import-not-found,unused-ignore]
 
-from driving_scene_data_loop.gru_baseline import GlobalGRU, build_sequence_features
+from driving_scene_data_loop.false_negative_bank import load_feature_index
+from driving_scene_data_loop.gru_baseline import build_sequence_features, load_checkpoint_model
+from driving_scene_data_loop.json_files import write_report
 from driving_scene_data_loop.lr_baselines import (
     load_frame_features,
     validate_formal_feature_manifest,
@@ -60,10 +62,7 @@ def main() -> None:
         args.feature_dir / "frame_features.npy",
         int(cast(int, feature_cache["frame_count"])),
     )
-    feature_index: dict[str, int] = {}
-    for line in (args.feature_dir / "frame_index.jsonl").open(encoding="utf-8"):
-        row = json.loads(line)
-        feature_index[row["media_ref"]] = row["feature_index"]
+    feature_index = load_feature_index(args.feature_dir / "frame_index.jsonl")
 
     window_ids: list[str] = []
     frame_rows: list[list[int]] = []
@@ -99,12 +98,7 @@ def main() -> None:
     for checkpoint in checkpoints:
         seed = checkpoint.stem.removeprefix("gru_seed_")
         seeds.append(seed)
-        state = torch.load(checkpoint, map_location="cpu", weights_only=True)
-        hidden_size = int(state["classifier.weight"].shape[1])
-        class_count = int(state["classifier.weight"].shape[0])
-        model = GlobalGRU(class_count, hidden_size)
-        model.load_state_dict(state)
-        model.eval()
+        model = load_checkpoint_model(checkpoint)
         with torch.inference_mode():
             probabilities = torch.sigmoid(model(inputs)).numpy()
         with (args.output_dir / f"predictions_seed_{seed}.jsonl").open(
@@ -135,10 +129,7 @@ def main() -> None:
         "window_count": len(window_ids),
         "seeds": seeds,
     }
-    (args.output_dir / "manifest.json").write_text(
-        json.dumps(manifest, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(args.output_dir / "manifest.json", manifest)
     print(json.dumps({"run": args.run_dir.name, "partition": args.partition,
                       "windows": len(window_ids), "seeds": len(seeds)}))
 

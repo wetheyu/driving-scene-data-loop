@@ -21,6 +21,7 @@ from driving_scene_data_loop.gru_baseline import (  # noqa: E402
     build_sequence_features,
     calculate_ap_metrics,
     calculate_pos_weight,
+    load_checkpoint_model,
     masked_bce_with_logits,
     train_gru_baselines,
 )
@@ -52,6 +53,23 @@ def test_forward_masked_loss_gradient_and_checkpoint(tmp_path: Path) -> None:
     reloaded = GlobalGRU(class_count=3)
     reloaded.load_state_dict(torch.load(checkpoint, weights_only=True))
     reloaded.eval()
+    with torch.inference_mode():
+        assert torch.equal(expected, reloaded(inputs))
+
+
+def test_checkpoint_model_reads_its_width_from_the_weights(tmp_path: Path) -> None:
+    model = GlobalGRU(class_count=3, hidden_size=48)
+    model.eval()
+    inputs = torch.randn(2, 5, 384)
+    with torch.inference_mode():
+        expected = model(inputs)
+    checkpoint = tmp_path / "gru_seed_17.pt"
+    torch.save(model.state_dict(), checkpoint)
+
+    reloaded = load_checkpoint_model(checkpoint)
+
+    assert not reloaded.training
+    assert reloaded.gru.hidden_size == 48
     with torch.inference_mode():
         assert torch.equal(expected, reloaded(inputs))
 

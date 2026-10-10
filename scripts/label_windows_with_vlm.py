@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, cast
 
+from driving_scene_data_loop.json_files import jsonl_line, read_jsonl, write_report
 from driving_scene_data_loop.vlm_labeling import (
     CHUNK_SIZE,
     DIAGNOSTIC_MODEL,
@@ -77,7 +78,7 @@ def main() -> None:
 
     ranking = [
         row
-        for row in _read_jsonl(args.ranking)
+        for row in read_jsonl(args.ranking)
         if cast(int, row["rank"]) <= args.budget
     ]
     if [row["rank"] for row in ranking] != list(range(1, len(ranking) + 1)):
@@ -103,12 +104,12 @@ def main() -> None:
     labels_path = args.output_dir / LABELS_FILENAME
     completed = {
         cast(str, row["window_id"])
-        for row in (_read_jsonl(labels_path) if labels_path.is_file() else [])
+        for row in (read_jsonl(labels_path) if labels_path.is_file() else [])
     }
     submitted_path = args.output_dir / SUBMITTED_FILENAME
     unclaimed = [
         row
-        for row in (_read_jsonl(submitted_path) if submitted_path.is_file() else [])
+        for row in (read_jsonl(submitted_path) if submitted_path.is_file() else [])
         if not set(cast(list[str], row["windows"])) <= completed
     ]
     if unclaimed:
@@ -212,10 +213,7 @@ def main() -> None:
         "chunks": chunk_records,
         "usage": usage,
     }
-    (args.output_dir / MANIFEST_FILENAME).write_text(
-        json.dumps(manifest, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(args.output_dir / MANIFEST_FILENAME, manifest)
     print(json.dumps({"status": "done", "usage": usage}, allow_nan=False, sort_keys=True))
 
 
@@ -425,7 +423,7 @@ def _measured_cost_usd(usage: JsonObject, model: str, transport: str) -> float:
 
 def _read_public_rows(path: Path, wanted: set[str]) -> dict[str, JsonObject]:
     rows: dict[str, JsonObject] = {}
-    for row in _read_jsonl(path):
+    for row in read_jsonl(path):
         window_id = cast(str, row.get("window_id"))
         if window_id not in wanted:
             continue
@@ -437,15 +435,11 @@ def _read_public_rows(path: Path, wanted: set[str]) -> dict[str, JsonObject]:
     return rows
 
 
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]
-
 
 def _append_jsonl(path: Path, rows: list[JsonObject]) -> None:
     with path.open("a", encoding="utf-8") as destination:
         for row in rows:
-            destination.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
+            destination.write(jsonl_line(row))
 
 
 if __name__ == "__main__":

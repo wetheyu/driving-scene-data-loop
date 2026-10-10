@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+from driving_scene_data_loop.json_files import write_jsonl, write_report
 from driving_scene_data_loop.selection import BUDGETS
 
 JsonObject = dict[str, Any]
@@ -100,15 +101,8 @@ def reveal_selected_labels(
     }
 
     output_dir.mkdir(parents=True)
-    with (output_dir / REVEALED_FILENAME).open("w", encoding="utf-8") as destination:
-        for row in revealed:
-            destination.write(
-                json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n"
-            )
-    (output_dir / "label_profile.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_jsonl(output_dir / REVEALED_FILENAME, revealed)
+    write_report(output_dir / "label_profile.json", report)
     return report
 
 

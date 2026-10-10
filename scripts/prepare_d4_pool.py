@@ -17,6 +17,8 @@ from typing import Any, cast
 
 import numpy as np
 
+from driving_scene_data_loop.json_files import read_jsonl, write_jsonl, write_report
+
 JsonObject = dict[str, Any]
 
 
@@ -31,11 +33,11 @@ def main() -> None:
     if args.output_dir.exists():
         raise SystemExit("output directory must not already exist")
 
-    rows = _read_jsonl(args.pool2_inference_dir / "pool2_windows.jsonl")
+    rows = read_jsonl(args.pool2_inference_dir / "pool2_windows.jsonl")
     rows.sort(key=lambda row: cast(int, row["pool_index"]))
 
     v08_index: dict[str, int] = {}
-    for index, row in enumerate(_read_jsonl(args.v08_pool_dir / "pool_windows.jsonl")):
+    for index, row in enumerate(read_jsonl(args.v08_pool_dir / "pool_windows.jsonl")):
         v08_index[cast(str, row["window_id"])] = index
     embeddings = np.load(args.v08_pool_dir / "pool_embeddings.npy")
 
@@ -62,9 +64,7 @@ def main() -> None:
         picks.append(v08_index[window_id])
 
     args.output_dir.mkdir(parents=True)
-    with (args.output_dir / "pool_windows.jsonl").open("w", encoding="utf-8") as out:
-        for row in out_rows:
-            out.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
+    write_jsonl(args.output_dir / "pool_windows.jsonl", out_rows)
     np.save(args.output_dir / "pool_embeddings.npy", embeddings[picks])
 
     report = {
@@ -81,16 +81,8 @@ def main() -> None:
         "window_count": len(out_rows),
         "files": {"rows": "pool_windows.jsonl", "embeddings": "pool_embeddings.npy"},
     }
-    (args.output_dir / "pool_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(args.output_dir / "pool_report.json", report)
     print(json.dumps({"windows": len(out_rows)}, sort_keys=True))
-
-
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]
 
 
 if __name__ == "__main__":

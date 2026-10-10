@@ -8,10 +8,10 @@ separately instead of being counted as VLM errors.
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any, cast
 
+from driving_scene_data_loop.json_files import read_json, read_jsonl, write_report
 from driving_scene_data_loop.vlm_labeling import VERDICTS
 
 JsonObject = dict[str, Any]
@@ -38,20 +38,20 @@ def evaluate_vlm_labels(
     if output_dir.exists():
         raise VlmEvaluationError("output directory must not already exist")
 
-    oracle_profile = _read_json(oracle_dir / "label_profile.json")
+    oracle_profile = read_json(oracle_dir / "label_profile.json")
     if oracle_profile.get("artifact") != ORACLE_ARTIFACT:
         raise VlmEvaluationError("oracle directory is not an Oracle reveal")
     scenario_ids = tuple(cast(list[str], oracle_profile["scenario_ids"]))
 
     oracle_rows = {
         cast(str, row["window_id"]): row
-        for row in _read_jsonl(oracle_dir / "revealed_labels.jsonl")
+        for row in read_jsonl(oracle_dir / "revealed_labels.jsonl")
         if row.get("method") == method and cast(int, row["rank"]) <= budget
     }
     if len(oracle_rows) != budget:
         raise VlmEvaluationError(f"Oracle prefix is incomplete for {method} at {budget}")
 
-    vlm_rows = {cast(str, row["window_id"]): row for row in _read_jsonl(vlm_labels_path)}
+    vlm_rows = {cast(str, row["window_id"]): row for row in read_jsonl(vlm_labels_path)}
     missing = set(oracle_rows) - set(vlm_rows)
     if missing:
         raise VlmEvaluationError(f"{len(missing)} ranked windows have no VLM label")
@@ -100,13 +100,10 @@ def evaluate_vlm_labels(
         "per_class": per_class,
     }
     if run_manifest_path is not None:
-        report["run_cost"] = _cost_summary(_read_json(run_manifest_path), agreed_positives)
+        report["run_cost"] = _cost_summary(read_json(run_manifest_path), agreed_positives)
 
     output_dir.mkdir(parents=True)
-    (output_dir / REPORT_FILENAME).write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / REPORT_FILENAME, report)
     return report
 
 
@@ -212,12 +209,3 @@ def _ratio(numerator: int, denominator: int) -> float | None:
 
 def _ratio_float(numerator: float, denominator: int) -> float | None:
     return round(numerator / denominator, 6) if denominator else None
-
-
-def _read_json(path: Path) -> JsonObject:
-    return cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))
-
-
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]

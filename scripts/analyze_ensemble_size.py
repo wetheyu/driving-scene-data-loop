@@ -20,7 +20,9 @@ from typing import cast
 import numpy as np
 import torch  # type: ignore[import-not-found,unused-ignore]
 
-from driving_scene_data_loop.gru_baseline import GlobalGRU, build_sequence_features
+from driving_scene_data_loop.false_negative_bank import load_feature_index
+from driving_scene_data_loop.gru_baseline import build_sequence_features, load_checkpoint_model
+from driving_scene_data_loop.json_files import jsonl_line, write_report
 from driving_scene_data_loop.lr_baselines import (
     load_frame_features,
     validate_formal_feature_manifest,
@@ -59,10 +61,7 @@ def main() -> None:
         args.feature_dir / "frame_features.npy",
         int(cast(int, feature_cache["frame_count"])),
     )
-    feature_index: dict[str, int] = {}
-    for line in (args.feature_dir / "frame_index.jsonl").open(encoding="utf-8"):
-        entry = json.loads(line)
-        feature_index[entry["media_ref"]] = entry["feature_index"]
+    feature_index = load_feature_index(args.feature_dir / "frame_index.jsonl")
     frame_rows = [
         [feature_index[ref] for ref in cast(list[str], row["frame_refs"])] for row in rows
     ]
@@ -72,13 +71,7 @@ def main() -> None:
 
     per_seed = []
     for checkpoint in sorted(args.base_run_dir.glob("gru_seed_*.pt")):
-        state = torch.load(checkpoint, map_location="cpu", weights_only=True)
-        model = GlobalGRU(
-            int(state["classifier.weight"].shape[0]),
-            int(state["classifier.weight"].shape[1]),
-        )
-        model.load_state_dict(state)
-        model.eval()
+        model = load_checkpoint_model(checkpoint)
         with torch.inference_mode():
             per_seed.append(torch.sigmoid(model(inputs)).numpy())
     stack = np.stack(per_seed)  # [seeds, windows, classes]
@@ -93,7 +86,7 @@ def main() -> None:
                 for index, row in enumerate(rows):
                     patched = dict(row)
                     patched["probability_std"] = [float(v) for v in std[index]]
-                    out.write(json.dumps(patched, allow_nan=False, separators=(",", ":")) + "\n")
+                    out.write(jsonl_line(patched))
             freeze_v010_rankings(
                 pool_rows_path=rows_path,
                 pool_report_path=report_path,
@@ -139,10 +132,7 @@ def main() -> None:
         "metric": "fraction of the frozen top-K selection recovered by the subset ranking",
         "results": results,
     }
-    args.output.write_text(
-        json.dumps(document, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(args.output, document)
     print(json.dumps(document, allow_nan=False, sort_keys=True))
 
 

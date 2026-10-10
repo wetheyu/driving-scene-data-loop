@@ -12,6 +12,7 @@ from typing import TextIO, cast
 
 from nuscenes.nuscenes import NuScenes  # type: ignore[import-untyped]
 
+from driving_scene_data_loop.json_files import jsonl_line, write_report
 from driving_scene_data_loop.scenario_events import ScenarioEvent, build_scenario_events
 from driving_scene_data_loop.splits import OFFICIAL_PARTITIONS, load_split_manifest
 from driving_scene_data_loop.strem_adapter import (
@@ -20,6 +21,7 @@ from driving_scene_data_loop.strem_adapter import (
     StremRunResult,
 )
 from driving_scene_data_loop.window_dataset import (
+    PUBLIC_U_FIELDS,
     JsonObject,
     WindowDatasetError,
     WindowTarget,
@@ -206,10 +208,7 @@ def main() -> None:
     profile["public_u_windows"] = cast(
         dict[str, int], profile["window_counts"]
     )["u"]
-    (private_output / "data_profile.json").write_text(
-        json.dumps(profile, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(private_output / "data_profile.json", profile)
     print(json.dumps(profile, allow_nan=False, sort_keys=True))
 
 
@@ -376,18 +375,7 @@ def _empty_profile(
                 "retention, not mutually exclusive rejection-reason counts."
             ),
         },
-        "public_u_allowed_fields": [
-            "window_id",
-            "scene_token",
-            "scene_name",
-            "log_token",
-            "partition",
-            "start_frame_index",
-            "end_frame_index",
-            "sample_tokens",
-            "timestamps_s",
-            "frame_refs",
-        ],
+        "public_u_allowed_fields": list(PUBLIC_U_FIELDS),
     }
 
 
@@ -422,7 +410,7 @@ def _load_object(path: Path) -> JsonObject:
 
 
 def _write_json_line(destination: TextIO, row: JsonObject) -> None:
-    destination.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
+    destination.write(jsonl_line(row))
 
 
 if __name__ == "__main__":

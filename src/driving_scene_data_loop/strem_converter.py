@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+from driving_scene_data_loop.strem_adapter import file_sha256
 
 CONVERTER_SHA256 = "f1833b3a2ed6ed91d2a701a0e66695c5f92d2e05375d23e1043c8522828aa952"
 STREMF_SCHEMA_VERSION = "0.2.1"
@@ -45,7 +46,7 @@ def run_nuscenes_converter(
 
     if not converter.is_file():
         raise StremConverterError("STREM_CONVERTER must point to a file")
-    if _sha256(converter) != CONVERTER_SHA256:
+    if file_sha256(converter) != CONVERTER_SHA256:
         raise StremConverterError("STREM_CONVERTER does not match the pinned converter")
     if not metadata_root.is_dir():
         raise StremConverterError("metadata root must be a directory")
@@ -142,10 +143,3 @@ def _path_from_environment() -> Path:
         raise StremConverterError("STREM_CONVERTER is not set")
     return Path(value)
 
-
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as source:
-        for chunk in iter(lambda: source.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()

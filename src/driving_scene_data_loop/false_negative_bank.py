@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
@@ -10,6 +9,8 @@ from typing import Any, cast
 
 import numpy as np
 from numpy.typing import NDArray
+
+from driving_scene_data_loop.json_files import read_json, read_jsonl, write_jsonl, write_report
 
 JsonObject = dict[str, Any]
 
@@ -35,7 +36,7 @@ class _Candidate:
 def load_feature_index(path: Path) -> dict[str, int]:
     """Map a cached frame reference to its DINO feature row."""
 
-    rows = _read_jsonl(path)
+    rows = read_jsonl(path)
     result = {row["media_ref"]: row["feature_index"] for row in rows}
     if len(result) != len(rows) or sorted(result.values()) != list(range(len(rows))):
         raise FalseNegativeBankError("frame feature index is not unique and contiguous")
@@ -87,7 +88,7 @@ def build_false_negative_bank(
     fn_window_counts: dict[tuple[str, str], int] = {}
     representatives: dict[tuple[str, str], _Candidate] = {}
 
-    for window in _read_jsonl(windows_path):
+    for window in read_jsonl(windows_path):
         if window["partition"] != partition:
             continue
         window_id = cast(str, window["window_id"])
@@ -256,21 +257,14 @@ def build_false_negative_bank(
     }
 
     output_dir.mkdir(parents=True)
-    with (output_dir / "fn_bank.jsonl").open("w", encoding="utf-8") as destination:
-        for row in rows:
-            destination.write(
-                json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n"
-            )
+    write_jsonl(output_dir / "fn_bank.jsonl", rows)
     np.save(output_dir / "fn_embeddings.npy", embeddings)
-    (output_dir / "fn_bank_report.json").write_text(
-        json.dumps(report, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "fn_bank_report.json", report)
     return report
 
 
 def _load_base_protocol(path: Path) -> tuple[tuple[str, ...], dict[str, float], str]:
-    report = _read_json(path)
+    report = read_json(path)
     if report["base_seed"] != 17 or report["evaluation_partition"] != "development":
         raise FalseNegativeBankError("FN bank requires Development Base seed 17")
     scenario_ids = cast(tuple[str, ...], tuple(report["scenario_ids"]))
@@ -290,7 +284,7 @@ def _load_predictions(
     path: Path, class_count: int, partition: str = "development"
 ) -> dict[str, JsonObject]:
     result: dict[str, JsonObject] = {}
-    for row in _read_jsonl(path):
+    for row in read_jsonl(path):
         window_id = cast(str, row["window_id"])
         probabilities = np.asarray(row["probabilities"], dtype=np.float64)
         if (
@@ -305,12 +299,3 @@ def _load_predictions(
         row["probabilities"] = probabilities.tolist()
         result[window_id] = row
     return result
-
-
-def _read_json(path: Path) -> JsonObject:
-    return cast(JsonObject, json.loads(path.read_text(encoding="utf-8")))
-
-
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]

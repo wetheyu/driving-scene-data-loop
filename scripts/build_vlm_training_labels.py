@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
+from driving_scene_data_loop.json_files import read_jsonl
 from driving_scene_data_loop.vlm_labeling import (
     SCENARIO_DESCRIPTIONS,
     write_label_files,
@@ -30,7 +31,7 @@ def main() -> None:
 
     ranking_rows = [
         row
-        for row in _read_jsonl(args.ranking)
+        for row in read_jsonl(args.ranking)
         if cast(int, row["rank"]) <= args.budget
     ]
     if [row["rank"] for row in ranking_rows] != list(range(1, args.budget + 1)):
@@ -40,18 +41,13 @@ def main() -> None:
         raise SystemExit("ranking mixes selection methods")
 
     profile = write_label_files(
-        label_rows=_read_jsonl(args.vlm_labels),
+        label_rows=read_jsonl(args.vlm_labels),
         ranking_rows=ranking_rows,
         scenario_ids=tuple(sorted(SCENARIO_DESCRIPTIONS)),
         method=methods.pop(),
         output_dir=args.output_dir,
     )
     print(json.dumps(profile, allow_nan=False, sort_keys=True))
-
-
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]
 
 
 if __name__ == "__main__":

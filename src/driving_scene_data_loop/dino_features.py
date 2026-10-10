@@ -26,6 +26,8 @@ from typing import Any, Literal
 import numpy as np
 from PIL import Image
 
+from driving_scene_data_loop.json_files import write_report
+
 MODEL_ID = "facebook/dinov2-small"
 MODEL_REVISION = "ed25f3a31f01632728cabb09d1542f84ab7b0056"
 INPUT_SIZE = 518
@@ -260,10 +262,7 @@ def extract_feature_cache(
         "frames_per_second": round(len(frame_refs) / elapsed_seconds, 6),
         "limited_smoke": limit is not None,
     }
-    (output_dir / "feature_manifest.json").write_text(
-        json.dumps(manifest, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(output_dir / "feature_manifest.json", manifest)
     return manifest
 
 

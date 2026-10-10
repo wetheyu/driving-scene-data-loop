@@ -14,6 +14,7 @@ import random
 from pathlib import Path
 from typing import Any, cast
 
+from driving_scene_data_loop.json_files import read_jsonl, write_jsonl, write_report
 from driving_scene_data_loop.window_dataset import PUBLIC_U_FIELDS
 
 JsonObject = dict[str, Any]
@@ -34,7 +35,7 @@ def main() -> None:
 
     windows = [
         row
-        for row in _read_jsonl(args.windows)
+        for row in read_jsonl(args.windows)
         if row.get("partition") == "development"
     ]
     if not windows:
@@ -67,11 +68,11 @@ def main() -> None:
     oracle_dir = args.output_dir / "oracle"
     oracle_dir.mkdir(parents=True)
 
-    _write_jsonl(
+    write_jsonl(
         args.output_dir / "smoke_windows.jsonl",
         [{field: row[field] for field in PUBLIC_U_FIELDS} for row in selected],
     )
-    _write_jsonl(
+    write_jsonl(
         args.output_dir / "smoke_ranking.jsonl",
         [
             {
@@ -85,7 +86,7 @@ def main() -> None:
             for rank, row in enumerate(selected, start=1)
         ],
     )
-    _write_jsonl(
+    write_jsonl(
         oracle_dir / "revealed_labels.jsonl",
         [
             {
@@ -114,22 +115,8 @@ def main() -> None:
         "purpose": "prompt iteration only; never a reported label-quality result",
         "files": {"rows": "revealed_labels.jsonl"},
     }
-    (oracle_dir / "label_profile.json").write_text(
-        json.dumps(profile, allow_nan=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    write_report(oracle_dir / "label_profile.json", profile)
     print(json.dumps({"windows": len(selected), "method": SMOKE_METHOD}, sort_keys=True))
-
-
-def _read_jsonl(path: Path) -> list[JsonObject]:
-    with path.open(encoding="utf-8") as source:
-        return [cast(JsonObject, json.loads(line)) for line in source]
-
-
-def _write_jsonl(path: Path, rows: list[JsonObject]) -> None:
-    with path.open("w", encoding="utf-8") as destination:
-        for row in rows:
-            destination.write(json.dumps(row, allow_nan=False, separators=(",", ":")) + "\n")
 
 
 if __name__ == "__main__":
