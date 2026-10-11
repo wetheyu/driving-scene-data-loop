@@ -111,7 +111,8 @@ explainable.
   Mining-VLM reuses the exact Mining-Oracle IDs and changes only their label
   source.
 - The primary causal comparison always uses the private Strem/nuScenes Oracle.
-  A remote VLM may label only the already-frozen Mining-300 IDs and is evaluated
+  A remote VLM may label only an already-frozen, already-revealed batch (protocol
+  v0.11 retargeted it from Mining-300 to the v0.10 disagreement 900) and is evaluated
   against that Oracle; it is never the Oracle or a selector input.
 - Frozen Test must not influence task design, selection, tuning, or retraining.
 
