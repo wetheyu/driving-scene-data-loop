@@ -296,7 +296,11 @@ repeats that comparison with a hidden-128 student, where C's labels sit above
 the Oracle arm on corridor — read with the confound that C's labeler saw ten
 labeled logs the student never does — and a descriptive cascade analysis finds
 that requiring the two labelers to agree lifts machine Macro-F1 to `0.686` at a
-37% review rate (`results/d6-wide/`, `results/label-cascades/`).
+37% review rate (`results/d6-wide/`, `results/label-cascades/`). D7 then
+adapted a second labeler on the student's three seed logs only: Macro-F1
+`0.246`, and its labels fall `0.111` corridor AP below the Oracle arm's with the
+wide student — the adapted labeler's value is the labeled data it was trained
+on (`results/d7-seedlogs/`).
 
 ## Optional Only After Completion
 

@@ -1,0 +1,38 @@
+{
+  "artifact": "vlm_labeled_windows",
+  "files": {
+    "rows": "revealed_labels.jsonl"
+  },
+  "label_order": "labels, loss_mask, and label_states follow scenario_ids",
+  "label_source": "vlm",
+  "mask_rule": "only the VLM's own uncertain or unusable reply is masked",
+  "method": "disagreement_v010",
+  "per_class": {
+    "pedestrian_ego_near_zone_entry": {
+      "invalid": 0,
+      "negative": 357,
+      "positive": 542,
+      "uncertain": 1
+    },
+    "pedestrian_vehicle_center_proximity_hold": {
+      "invalid": 0,
+      "negative": 313,
+      "positive": 114,
+      "uncertain": 473
+    },
+    "vehicle_relative_corridor_entry": {
+      "invalid": 0,
+      "negative": 400,
+      "positive": 105,
+      "uncertain": 395
+    }
+  },
+  "protocol": "d7-seedlogs",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "window_count": 900
+}

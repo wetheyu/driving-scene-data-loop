@@ -815,6 +815,38 @@ does a labeler trained on the available labeled logs buy", not "are C's labels
 better than exact labels on equal information". Separating the two would need a
 C adapted on the three seed logs only, which was not run. Development-level.
 
+### D7 — the labeler's value comes from the labeled logs it was adapted on
+
+Declared 2026-10-12 before any D7 step ran. A second adapter, C′, was trained
+with the frozen v0.13 recipe, prompt, image size, and toolchain on the three
+`L0-small` logs only — the student's own seed set: 418 eventful plus 418
+all-negative windows (836, against C's 3,956), 106 steps in 26 min 47 s on one
+A800 at the same pinned model revision. C′ passed the sanity gate (schema-valid
+`1.00`, both verdicts in every class) and labelled the 900 windows once
+(181 s). Reports: `results/d7-seedlogs/`.
+
+C′'s labels are poor: Macro-F1 `0.246` (C `0.437`, A `0.494`); corridor F1
+`0.248` against C's `0.70`, and it calls 542 of 900 windows near-zone positive.
+
+| Development, 12 seed-paired, corridor AP | hidden 48 | hidden 128 |
+| --- | ---: | ---: |
+| C′ − Base | `+0.027 ± 0.024` (1.1σ) | `−0.057 ± 0.020` (−2.9σ) |
+| **C′ − Oracle** | `−0.102 ± 0.022` (−4.7σ) | **`−0.111 ± 0.016` (−7.1σ)** |
+| C − C′ | `+0.139 ± 0.026` (5.4σ) | `+0.169 ± 0.018` (9.5σ) |
+| C′ − A | `−0.083 ± 0.016` (−5.2σ) | `−0.099 ± 0.017` (−5.8σ) |
+
+Read by the declared rule (corridor, hidden 128): `C′ − Oracle` is below −2σ, so
+a labeler adapted on the seed logs alone is worse than the Oracle here, and the
+D6 excess needed the ten extra logs. Its labels buy nothing measurable for the
+hidden-48 student and hurt the hidden-128 one; Macro falls below Base under
+both. As declared, "fewer logs" and "less adaptation data" are one change here,
+so D7 does not say which of the two matters — only that the adapted labeler's
+downstream value is bought with labeled training data, not produced by the
+pretrained model from pixels. Section 17's downstream result and D6 should be
+read with that: they measure what a labeler adapted on thirteen labeled logs
+transfers to unlabeled windows. GPU time for D7: about 38 minutes,
+`~CNY 3.5`. Development-level.
+
 ## 17. Protocol v0.13: an adapted open model closes most of the gap, not all of it
 
 v0.11 bought labels from a remote VLM at Macro-F1 `0.494`, with precision as the
@@ -961,7 +993,10 @@ carry real corridor signal the Oracle arm never sees. A second channel is
 structural: C was adapted on all thirteen L0 logs while the student trains on
 three, so C's labels can carry supervision from ten labeled logs the Oracle arm
 never sees (D6). With a hidden-128 student the same comparison reads
-`C − Oracle = +0.058 ± 0.006` on corridor (D6).
+`C − Oracle = +0.058 ± 0.006` on corridor (D6). D7 settles the direction: an
+adapter trained on the three seed logs alone labels at Macro-F1 `0.246` and its
+labels fall `0.102` corridor AP below the Oracle arm's — the value of C's labels
+is bought with the labeled logs C was adapted on.
 
 ### A cascade of the two labelers
 

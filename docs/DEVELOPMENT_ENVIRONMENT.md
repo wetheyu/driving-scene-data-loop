@@ -41,7 +41,9 @@ the Aliyun mirror lags new releases (404), so installs use the Tencent mirror;
 (`MaxStartups`), so one multiplexed connection carries every command; and the
 image has no `nvcc`, so vLLM runs without FlashInfer's JIT sampler. The
 instance powers itself off at the end of a run chain; nothing from it is needed
-after the replies, adapter, and logs are pulled back.
+after the replies, adapter, and logs are pulled back. D7 (2026-10-12) rebuilt the
+same pinned environments on a fresh instance in GPU-less mode, switched to GPU
+mode for about 38 minutes, and powered off after the pull.
 
 ## Local Environment
 
@@ -69,7 +71,7 @@ These commands verify implemented code only. Separate private run artifacts are
 the evidence for completed formal event mining, feature extraction, model
 training, the Development FN bank, label-free public-Pool inference, and the
 frozen selection rankings, Oracle reveals, feedback retraining, both held-out
-readings, the VLM stage, and the D1–D6 diagnostics.
+readings, the VLM stage, and the D1–D7 diagnostics.
 
 ## Dependencies
 

@@ -1,0 +1,139 @@
+{
+  "artifact": "development_paired_contrasts",
+  "evidence_level": "Development diagnostic; carries no held-out claim",
+  "rows": [
+    {
+      "contrast": "seed - base",
+      "effect": -0.076892,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -8.116,
+      "stderr": 0.009474
+    },
+    {
+      "contrast": "seed - base",
+      "effect": -0.007117,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.456,
+      "stderr": 0.004887
+    },
+    {
+      "contrast": "seed - base",
+      "effect": 0.027008,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 1.13,
+      "stderr": 0.023896
+    },
+    {
+      "contrast": "seed - base",
+      "effect": -0.019,
+      "metric": "macro",
+      "sigma": -2.336,
+      "stderr": 0.008135
+    },
+    {
+      "contrast": "seed - oracle",
+      "effect": -0.045942,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -4.586,
+      "stderr": 0.010017
+    },
+    {
+      "contrast": "seed - oracle",
+      "effect": 0.00107,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 0.482,
+      "stderr": 0.002219
+    },
+    {
+      "contrast": "seed - oracle",
+      "effect": -0.101764,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -4.739,
+      "stderr": 0.021472
+    },
+    {
+      "contrast": "seed - oracle",
+      "effect": -0.048879,
+      "metric": "macro",
+      "sigma": -7.179,
+      "stderr": 0.006809
+    },
+    {
+      "contrast": "lora - seed",
+      "effect": 0.028014,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": 3.593,
+      "stderr": 0.007797
+    },
+    {
+      "contrast": "lora - seed",
+      "effect": 0.004929,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 1.483,
+      "stderr": 0.003323
+    },
+    {
+      "contrast": "lora - seed",
+      "effect": 0.138962,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 5.434,
+      "stderr": 0.025571
+    },
+    {
+      "contrast": "lora - seed",
+      "effect": 0.057302,
+      "metric": "macro",
+      "sigma": 5.825,
+      "stderr": 0.009837
+    },
+    {
+      "contrast": "seed - vlm",
+      "effect": -0.053079,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -4.885,
+      "stderr": 0.010866
+    },
+    {
+      "contrast": "seed - vlm",
+      "effect": 0.00227,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 1.053,
+      "stderr": 0.002157
+    },
+    {
+      "contrast": "seed - vlm",
+      "effect": -0.083441,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -5.158,
+      "stderr": 0.016178
+    },
+    {
+      "contrast": "seed - vlm",
+      "effect": -0.04475,
+      "metric": "macro",
+      "sigma": -9.89,
+      "stderr": 0.004525
+    }
+  ],
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "seed_count": 12,
+  "seeds": [
+    "17",
+    "29",
+    "43",
+    "61",
+    "79",
+    "97",
+    "113",
+    "131",
+    "149",
+    "167",
+    "181",
+    "199"
+  ]
+}

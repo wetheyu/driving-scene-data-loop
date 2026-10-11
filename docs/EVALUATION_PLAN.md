@@ -4,8 +4,8 @@ Specification: Frozen for `v0.8-three-class-loop`
 
 Status: every stage through protocol v0.11 and diagnostics D1–D5 has run, and
 both held-out sets are spent — `frozen_test` once for v0.8 and Test2 once for
-v0.10. Protocol v0.13, its downstream arm, D6, and the label-cascade analysis have
-run; their readings are Findings sections 16–17. Results live in
+v0.10. Protocol v0.13, its downstream arm, D6, D7, and the label-cascade analysis
+have run; their readings are Findings sections 16–17. Results live in
 [Findings](FINDINGS.md); this document keeps each protocol as it was frozen.
 
 ## Questions
@@ -1188,6 +1188,17 @@ By construction C′ also sees fewer training windows than C (836 against
 the reading says so. Hidden-48 contrasts are reported beside it.
 Development-level; no held-out set, no reveal, no prompt edit, one run. Spend
 ceiling CNY 50 of GPU time.
+
+### Observed execution (2026-10-12)
+
+A new AutoDL A800 instance, set up in GPU-less mode with the v0.13 pinned
+environments (LLaMA-Factory `1fded918`, vLLM `0.31.0`); the four weight files
+matched the v0.13 hashes. C′ trained 106 steps in 26 min 47 s, passed the
+sanity gate (schema-valid `1.00`), and labelled the 900 windows in 181 s; the
+instance was powered off after the replies were pulled and their hashes
+checked. About 38 minutes of GPU time, `~CNY 3.5`. C′ Macro-F1 `0.246`.
+Corridor, hidden 128: `C′ − Oracle = −0.111 ± 0.016` (−7.1σ) — the third
+reading: the D6 excess needed the extra logs. Findings section 16.
 
 ## Metrics
 
