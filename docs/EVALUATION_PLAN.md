@@ -1102,6 +1102,51 @@ reference arms reproduced Procyon on every seed (identical best epochs, at most
 +0.166` (5.1σ), `C − A = +0.056` (3.0σ). Near-zone falls below Base (−3.7σ), as
 expected. Findings section 17; `results/v013-downstream/`.
 
+## D6 and the label-cascade analysis (declared 2026-10-12, before either ran)
+
+Two closing analyses on artifacts that already exist. Neither reveals a label,
+touches a held-out set, or calls a model.
+
+### D6 — student-capacity check on the v0.13 downstream result
+
+Question: the LoRA labels retrained the hidden-48 student to a corridor gain
+indistinguishable from the Oracle's. D5 showed a hidden-128 student is more
+sensitive to the remote VLM's label errors. Does the v0.13 downstream reading
+survive the wider student? Method: the four arms of *Protocol v0.13
+downstream* — Base-small, `v010-disagreement-900` (Oracle),
+`v010-disagreement-900-vlm` (remote VLM), `v010-disagreement-900-vlm-lora`
+(LoRA labels) — retrained with `wide-fast-12seed` and nothing else moved, all on
+the laptop. Reading, as D5's: corridor `C − Oracle` within 2σ means the
+downstream reading is not an artifact of the small student; below `−2σ` means
+it is scoped to the hidden-48 student. `C − A`, Macro, and per-class
+contrasts are reported beside it. Development-level.
+
+### Label-cascade analysis — what an automatic labeling pipeline built from these labelers would deliver
+
+Question: with two automatic labelers measured on the same 900 windows — the
+remote VLM (A, `$0.0263` per window) and the LoRA-adapted open model (C, about
+`CNY 0.0003` per window) — what label quality, human-review load, and machine
+cost do simple cascades achieve? Policies, fixed now, applied per window and
+class:
+
+| Policy | Machine verdict | Sent to human review |
+| --- | --- | --- |
+| `A` | A's decided verdict | A abstains |
+| `C` | C's decided verdict | C abstains |
+| `route` | corridor from C, the two pedestrian classes from A | the chosen labeler abstains |
+| `agree` | A and C both decide and agree | any disagreement or abstention |
+| `C-then-A` | C's decided verdict; where C abstains, A's decided verdict (A is called only for windows with a C abstention) | both abstain |
+
+Metrics per policy, per class and macro: the human-review rate over all 900
+windows; the machine verdicts' precision, recall, and F1 on Oracle-decided
+windows (Oracle `ignore` windows count toward review load but are never scored,
+as in v0.11); and the final F1 after review, under the stated assumption that a
+reviewer returns the Oracle label — an upper bound on human quality, not a
+measurement. Machine cost per window is the share of windows on which each
+labeler is called times its measured unit cost, reported per currency. The
+analysis is descriptive: no policy is declared a winner, and these 900 windows
+are the adversarial disagreement slice, not a random sample.
+
 ## Metrics
 
 Primary:
