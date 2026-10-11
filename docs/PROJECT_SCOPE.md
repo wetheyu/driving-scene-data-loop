@@ -272,4 +272,4 @@ Current facts:
   unique IDs and passes temporal separation. Oracle reveal retained 2,220 unique
   selected windows after the rankings froze; it found no invalid target. The
   feedback-retraining arms, both held-out readings, the VLM labels, and the
-  D1–D5 diagnostics have since run; [Findings](FINDINGS.md) holds every result.
+  D1–D6 diagnostics have since run; [Findings](FINDINGS.md) holds every result.

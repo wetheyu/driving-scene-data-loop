@@ -321,3 +321,127 @@ def _ratio(numerator: int, denominator: int) -> float | None:
 
 def _ratio_float(numerator: float, denominator: int) -> float | None:
     return round(numerator / denominator, 6) if denominator else None
+
+
+# Label-cascade analysis (Evaluation Plan, "Label-cascade analysis"). Each policy
+# turns the two labelers' verdicts into a machine verdict or a human review.
+CASCADE_POLICIES = ("A", "C", "route", "agree", "C-then-A")
+ROUTE_TO_C = frozenset({"vehicle_relative_corridor_entry"})
+DECIDED = ("positive", "negative")
+
+
+def _decided(row: JsonObject, class_index: int) -> str | None:
+    verdict = cast(list[str], row["verdicts"])[class_index]
+    return verdict if verdict in DECIDED else None
+
+
+def _cascade_verdict(
+    policy: str, a_row: JsonObject, c_row: JsonObject, class_index: int, scenario_id: str
+) -> str | None:
+    """The machine verdict for one window and class, or None for human review."""
+
+    a, c = _decided(a_row, class_index), _decided(c_row, class_index)
+    if policy == "A":
+        return a
+    if policy == "C":
+        return c
+    if policy == "route":
+        return c if scenario_id in ROUTE_TO_C else a
+    if policy == "agree":
+        return a if a is not None and a == c else None
+    if policy == "C-then-A":
+        return c if c is not None else a
+    raise VlmEvaluationError(f"unknown cascade policy: {policy}")
+
+
+def _f1(tp: int, fp: int, fn: int) -> JsonObject:
+    precision = _ratio(tp, tp + fp)
+    recall = _ratio(tp, tp + fn)
+    f1 = (
+        round(2 * precision * recall / (precision + recall), 6)
+        if precision is not None and recall is not None and precision + recall > 0
+        else None
+    )
+    return {"precision": precision, "recall": recall, "f1": f1}
+
+
+def label_cascade_report(
+    *,
+    oracle_rows: dict[str, JsonObject],
+    a_rows: dict[str, JsonObject],
+    c_rows: dict[str, JsonObject],
+    scenario_ids: tuple[str, ...],
+    a_cost_usd: float,
+    c_cost_cny: float,
+) -> JsonObject:
+    """Review load, machine label quality, and post-review quality per policy.
+
+    A reviewer is assumed to return the Oracle label, so the final F1 is an upper
+    bound on what human review buys. Oracle `ignore` windows add review load but
+    are never scored, as in the v0.11 label metrics.
+    """
+
+    window_ids = sorted(oracle_rows)
+    report: JsonObject = {}
+    for policy in CASCADE_POLICIES:
+        a_called = sum(
+            policy in ("A", "route", "agree")
+            or (
+                policy == "C-then-A"
+                and any(_decided(c_rows[w], i) is None for i in range(len(scenario_ids)))
+            )
+            for w in window_ids
+        )
+        c_called = 0 if policy == "A" else len(window_ids)
+        classes: JsonObject = {}
+        for class_index, scenario_id in enumerate(scenario_ids):
+            machine = {"tp": 0, "fp": 0, "fn": 0}
+            final = {"tp": 0, "fp": 0, "fn": 0}
+            reviewed = 0
+            for window_id in window_ids:
+                verdict = _cascade_verdict(
+                    policy, a_rows[window_id], c_rows[window_id], class_index, scenario_id
+                )
+                if verdict is None:
+                    reviewed += 1
+                truth = cast(list[str], oracle_rows[window_id]["label_states"])[class_index]
+                if truth not in DECIDED:
+                    continue
+                for counts, label in ((machine, verdict), (final, verdict or truth)):
+                    if label == "positive":
+                        counts["tp" if truth == "positive" else "fp"] += 1
+                    elif label == "negative" and truth == "positive":
+                        counts["fn"] += 1
+            classes[scenario_id] = {
+                "review_rate": _ratio(reviewed, len(window_ids)),
+                "machine": {**machine, **_f1(**machine)},
+                "after_review": {**final, **_f1(**final)},
+            }
+        report[policy] = {
+            "classes": classes,
+            "macro": {
+                "review_rate": _mean(classes, "review_rate"),
+                "machine_f1": _mean(classes, "machine", "f1"),
+                "after_review_f1": _mean(classes, "after_review", "f1"),
+            },
+            "share_of_windows_calling": {
+                "A": _ratio(a_called, len(window_ids)),
+                "C": _ratio(c_called, len(window_ids)),
+            },
+            "machine_cost_per_window": {
+                "usd": round(a_called / len(window_ids) * a_cost_usd, 6),
+                "cny": round(c_called / len(window_ids) * c_cost_cny, 6),
+            },
+        }
+    return report
+
+
+def _mean(classes: JsonObject, *path: str) -> float | None:
+    values = []
+    for entry in classes.values():
+        for key in path:
+            entry = entry[key]
+        if entry is None:
+            return None
+        values.append(float(entry))
+    return round(sum(values) / len(values), 6)

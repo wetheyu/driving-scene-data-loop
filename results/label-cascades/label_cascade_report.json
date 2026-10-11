@@ -1,0 +1,388 @@
+{
+  "artifact": "label_cascade_analysis",
+  "evidence_level": "label quality on the adversarial disagreement-900 slice",
+  "policies": {
+    "A": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "after_review": {
+            "f1": 0.681819,
+            "fn": 4,
+            "fp": 24,
+            "precision": 0.555556,
+            "recall": 0.882353,
+            "tp": 30
+          },
+          "machine": {
+            "f1": 0.533333,
+            "fn": 4,
+            "fp": 24,
+            "precision": 0.4,
+            "recall": 0.8,
+            "tp": 16
+          },
+          "review_rate": 0.256667
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "after_review": {
+            "f1": 0.515337,
+            "fn": 5,
+            "fp": 74,
+            "precision": 0.362069,
+            "recall": 0.893617,
+            "tp": 42
+          },
+          "machine": {
+            "f1": 0.447553,
+            "fn": 5,
+            "fp": 74,
+            "precision": 0.301887,
+            "recall": 0.864865,
+            "tp": 32
+          },
+          "review_rate": 0.293333
+        },
+        "vehicle_relative_corridor_entry": {
+          "after_review": {
+            "f1": 0.666667,
+            "fn": 16,
+            "fp": 20,
+            "precision": 0.642857,
+            "recall": 0.692308,
+            "tp": 36
+          },
+          "machine": {
+            "f1": 0.5,
+            "fn": 16,
+            "fp": 20,
+            "precision": 0.473684,
+            "recall": 0.529412,
+            "tp": 18
+          },
+          "review_rate": 0.114444
+        }
+      },
+      "machine_cost_per_window": {
+        "cny": 0.0,
+        "usd": 0.0263
+      },
+      "macro": {
+        "after_review_f1": 0.621274,
+        "machine_f1": 0.493629,
+        "review_rate": 0.221481
+      },
+      "share_of_windows_calling": {
+        "A": 1.0,
+        "C": 0.0
+      }
+    },
+    "C": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "after_review": {
+            "f1": 0.273093,
+            "fn": 0,
+            "fp": 181,
+            "precision": 0.15814,
+            "recall": 1.0,
+            "tp": 34
+          },
+          "machine": {
+            "f1": 0.267207,
+            "fn": 0,
+            "fp": 181,
+            "precision": 0.154206,
+            "recall": 1.0,
+            "tp": 33
+          },
+          "review_rate": 0.001111
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "after_review": {
+            "f1": 0.354286,
+            "fn": 16,
+            "fp": 97,
+            "precision": 0.242188,
+            "recall": 0.659574,
+            "tp": 31
+          },
+          "machine": {
+            "f1": 0.34682,
+            "fn": 16,
+            "fp": 97,
+            "precision": 0.23622,
+            "recall": 0.652174,
+            "tp": 30
+          },
+          "review_rate": 0.118889
+        },
+        "vehicle_relative_corridor_entry": {
+          "after_review": {
+            "f1": 0.703125,
+            "fn": 7,
+            "fp": 31,
+            "precision": 0.592105,
+            "recall": 0.865385,
+            "tp": 45
+          },
+          "machine": {
+            "f1": 0.698413,
+            "fn": 7,
+            "fp": 31,
+            "precision": 0.586667,
+            "recall": 0.862745,
+            "tp": 44
+          },
+          "review_rate": 0.137778
+        }
+      },
+      "machine_cost_per_window": {
+        "cny": 0.0003,
+        "usd": 0.0
+      },
+      "macro": {
+        "after_review_f1": 0.443501,
+        "machine_f1": 0.43748,
+        "review_rate": 0.085926
+      },
+      "share_of_windows_calling": {
+        "A": 0.0,
+        "C": 1.0
+      }
+    },
+    "C-then-A": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "after_review": {
+            "f1": 0.26613,
+            "fn": 1,
+            "fp": 181,
+            "precision": 0.154206,
+            "recall": 0.970588,
+            "tp": 33
+          },
+          "machine": {
+            "f1": 0.26613,
+            "fn": 1,
+            "fp": 181,
+            "precision": 0.154206,
+            "recall": 0.970588,
+            "tp": 33
+          },
+          "review_rate": 0.0
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "after_review": {
+            "f1": 0.326087,
+            "fn": 17,
+            "fp": 107,
+            "precision": 0.218978,
+            "recall": 0.638298,
+            "tp": 30
+          },
+          "machine": {
+            "f1": 0.326087,
+            "fn": 17,
+            "fp": 107,
+            "precision": 0.218978,
+            "recall": 0.638298,
+            "tp": 30
+          },
+          "review_rate": 0.041111
+        },
+        "vehicle_relative_corridor_entry": {
+          "after_review": {
+            "f1": 0.687023,
+            "fn": 7,
+            "fp": 34,
+            "precision": 0.56962,
+            "recall": 0.865385,
+            "tp": 45
+          },
+          "machine": {
+            "f1": 0.682171,
+            "fn": 7,
+            "fp": 34,
+            "precision": 0.564103,
+            "recall": 0.862745,
+            "tp": 44
+          },
+          "review_rate": 0.012222
+        }
+      },
+      "machine_cost_per_window": {
+        "cny": 0.0003,
+        "usd": 0.00377
+      },
+      "macro": {
+        "after_review_f1": 0.426413,
+        "machine_f1": 0.424796,
+        "review_rate": 0.017778
+      },
+      "share_of_windows_calling": {
+        "A": 0.143333,
+        "C": 1.0
+      }
+    },
+    "agree": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "after_review": {
+            "f1": 0.819277,
+            "fn": 0,
+            "fp": 15,
+            "precision": 0.693878,
+            "recall": 1.0,
+            "tp": 34
+          },
+          "machine": {
+            "f1": 0.680851,
+            "fn": 0,
+            "fp": 15,
+            "precision": 0.516129,
+            "recall": 1.0,
+            "tp": 16
+          },
+          "review_rate": 0.374444
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "after_review": {
+            "f1": 0.693549,
+            "fn": 4,
+            "fp": 34,
+            "precision": 0.558442,
+            "recall": 0.914894,
+            "tp": 43
+          },
+          "machine": {
+            "f1": 0.568182,
+            "fn": 4,
+            "fp": 34,
+            "precision": 0.423729,
+            "recall": 0.862069,
+            "tp": 25
+          },
+          "review_rate": 0.443333
+        },
+        "vehicle_relative_corridor_entry": {
+          "after_review": {
+            "f1": 0.923077,
+            "fn": 4,
+            "fp": 4,
+            "precision": 0.923077,
+            "recall": 0.923077,
+            "tp": 48
+          },
+          "machine": {
+            "f1": 0.809524,
+            "fn": 4,
+            "fp": 4,
+            "precision": 0.809524,
+            "recall": 0.809524,
+            "tp": 17
+          },
+          "review_rate": 0.298889
+        }
+      },
+      "machine_cost_per_window": {
+        "cny": 0.0003,
+        "usd": 0.0263
+      },
+      "macro": {
+        "after_review_f1": 0.811968,
+        "machine_f1": 0.686186,
+        "review_rate": 0.372222
+      },
+      "share_of_windows_calling": {
+        "A": 1.0,
+        "C": 1.0
+      }
+    },
+    "route": {
+      "classes": {
+        "pedestrian_ego_near_zone_entry": {
+          "after_review": {
+            "f1": 0.681819,
+            "fn": 4,
+            "fp": 24,
+            "precision": 0.555556,
+            "recall": 0.882353,
+            "tp": 30
+          },
+          "machine": {
+            "f1": 0.533333,
+            "fn": 4,
+            "fp": 24,
+            "precision": 0.4,
+            "recall": 0.8,
+            "tp": 16
+          },
+          "review_rate": 0.256667
+        },
+        "pedestrian_vehicle_center_proximity_hold": {
+          "after_review": {
+            "f1": 0.515337,
+            "fn": 5,
+            "fp": 74,
+            "precision": 0.362069,
+            "recall": 0.893617,
+            "tp": 42
+          },
+          "machine": {
+            "f1": 0.447553,
+            "fn": 5,
+            "fp": 74,
+            "precision": 0.301887,
+            "recall": 0.864865,
+            "tp": 32
+          },
+          "review_rate": 0.293333
+        },
+        "vehicle_relative_corridor_entry": {
+          "after_review": {
+            "f1": 0.703125,
+            "fn": 7,
+            "fp": 31,
+            "precision": 0.592105,
+            "recall": 0.865385,
+            "tp": 45
+          },
+          "machine": {
+            "f1": 0.698413,
+            "fn": 7,
+            "fp": 31,
+            "precision": 0.586667,
+            "recall": 0.862745,
+            "tp": 44
+          },
+          "review_rate": 0.137778
+        }
+      },
+      "machine_cost_per_window": {
+        "cny": 0.0003,
+        "usd": 0.0263
+      },
+      "macro": {
+        "after_review_f1": 0.633427,
+        "machine_f1": 0.559766,
+        "review_rate": 0.229259
+      },
+      "share_of_windows_calling": {
+        "A": 1.0,
+        "C": 1.0
+      }
+    }
+  },
+  "reviewer_assumption": "a reviewer returns the Oracle label (upper bound)",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "unit_cost": {
+    "A_usd": 0.0263,
+    "C_cny": 0.0003
+  },
+  "window_count": 900
+}

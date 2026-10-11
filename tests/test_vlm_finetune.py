@@ -12,6 +12,7 @@ from PIL import Image
 from driving_scene_data_loop.json_files import read_json, read_jsonl
 from driving_scene_data_loop.vlm_evaluation import (
     _score_class,
+    label_cascade_report,
     paired_macro_f1_bootstrap,
 )
 from driving_scene_data_loop.vlm_finetune import (
@@ -159,3 +160,25 @@ def test_the_bootstrap_is_paired_reproducible_and_matches_the_point_scores() -> 
     assert first["difference"] == pytest.approx(1.0 - _score_class(pairs, 0)["f1"], abs=1e-6)
     assert first["left_coverage"] == 1.0 and first["right_coverage"] == 0.75
     assert first["ci95"][0] <= first["difference"] <= first["ci95"][1]
+
+
+def test_cascade_policies_route_review_and_score_after_review() -> None:
+    oracle = {
+        "w0": {"label_states": ["positive", "negative", "positive"]},
+        "w1": {"label_states": ["negative", "ignore", "negative"]},
+    }
+    a = _labels([["positive", "uncertain", "negative"], ["negative", "positive", "negative"]])
+    c = _labels([["negative", "negative", "positive"], ["uncertain", "positive", "positive"]])
+
+    report = label_cascade_report(
+        oracle_rows=oracle, a_rows=a, c_rows=c, scenario_ids=SCENARIOS,
+        a_cost_usd=0.02, c_cost_cny=0.001,
+    )
+
+    agree = report["agree"]["classes"][SCENARIOS[0]]
+    assert agree["review_rate"] == 1.0  # w0 disagrees, w1 has a C abstention
+    assert agree["after_review"]["f1"] == 1.0  # every decided window reviewed
+    route = report["route"]["classes"][SCENARIOS[2]]  # corridor comes from C
+    assert (route["machine"]["tp"], route["machine"]["fp"]) == (1, 1)
+    assert report["C-then-A"]["share_of_windows_calling"]["A"] == 0.5
+    assert report["A"]["machine_cost_per_window"] == {"usd": 0.02, "cny": 0.0}

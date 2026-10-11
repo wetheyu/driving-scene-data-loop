@@ -4,7 +4,8 @@ Specification: Frozen for `v0.8-three-class-loop`
 
 Status: every stage through protocol v0.11 and diagnostics D1–D5 has run, and
 both held-out sets are spent — `frozen_test` once for v0.8 and Test2 once for
-v0.10. Protocol v0.13 has run; its reading is Findings section 17. Results live in
+v0.10. Protocol v0.13, its downstream arm, D6, and the label-cascade analysis have
+run; their readings are Findings sections 16–17. Results live in
 [Findings](FINDINGS.md); this document keeps each protocol as it was frozen.
 
 ## Questions
@@ -1146,6 +1147,16 @@ measurement. Machine cost per window is the share of windows on which each
 labeler is called times its measured unit cost, reported per currency. The
 analysis is descriptive: no policy is declared a winner, and these 900 windows
 are the adversarial disagreement slice, not a random sample.
+
+### Observed execution (2026-10-12)
+
+D6: the four wide arms trained on the laptop; the three D5 arms reproduced
+Procyon (identical best epochs, at most `1.1e-3` AP apart). Corridor
+`C − Oracle = +0.058 ± 0.006` (9.3σ), not below −2σ: the downstream reading is
+not a small-student artifact. Above +2σ was not a named reading; Findings §16
+records it with the confound that C was adapted on ten L0 logs the student
+never sees. Cascade: `agree` reaches machine Macro-F1 `0.686` with a review rate
+of `0.372`; Findings §17.
 
 ## Metrics
 

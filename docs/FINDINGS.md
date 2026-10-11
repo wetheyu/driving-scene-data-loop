@@ -783,6 +783,38 @@ And the wide VLM arm's checkpoints peak earlier than the wide Oracle arm's,
 which fits a student memorising label noise but is an observation, not a
 tested mechanism. Development-level, like every D-series number.
 
+### D6 — the wider student does not shrink the v0.13 downstream reading
+
+Declared 2026-10-12 before it ran. The four arms of the v0.13 downstream
+comparison retrained with `wide-fast-12seed` (hidden 128), all on the laptop;
+the three D5 arms reproduced their Procyon reports with identical best epochs
+and at most `1.1e-3` AP apart (`results/d6-wide/platform_check.json`).
+
+| Development, 12 seed-paired, hidden 128 | corridor AP | Macro AP |
+| --- | ---: | ---: |
+| C − Base | `+0.112 ± 0.018` (6.4σ) | `+0.023 ± 0.005` (4.2σ) |
+| Oracle − Base | `+0.054 ± 0.018` (3.0σ) | `+0.013 ± 0.006` (2.3σ) |
+| A − Base | `+0.042 ± 0.017` (2.5σ) | `+0.004 ± 0.007` (0.5σ) |
+| **C − Oracle** | **`+0.058 ± 0.006` (9.3σ)** | `+0.010 ± 0.003` (2.8σ) |
+| C − A | `+0.070 ± 0.007` (9.8σ) | `+0.019 ± 0.005` (3.9σ) |
+
+By the declared rule the downstream reading is not an artifact of the small
+student: `C − Oracle` is not below −2σ. It is in fact above +2σ, an outcome the
+rule did not name, so it is reported as an observation and not as a claim that
+C's labels are more accurate than the Oracle's — they are not (section 17). The
+direction is the opposite of D5's: the wide student is hurt by the remote VLM's
+errors but helped by C's labels. Near-zone still falls (`C − Base = −0.047`,
+−5.6σ).
+
+One confound explains a gain above the Oracle without any label being better.
+C was adapted on all thirteen L0 logs; the student's seed set is three of them.
+C's labels on the 900 Pool2 windows can therefore carry supervision from ten
+labeled logs that neither the Base nor the Oracle arm ever sees — a
+distillation channel, not a label-quality effect. The comparison answers "what
+does a labeler trained on the available labeled logs buy", not "are C's labels
+better than exact labels on equal information". Separating the two would need a
+C adapted on the three seed logs only, which was not run. Development-level.
+
 ## 17. Protocol v0.13: an adapted open model closes most of the gap, not all of it
 
 v0.11 bought labels from a remote VLM at Macro-F1 `0.494`, with precision as the
@@ -925,8 +957,35 @@ positives, 17 Oracle-`ignore` windows (the event exists but its bounded match
 does not complete in the five frames) and 31 Oracle negatives; the Oracle arm
 trains on 52 positives with its 38 `ignore` windows masked. A plausible,
 untested reading is that C's extra positives on event-bearing `ignore` windows
-carry real corridor signal the Oracle arm never sees. D5 showed a wider student
-is more sensitive to VLM label errors; this arm used only the hidden-48 student.
+carry real corridor signal the Oracle arm never sees. A second channel is
+structural: C was adapted on all thirteen L0 logs while the student trains on
+three, so C's labels can carry supervision from ten labeled logs the Oracle arm
+never sees (D6). With a hidden-128 student the same comparison reads
+`C − Oracle = +0.058 ± 0.006` on corridor (D6).
+
+### A cascade of the two labelers
+
+Declared 2026-10-12 before it ran (`results/label-cascades/`). Five fixed
+policies over the 900 windows, each window and class either labeled by machine
+or sent to review; review load counts all windows, quality is scored on
+Oracle-decided windows, and "after review" assumes a reviewer returns the Oracle
+label — an upper bound, not a measurement.
+
+| Policy | Review rate | Machine Macro-F1 | After-review Macro-F1 | Machine cost / window |
+| --- | ---: | ---: | ---: | --- |
+| A alone | `0.221` | `0.494` | `0.621` | `$0.0263` |
+| C alone | `0.086` | `0.437` | `0.444` | `CNY 0.0003` |
+| route (corridor from C, pedestrians from A) | `0.229` | `0.560` | `0.633` | `$0.0263` + `CNY 0.0003` |
+| agree (A and C both decide and agree) | `0.372` | **`0.686`** | **`0.812`** | `$0.0263` + `CNY 0.0003` |
+| C-then-A (A only where C abstains) | `0.018` | `0.425` | `0.426` | `$0.0038` + `CNY 0.0003` |
+
+Agreement lifts machine quality the most, well above either labeler
+alone: machine corridor F1 `0.81` (precision and recall both `0.81`), at the
+price of sending 37% of window-classes to review. The two labelers' errors are
+partly independent, so their agreement is a usable confidence signal. Cheap
+policies inherit C's pedestrian over-calling: C abstains so rarely (9%) that
+routing its abstentions to A changes little. Descriptive only, on the
+adversarial slice.
 
 ### What this does and does not license
 
@@ -1026,7 +1085,8 @@ cases 3 and 5 is *plausible*, not confirmed.
 Sections 1–12, 15, and 16 are Development and selection observations on one
 dataset, one representation, and one downstream model; section 17 is a
 label-quality reading on already-revealed Pool2 windows plus a Development-level
-retraining on those labels, and section 18 reviews
+retraining on those labels and a descriptive cascade analysis, D6 extends
+section 16, and section 18 reviews
 single windows after every score froze; the only held-out readings are sections
 13 (v0.8) and 14 (v0.10).
 The unbiased-sample estimates rest on 1,710 windows with 67 to 86 positives per

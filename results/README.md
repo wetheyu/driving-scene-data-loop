@@ -34,6 +34,8 @@ data. Each directory name is the private run that produced the file, under
 | `cases-v1/case_review.json` | the six window-level cases of Findings 17–18: percentile ranks under each arm, selector picks, labeler cell sizes, and the Test2-wide window-level summary |
 | `v013/*.json` | protocol v0.13: the host bundle manifest, the toolchain and weight hashes, both open-weight arms' run manifests and label reports, the C sanity gate, the LoRA training log, and the paired-bootstrap comparison against v0.11 |
 | `v013-downstream/*.json` | the v0.13 downstream arm: C's training-label profile, its GRU report, the seed-paired contrasts against Base, Oracle and remote-VLM arms (all four trained on the laptop), and the laptop-versus-Procyon agreement of the three reference arms |
+| `d6-wide/*.json` | D6: the v0.13 downstream comparison retrained with the hidden-128 student — contrasts, the LoRA arm's report, and the laptop-versus-Procyon agreement of the three D5 arms |
+| `label-cascades/label_cascade_report.json` | five declared cascades of the remote and LoRA labelers: review load, machine and after-review label quality, machine cost per window |
 | `v012-diagnostics/*.json` | the D1-D5 scoping diagnostics: ensemble-size ablation with its sanity gate, the label-noise dose-response that places the VLM arm on a curve, the lc50 cross-operating-point contrasts, and the clean-query similarity ablation with its bank, selection, and reveal aggregates |
 
 ## What these files are not

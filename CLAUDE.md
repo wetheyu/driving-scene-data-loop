@@ -13,7 +13,7 @@ before touching a stage you have not worked on. Key points that shape every edit
 
 - This is a one-person offline research experiment, not a service or a reusable
   platform. The scenario specification is frozen at `v0.8-three-class-loop`;
-  later protocols (v0.10, v0.11, diagnostics D1–D5, v0.13) build on
+  later protocols (v0.10, v0.11, diagnostics D1–D6, v0.13) build on
   it without editing it. Implement the smallest direct solution: plain
   functions, small dataclasses, JSONL + `.npy`. Do not add registries, managers,
   plugin layers, defensive fallback trees, or hostile-input handling without an
@@ -40,9 +40,10 @@ before touching a stage you have not worked on. Key points that shape every edit
 | v0.8 bad-case similarity selection | done; held-out null (`+0.0033`, 0.3σ) | Findings §8–13 |
 | v0.10 ensemble-disagreement selection | done; Test2 `+0.0619 ± 0.0082` corridor AP, 7.6σ | Findings §14 |
 | v0.11 remote-VLM labels | done; Macro-F1 `0.494`, 86% of the Oracle gain (Development) | Findings §15 |
-| D1–D5 scoping diagnostics | done; Development-level | Findings §16 |
+| D1–D6 scoping diagnostics | done; Development-level | Findings §16 |
 | v0.13 open-weight VLM, zero-shot and LoRA | done; LoRA Macro-F1 `0.437` vs remote `0.494`, criterion not met | Findings §17 |
-| v0.13 downstream arm on the LoRA labels | done; corridor gain ≈ Oracle's (`+0.037 ± 0.022`, Development), above the remote VLM's (3.0σ) | Findings §17 |
+| v0.13 downstream arm on the LoRA labels | done; corridor gain ≈ Oracle's (`+0.037 ± 0.022`, Development), above the remote VLM's (3.0σ); above the Oracle's with a hidden-128 student (D6) | Findings §16–17 |
+| label-cascade analysis | done; `agree` policy machine Macro-F1 `0.686` at review rate `0.372` (descriptive) | Findings §17 |
 | bad-case review | done; six windows, every layer, checked against frames | Findings §17–18 |
 
 Both held-out sets are spent (`frozen_test` for v0.8, Test2 for v0.10) and are
@@ -94,7 +95,7 @@ platforms. Details: `docs/DEVELOPMENT_ENVIRONMENT.md`.
 
 ## Pipeline Architecture
 
-Thirty-one scripts under `scripts/` are the stage entry points;
+Thirty-two scripts under `scripts/` are the stage entry points;
 `src/driving_scene_data_loop/` holds the logic. Stages chain by fixed artifact
 filenames, so the output directory of one stage is the input directory of the
 next. Every stage refuses to write into an existing output path, so a rerun needs
@@ -150,7 +151,7 @@ build_vlm_training_labels.py --vlm-labels --ranking --budget --output-dir
                                                                 -> revealed_labels.jsonl + label_profile.json
                                                                    (vlm_labeled_windows identity, Oracle never opened)
 
-# diagnostics D1-D5
+# diagnostics D1-D6
 analyze_ensemble_size.py     --pool-dir --frozen-ranking --base-run-dir --feature-dir --output   (D1)
 build_noise_injected_labels.py --oracle-dir --rate-percent --output-dir                         (D2)
 prepare_d4_pool.py           --pool2-inference-dir --v08-pool-dir --base-report --output-dir     (D4)
@@ -165,6 +166,8 @@ run_vlm_vllm.py              --bundle --requests --model [--lora] --arm --output
 parse_vlm_replies.py         --replies-dir --output-dir [--sanity] -> vlm_labels.jsonl + hashed manifest (+ sanity gate)
 compare_vlm_labelers.py      --oracle-dir --arm-a --arm-b --arm-c --output-dir
                                                                 -> per-arm reports + paired-bootstrap criterion
+analyze_label_cascades.py    --oracle-dir --arm-a --arm-c --a-cost-usd --c-cost-cny --output
+                                                                -> label_cascade_report.json (descriptive, no model call)
 ```
 
 Feedback arms are declared in `feedback_retraining.py` (`ALL_ARMS`); an arm's

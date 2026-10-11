@@ -291,7 +291,12 @@ pedestrian classes. About CNY 15 of GPU time. A downstream arm declared
 afterwards retrained the student on C's labels (Development-level): its corridor
 gain is statistically indistinguishable from the Oracle arm's (`+0.037 ± 0.022`)
 and 3.0σ above the remote-VLM arm's. Full record: Findings section 17,
-`results/v013/`, `results/v013-downstream/`.
+`results/v013/`, `results/v013-downstream/`. Closing analyses (2026-10-12): D6
+repeats that comparison with a hidden-128 student, where C's labels sit above
+the Oracle arm on corridor — read with the confound that C's labeler saw ten
+labeled logs the student never does — and a descriptive cascade analysis finds
+that requiring the two labelers to agree lifts machine Macro-F1 to `0.686` at a
+37% review rate (`results/d6-wide/`, `results/label-cascades/`).
 
 ## Optional Only After Completion
 

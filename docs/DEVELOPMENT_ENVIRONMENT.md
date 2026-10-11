@@ -69,7 +69,7 @@ These commands verify implemented code only. Separate private run artifacts are
 the evidence for completed formal event mining, feature extraction, model
 training, the Development FN bank, label-free public-Pool inference, and the
 frozen selection rankings, Oracle reveals, feedback retraining, both held-out
-readings, the VLM stage, and the D1–D5 diagnostics.
+readings, the VLM stage, and the D1–D6 diagnostics.
 
 ## Dependencies
 

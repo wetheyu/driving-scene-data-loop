@@ -1,0 +1,195 @@
+{
+  "artifact": "development_paired_contrasts",
+  "evidence_level": "Development diagnostic; carries no held-out claim",
+  "rows": [
+    {
+      "contrast": "lora - base",
+      "effect": -0.047268,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -5.622,
+      "stderr": 0.008407
+    },
+    {
+      "contrast": "lora - base",
+      "effect": 0.003328,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 0.871,
+      "stderr": 0.003821
+    },
+    {
+      "contrast": "lora - base",
+      "effect": 0.112029,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 6.36,
+      "stderr": 0.017613
+    },
+    {
+      "contrast": "lora - base",
+      "effect": 0.022696,
+      "metric": "macro",
+      "sigma": 4.223,
+      "stderr": 0.005375
+    },
+    {
+      "contrast": "oracle - base",
+      "effect": -0.009176,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -1.137,
+      "stderr": 0.008073
+    },
+    {
+      "contrast": "oracle - base",
+      "effect": -0.00551,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -1.364,
+      "stderr": 0.00404
+    },
+    {
+      "contrast": "oracle - base",
+      "effect": 0.054112,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 2.968,
+      "stderr": 0.018231
+    },
+    {
+      "contrast": "oracle - base",
+      "effect": 0.013142,
+      "metric": "macro",
+      "sigma": 2.323,
+      "stderr": 0.005658
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": -0.027345,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -3.245,
+      "stderr": 0.008426
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": -0.003936,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": -0.583,
+      "stderr": 0.006749
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": 0.041908,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 2.515,
+      "stderr": 0.01666
+    },
+    {
+      "contrast": "vlm - base",
+      "effect": 0.003542,
+      "metric": "macro",
+      "sigma": 0.495,
+      "stderr": 0.007153
+    },
+    {
+      "contrast": "lora - oracle",
+      "effect": -0.038092,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -6.352,
+      "stderr": 0.005997
+    },
+    {
+      "contrast": "lora - oracle",
+      "effect": 0.008838,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 3.431,
+      "stderr": 0.002576
+    },
+    {
+      "contrast": "lora - oracle",
+      "effect": 0.057916,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 9.302,
+      "stderr": 0.006226
+    },
+    {
+      "contrast": "lora - oracle",
+      "effect": 0.009554,
+      "metric": "macro",
+      "sigma": 2.8,
+      "stderr": 0.003413
+    },
+    {
+      "contrast": "lora - vlm",
+      "effect": -0.019923,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -2.033,
+      "stderr": 0.009801
+    },
+    {
+      "contrast": "lora - vlm",
+      "effect": 0.007265,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 1.389,
+      "stderr": 0.005229
+    },
+    {
+      "contrast": "lora - vlm",
+      "effect": 0.070121,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": 9.753,
+      "stderr": 0.007189
+    },
+    {
+      "contrast": "lora - vlm",
+      "effect": 0.019154,
+      "metric": "macro",
+      "sigma": 3.948,
+      "stderr": 0.004852
+    },
+    {
+      "contrast": "vlm - oracle",
+      "effect": -0.018169,
+      "metric": "pedestrian_ego_near_zone_entry",
+      "sigma": -1.77,
+      "stderr": 0.010265
+    },
+    {
+      "contrast": "vlm - oracle",
+      "effect": 0.001574,
+      "metric": "pedestrian_vehicle_center_proximity_hold",
+      "sigma": 0.3,
+      "stderr": 0.005249
+    },
+    {
+      "contrast": "vlm - oracle",
+      "effect": -0.012205,
+      "metric": "vehicle_relative_corridor_entry",
+      "sigma": -1.549,
+      "stderr": 0.007879
+    },
+    {
+      "contrast": "vlm - oracle",
+      "effect": -0.0096,
+      "metric": "macro",
+      "sigma": -2.772,
+      "stderr": 0.003464
+    }
+  ],
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "seed_count": 12,
+  "seeds": [
+    "17",
+    "29",
+    "43",
+    "61",
+    "79",
+    "97",
+    "113",
+    "131",
+    "149",
+    "167",
+    "181",
+    "199"
+  ]
+}

@@ -187,6 +187,7 @@ or a workflow engine.
 | v0.13 | `run_vlm_vllm.py` | — (GPU host, vLLM only) | `replies.jsonl`, `runner_manifest.json` |
 | v0.13 | `parse_vlm_replies.py` | `vlm_labeling.py` | `vlm_labels.jsonl`, hashed `vlm_run_manifest.json`, sanity gate |
 | v0.13 | `compare_vlm_labelers.py` | `vlm_evaluation.py` | per-arm label reports, `v013_comparison.json` |
+| cascade | `analyze_label_cascades.py` | `vlm_evaluation.py` | `label_cascade_report.json`: review load and label quality per declared policy |
 
 Stage 4 writes the private and public views in one pass; that is where the
 Oracle boundary is created. Stages 9, 10, and 10b may read only the public view.
