@@ -279,14 +279,15 @@ No extra tuning occurs after the Held-out Test is opened. If Mining does
 not beat Random or its VLM-label run trails Oracle labels, report and diagnose the result
 instead of changing the protocol until it wins.
 
-## Stage F — Open-Weight VLM Labeler, Zero-Shot and LoRA — Planned
+## Stage F — Open-Weight VLM Labeler, Zero-Shot and LoRA — Completed as protocol v0.13
 
-Declared 2026-10-11 as protocol v0.13 in the Evaluation Plan; nothing has run.
-`Qwen3-VL-8B-Instruct` labels the v0.11 900 windows zero-shot and again with a
-LoRA adapter trained on 3,956 L0 windows, on one rented GPU. Compared against
-the v0.11 remote VLM on label quality only, by a paired-bootstrap Macro-F1
-criterion with a coverage guard. Downstream retraining with these labels stays
-Planned.
+Declared and executed 2026-10-11. `Qwen3-VL-8B-Instruct` labelled the v0.11
+900 windows zero-shot (Macro-F1 `0.180`) and with a LoRA adapter trained on
+3,956 L0 windows (`0.437`), against the remote VLM's `0.494`. The pre-registered
+criterion does not pass: `C − A = −0.056 [−0.125, +0.021]`. The adapter beats
+the remote VLM on corridor entry (F1 `0.70` against `0.50`) and over-calls both
+pedestrian classes. About CNY 15 of GPU time. Downstream retraining with these
+labels stays Planned. Full record: Findings section 17, `results/v013/`.
 
 ## Optional Only After Completion
 

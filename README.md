@@ -18,6 +18,7 @@ genuinely helped. Negative results are kept. [中文简介在文末](#中文简�
 | v0.8 | Does bad-case-similarity selection transfer? | **No.** A Development effect of `+0.0247` (3.7σ) died on held-out logs (`+0.0033`, 0.3σ). The cause was diagnosed, not excused: the mining queries came from the partition that judged them. [Findings §8–13](docs/FINDINGS.md) |
 | v0.10 | Does the redesigned loop beat random? | **Yes.** Ensemble-disagreement selection beats the random distribution by `+0.0619 ± 0.0082` corridor AP (**7.6σ**) on ten held-out logs it never touched, under a criterion frozen before any label was revealed; 14% of the extra labels buy 85% of the full-data gain (random: 55%). The yield-maximising selector fails the same bar. [Findings §14](docs/FINDINGS.md) |
 | v0.11 | Can a remote VLM replace the metric labeling Oracle? | **At this operating point, yes.** Labels at Macro-F1 `0.494` retrained to 86% of the Oracle's gain, statistically indistinguishable (`−0.018 ± 0.020`), at `$0.026` per window — and label F1 predicted none of that. [Findings §15](docs/FINDINGS.md) |
+| v0.13 | Does an open VLM fine-tuned on training-log labels beat it? | **Not overall.** A LoRA-adapted Qwen3-VL-8B reaches Macro-F1 `0.437` against the remote VLM's `0.494` (paired difference `−0.056`, interval `[−0.125, +0.021]`, pre-registered criterion not met) — up from `0.180` zero-shot. It beats the remote model on corridor entry (F1 `0.70` vs `0.50`) and over-calls the pedestrian classes, at about 1/600 of the per-window cost. [Findings §17](docs/FINDINGS.md) |
 
 What these claims cover, and nothing more:
 
@@ -135,8 +136,9 @@ Details: [Architecture](docs/ARCHITECTURE.md) ·
 
 Core: scene mining, data cleaning, five-frame classification, bad-case mining,
 fixed-budget data selection, controlled retraining, honest evaluation.
-Not core: agents, RAG, SFT, vector databases, multi-sensor fusion,
-planning/control, online learning, production claims.
+Not core: agents, RAG, vector databases, multi-sensor fusion, planning/control,
+online learning, production claims. SFT appears once, as the declared v0.13
+LoRA adapter judged on label quality only.
 
 ## License
 
@@ -154,6 +156,7 @@ works under their own licences and are not part of this repository.
 | 相似度挖掘有效吗？(v0.8) | **无效。** 验证集显著（3.7σ）但 held-out 失效（0.3σ）；对照实验定位主因：选数据的依据与评估共用了行车日志 |
 | 重新设计后闭环成立吗？(v0.10) | **成立。** 集成分歧选择在 10 段全新日志上胜过随机 `+0.062`（7.6σ，判据在揭示前冻结），三个预算档全正；14% 的新增标注拿到全量标注 85% 的增益（随机 55%） |
 | VLM 自动标注能替代精确标签吗？(v0.11) | **此作业点上能。** F1 仅 0.49 的 VLM 标签拿到精确标签 86% 的训练收益，统计上不可区分，成本 `$0.026`/窗；学生模型加宽到 hidden 128 后走廊类仍成立、Macro 不成立（D5） |
+| 微调开源 VLM 能胜过它吗？(v0.13) | **整体不能。** LoRA 微调的 Qwen3-VL-8B 的 Macro-F1 为 0.437，远程 VLM 为 0.494（配对差 −0.056，区间跨零，预注册判据未通过）；零样本时只有 0.18。走廊类反超（F1 0.70 vs 0.50），两个行人类过度判正；单窗成本约为 1/600 |
 
 仓库只含代码、场景规格、文档与聚合结果（`results/`），不含数据、图像、权重与
 标签。测试无需数据集即可全部运行；完整复现需自行申请 nuScenes，且场景挖掘依赖

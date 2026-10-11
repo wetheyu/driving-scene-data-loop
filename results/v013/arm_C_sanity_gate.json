@@ -1,0 +1,68 @@
+{
+  "arm": "C",
+  "artifact": "vlm_label_run",
+  "identity": {
+    "lora_path": "adapter",
+    "model_path": "/root/autodl-tmp/models/Qwen3-VL-8B-Instruct",
+    "prompt_sha256": "d418e9bb5942e9751d04c642c3a92a9cd23c7175bb09a4e7981b1d36061b90fe"
+  },
+  "protocol": "v0.13",
+  "replies_sha256": "1ba48bc8908bb38c7b08ca6910e31dcd5ceae02f028b1ff30a8c2adf795698e1",
+  "runner": {
+    "arm": "C",
+    "artifact": "v013_raw_replies",
+    "decoding": {
+      "max_tokens": 2000,
+      "structured_output": "frozen v0.11 json schema",
+      "temperature": 0.0
+    },
+    "elapsed_seconds": 57.247,
+    "gpu": "NVIDIA A800 80GB PCIe",
+    "lora_path": "adapter",
+    "model_path": "/root/autodl-tmp/models/Qwen3-VL-8B-Instruct",
+    "prompt_sha256": "d418e9bb5942e9751d04c642c3a92a9cd23c7175bb09a4e7981b1d36061b90fe",
+    "protocol": "v0.13",
+    "replies_sha256": "1ba48bc8908bb38c7b08ca6910e31dcd5ceae02f028b1ff30a8c2adf795698e1",
+    "requests": "sanity_300.jsonl",
+    "runtime_env": {
+      "VLLM_USE_FLASHINFER_SAMPLER": "0"
+    },
+    "schema_version": "1.0",
+    "torch_version": "2.13.0+cu130",
+    "vllm_version": "0.31.0",
+    "windows": 300
+  },
+  "sanity_gate": {
+    "labels_read": false,
+    "passed": true,
+    "rule": "schema-valid >= 0.95 and every class gets a positive and a negative",
+    "schema_valid_rate": 1.0,
+    "verdicts": {
+      "pedestrian_ego_near_zone_entry": {
+        "invalid": 0,
+        "negative": 215,
+        "positive": 85,
+        "uncertain": 0
+      },
+      "pedestrian_vehicle_center_proximity_hold": {
+        "invalid": 0,
+        "negative": 222,
+        "positive": 45,
+        "uncertain": 33
+      },
+      "vehicle_relative_corridor_entry": {
+        "invalid": 0,
+        "negative": 214,
+        "positive": 42,
+        "uncertain": 44
+      }
+    }
+  },
+  "schema_version": "1.0",
+  "usage": {
+    "elapsed_seconds": 57.247,
+    "input_tokens": 498300,
+    "output_tokens": 43516,
+    "requests": 300
+  }
+}

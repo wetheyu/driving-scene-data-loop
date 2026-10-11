@@ -4,7 +4,7 @@ Specification: Frozen for `v0.8-three-class-loop`
 
 Status: every stage through protocol v0.11 and diagnostics D1–D5 has run, and
 both held-out sets are spent — `frozen_test` once for v0.8 and Test2 once for
-v0.10. Protocol v0.13 is declared and **Planned**. Results live in
+v0.10. Protocol v0.13 has run; its reading is Findings section 17. Results live in
 [Findings](FINDINGS.md); this document keeps each protocol as it was frozen.
 
 ## Questions
@@ -883,7 +883,7 @@ block for any run before this change.
 ## Protocol v0.13 — an open-weight VLM as the labeler, zero-shot and LoRA-tuned
 
 Declared 2026-10-11, before any open-weight model has produced an output.
-Status: **Planned**. This is a new stage with its own claim boundary; the v0.11
+Executed 2026-10-11; the result is Findings section 17. This is a new stage with its own claim boundary; the v0.11
 red line ("no SFT and no weight update of any VLM") governed v0.11 and still
 does — no v0.11 number is rerun, edited, or reinterpreted here.
 
@@ -1015,6 +1015,25 @@ Specified in `DATA_SPEC.md`, *Rented GPU Boundary (v0.13)*. In short: the rented
 host receives L0 training targets and media plus public fields of the scored and
 sanity windows; the Oracle labels of the 900 and of Development never leave the
 local machine, and scoring runs locally.
+
+### Observed execution (2026-10-11)
+
+One AutoDL A800 80GB at CNY 5.59 per hour; vLLM 0.31.0, LLaMA-Factory commit
+`1fded918`, template `qwen3_vl_nothink` (the Instruct model has no thinking
+mode). All four weight files matched the published Hugging Face hashes.
+
+- Gate 1: the first smoke failed at engine start-up because FlashInfer's
+  sampler compiles kernels with `nvcc`, which the image lacks. The runner now
+  sets `VLLM_USE_FLASHINFER_SAMPLER=0`; greedy decoding takes the same argmax.
+  The rerun parsed 10 of 10 replies.
+- Gate 2: a five-step training probe at 640x360 and per-device batch 4 fit in
+  memory, so **no fallback was taken**.
+- Gates 3–6: B labelled the 900 in 193 s; training ran 496 steps in 2 h 06 min;
+  C passed the sanity gate (schema-valid `1.00`, both verdicts in every class)
+  and labelled the 900 in 175 s. Both arms were hashed before scoring.
+- Gate 7, the criterion: `C − A = −0.056`, 95% interval `[−0.125, +0.021]`.
+  **C does not beat A.** Context: `C − B = +0.258 [+0.125, +0.388]`.
+- Spend: about CNY 15 of GPU time against the CNY 150 ceiling.
 
 ### Not in this protocol
 

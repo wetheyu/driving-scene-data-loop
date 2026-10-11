@@ -1,0 +1,81 @@
+{
+  "artifact": "v013_labeler_comparison",
+  "budget": 900,
+  "contrasts": {
+    "B - A": {
+      "ci95": [
+        -0.464233,
+        -0.16059
+      ],
+      "difference": -0.314128,
+      "left_coverage": 0.75944,
+      "left_macro_f1": 0.1795,
+      "resamples": 10000,
+      "right_coverage": 0.787706,
+      "right_macro_f1": 0.493629,
+      "seed": 17
+    },
+    "C - A": {
+      "ci95": [
+        -0.12494,
+        0.021461
+      ],
+      "difference": -0.056149,
+      "left_coverage": 0.914041,
+      "left_macro_f1": 0.43748,
+      "resamples": 10000,
+      "right_coverage": 0.787706,
+      "right_macro_f1": 0.493629,
+      "seed": 17
+    },
+    "C - B": {
+      "ci95": [
+        0.125093,
+        0.38808
+      ],
+      "difference": 0.25798,
+      "left_coverage": 0.914041,
+      "left_macro_f1": 0.43748,
+      "resamples": 10000,
+      "right_coverage": 0.75944,
+      "right_macro_f1": 0.1795,
+      "seed": 17
+    }
+  },
+  "criterion": {
+    "c_beats_a": false,
+    "coverage_not_lower": true,
+    "interval_above_zero": false,
+    "rule": "C beats A when the C - A 95% interval lies above zero and C's coverage is no lower than A's"
+  },
+  "macro_f1": {
+    "A": 0.493629,
+    "B": 0.1795,
+    "C": 0.43748
+  },
+  "method": "disagreement_v010",
+  "per_class_precision": {
+    "A": {
+      "pedestrian_ego_near_zone_entry": 0.4,
+      "pedestrian_vehicle_center_proximity_hold": 0.301887,
+      "vehicle_relative_corridor_entry": 0.473684
+    },
+    "B": {
+      "pedestrian_ego_near_zone_entry": 0.166667,
+      "pedestrian_vehicle_center_proximity_hold": 1.0,
+      "vehicle_relative_corridor_entry": 0.104167
+    },
+    "C": {
+      "pedestrian_ego_near_zone_entry": 0.154206,
+      "pedestrian_vehicle_center_proximity_hold": 0.23622,
+      "vehicle_relative_corridor_entry": 0.586667
+    }
+  },
+  "protocol": "v0.13",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0"
+}

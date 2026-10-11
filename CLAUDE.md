@@ -13,7 +13,7 @@ before touching a stage you have not worked on. Key points that shape every edit
 
 - This is a one-person offline research experiment, not a service or a reusable
   platform. The scenario specification is frozen at `v0.8-three-class-loop`;
-  later protocols (v0.10, v0.11, diagnostics D1–D5, the Planned v0.13) build on
+  later protocols (v0.10, v0.11, diagnostics D1–D5, v0.13) build on
   it without editing it. Implement the smallest direct solution: plain
   functions, small dataclasses, JSONL + `.npy`. Do not add registries, managers,
   plugin layers, defensive fallback trees, or hostile-input handling without an
@@ -41,7 +41,7 @@ before touching a stage you have not worked on. Key points that shape every edit
 | v0.10 ensemble-disagreement selection | done; Test2 `+0.0619 ± 0.0082` corridor AP, 7.6σ | Findings §14 |
 | v0.11 remote-VLM labels | done; Macro-F1 `0.494`, 86% of the Oracle gain (Development) | Findings §15 |
 | D1–D5 scoping diagnostics | done; Development-level | Findings §16 |
-| v0.13 open-weight VLM, zero-shot and LoRA | declared, **Planned** | Evaluation Plan |
+| v0.13 open-weight VLM, zero-shot and LoRA | done; LoRA Macro-F1 `0.437` vs remote `0.494`, criterion not met | Findings §17 |
 
 Both held-out sets are spent (`frozen_test` for v0.8, Test2 for v0.10) and are
 never reopened. Any new held-out claim needs a freshly carved set first.
@@ -154,7 +154,7 @@ build_noise_injected_labels.py --oracle-dir --rate-percent --output-dir         
 prepare_d4_pool.py           --pool2-inference-dir --v08-pool-dir --base-report --output-dir     (D4)
 report_development_contrasts.py --run NAME=REPORT ... --contrast LEFT-RIGHT ... --output         (D2-D5)
 
-# protocol v0.13 (Planned): bundle locally, run on the rented GPU, score locally
+# protocol v0.13: bundle locally, run on the rented GPU, score locally
 prepare_vlm_v013_bundle.py   --private-windows --ranking --pool2-windows --media-root --lf-template --output-dir
                                                                 -> L0 SFT targets, public request rows, 640x360 frames,
                                                                    prompt.json, train_lora.yaml (no scored/sanity label)

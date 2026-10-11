@@ -783,10 +783,124 @@ And the wide VLM arm's checkpoints peak earlier than the wide Oracle arm's,
 which fits a student memorising label noise but is an observation, not a
 tested mechanism. Development-level, like every D-series number.
 
+## 17. Protocol v0.13: an adapted open model closes most of the gap, not all of it
+
+v0.11 bought labels from a remote VLM at Macro-F1 `0.494`, with precision as the
+failure. v0.13 asked whether an open-weight VLM adapted on Oracle labels from
+training logs only can do better on the same 900 windows, under a criterion
+fixed before any open-weight output existed: the paired-bootstrap 95% interval
+of `Macro-F1(C) − Macro-F1(A)` must lie above zero, and C must not buy it by
+abstaining more.
+
+`Qwen3-VL-8B-Instruct` at a pinned revision (all four weight files matched the
+published hashes) labelled the 900 windows zero-shot (B) and with one LoRA
+adapter (C): rank 16, language-model layers only, two epochs over 3,956 L0
+windows, `ignore` trained as `uncertain`. Same frozen v0.11 prompt and schema,
+greedy decoding constrained to that schema, frames resized once to 640x360. The
+rented GPU never held a label for a scored or sanity window. One pipeline defect
+was fixed at the smoke gate, before any scored output: FlashInfer's sampler
+needs `nvcc`, which the image lacks, so the PyTorch sampler runs instead —
+identical under greedy decoding. No declared fallback was needed. Both arms'
+replies were hashed before scoring opened. Reports: `results/v013/`.
+
+### The criterion does not pass
+
+| Arm | Labeler | Macro-F1 | Coverage |
+| --- | --- | ---: | ---: |
+| A | `gpt-5.6-terra`, zero-shot (v0.11) | `0.494` | `0.788` |
+| B | Qwen3-VL-8B, zero-shot | `0.180` | `0.759` |
+| C | Qwen3-VL-8B + LoRA on L0 | `0.437` | `0.914` |
+
+| Contrast (10,000 paired resamples) | Difference | 95% interval |
+| --- | ---: | --- |
+| **C − A** (primary) | `−0.056` | `[−0.125, +0.021]` |
+| C − B | `+0.258` | `[+0.125, +0.388]` |
+| B − A | `−0.314` | `[−0.464, −0.161]` |
+
+C does not beat A: the interval spans zero, so by the declared reading there is
+no measurable difference at this sample size (34 to 52 Oracle positives per
+class). The coverage guard is not what failed — C abstains far less than A. The
+two context contrasts are unambiguous: zero-shot, the open 8B model is far
+behind the remote one, and the adapter recovers most of that distance.
+
+### Per class, the adapter helps exactly where the GRU could learn
+
+| Class | A precision / recall / F1 | C precision / recall / F1 |
+| --- | --- | --- |
+| vehicle corridor entry | `0.47 / 0.53 / 0.50` | **`0.59 / 0.86 / 0.70`** |
+| pedestrian near-zone entry | `0.40 / 0.80 / 0.53` | `0.15 / 1.00 / 0.27` |
+| pedestrian-vehicle proximity hold | `0.30 / 0.86 / 0.45` | `0.24 / 0.65 / 0.35` |
+
+Recall here is over decided windows, as in section 15. On the corridor class C
+fixes the very failure v0.11 had: precision rises, and of 52 Oracle positives C
+says `positive` to 44 where A did to 18 (A abstained on 18). On the two
+pedestrian classes C is worse than A, and in the same direction each time: it
+over-calls. On near-zone entry C answers `positive` on 252 of 900 windows
+against A's 47, and `uncertain` once — although 526 of its training targets for
+that class were `uncertain`.
+
+This is the class split the rest of the project already measured: corridor is
+the class the frozen-feature GRU could learn and whose learning curve was steep
+(sections 11–12); proximity hold was information-limited. The adapter learned
+the class whose evidence is a large object crossing the frame, and did not learn
+the classes whose evidence is a metric distance to a small pedestrian.
+
+### Three cases
+
+Each case is one window drawn with seed 17 from the cell it illustrates; the
+scene name and window start identify it in the public nuScenes release.
+
+1. **Corridor, C recovers what A abstained on** (`scene-1099`, start 13; one of
+   15 such windows). At night a white SUV crosses from the left into the lane
+   directly ahead and grows across the five frames. Oracle: positive. A:
+   `uncertain` — "the ego corridor and metric lateral offsets are not reliably
+   inferable at night". C: `positive`. The lateral entry is visible as motion
+   across the image; the metric thresholds behind it did not need to be read
+   off to get the label right.
+2. **Near-zone, C invents an entry** (`scene-0241`, start 7; one of 77 windows
+   where A was right to say `negative` and C said `positive`). A daytime street
+   with parked trucks; pedestrians appear only far down the road and stay
+   there. Oracle: negative. A: `negative`. C: `positive`. C fires on a
+   visible pedestrian ahead, not on the 20 m → 15 m crossing the definition
+   requires.
+3. **Near-zone boundary, C says yes where the honest answer is unknown**
+   (`scene-0006`, start 8; one of 14 Oracle-`ignore` windows where A abstained
+   and C did not). A pedestrian crosses far ahead as the ego vehicle approaches.
+   The event exists, but its bounded match does not complete inside these five
+   frames, so the Oracle masks the window. A: `uncertain` — "monocular
+   perspective does not establish a change from over 20 m to within 15 m". C:
+   `positive`, as on 38 of the 45 near-zone `ignore` windows. Trained to say
+   `uncertain` here, the adapter learned the look of the event instead.
+
+Two explanations for the pedestrian over-calling are plausible and untested:
+the 900 windows were chosen where the Base ensemble disagreed, which enriches
+for scenes that look like positives; and an adapter trained on 1,978 eventful
+windows learns "a pedestrian is ahead" more easily than a monocular metric
+transition. Neither is claimed.
+
+### What it costs
+
+Training took 2 h 06 min on one A800 (`~CNY 12`); labelling the 900 windows
+took 175 s, about `CNY 0.0003` per window against v0.11's `$0.026`, roughly
+600 times cheaper per window once the adapter exists. The whole protocol,
+including set-up and both arms, cost about `CNY 15` of GPU time against a
+declared ceiling of `CNY 150`.
+
+### What this does and does not license
+
+It licenses: one LoRA adapter on one open-weight VLM, judged on label quality on
+one adversarial 900-window slice, does not beat the remote VLM overall; it is
+much better than the same model zero-shot; and its gains and losses split by
+class along the same learnability line as the GRU's. It does not license any
+downstream claim — no student was retrained on C's labels, which stays
+Planned — nor any statement about other recipes, other models, or random
+windows. One recipe was run once; nothing was tuned after scoring opened.
+
 ## Claim boundary
 
 Sections 1–12, 15, and 16 are Development and selection observations on one
-dataset, one representation, and one downstream model; the only held-out
+dataset, one representation, and one downstream model; section 17 is a
+label-quality reading on already-revealed Pool2 windows; the only held-out
 readings are sections 13 (v0.8) and 14 (v0.10).
 The unbiased-sample estimates rest on 1,710 windows with 67 to 86 positives per
 class, so decile-level rates carry real uncertainty; the round-robin dilution and

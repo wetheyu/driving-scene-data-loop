@@ -27,6 +27,19 @@ Specification: Frozen for `v0.8-three-class-loop`
   `0.3513`). The committed LR numbers are Procyon's; an LR comparison across
   platforms carries that tolerance.
 
+## Rented GPU Host (v0.13, 2026-10-11)
+
+One AutoDL A800 80GB instance (CNY 5.59 per hour, 50 GB fixed data disk),
+set up in GPU-less mode and switched to GPU mode only for the runs. Observed
+quirks, each fixed once: the Tsinghua PyPI mirror refuses the host (403) and
+the Aliyun mirror lags new releases (404), so installs use the Tencent mirror;
+`hf-mirror.com` does not proxy the Xet backend, so downloads set
+`HF_HUB_DISABLE_XET=1`; the SSH gateway rejects bursts of new connections
+(`MaxStartups`), so one multiplexed connection carries every command; and the
+image has no `nvcc`, so vLLM runs without FlashInfer's JIT sampler. The
+instance powers itself off at the end of a run chain; nothing from it is needed
+after the replies, adapter, and logs are pulled back.
+
 ## Local Environment
 
 Observed:

@@ -1,0 +1,89 @@
+{
+  "artifact": "v013_host_bundle",
+  "boundary": "L0 targets and public rows only; no scored or sanity Oracle label",
+  "frames": {
+    "count": 13606,
+    "jpeg_quality": 95,
+    "resample": "bicubic",
+    "size": [
+      640,
+      360
+    ]
+  },
+  "model": {
+    "id": "Qwen/Qwen3-VL-8B-Instruct",
+    "path": "/root/autodl-tmp/models/Qwen3-VL-8B-Instruct",
+    "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b"
+  },
+  "prompt_sha256": "d418e9bb5942e9751d04c642c3a92a9cd23c7175bb09a4e7981b1d36061b90fe",
+  "protocol": "v0.13",
+  "recipe": {
+    "bf16": true,
+    "cutoff_len": 4096,
+    "dataset": "v013_l0",
+    "dataset_dir": "/root/autodl-tmp/v013/sft",
+    "do_train": true,
+    "finetuning_type": "lora",
+    "freeze_multi_modal_projector": true,
+    "freeze_vision_tower": true,
+    "gradient_accumulation_steps": 4,
+    "image_max_pixels": 230400,
+    "learning_rate": 0.0001,
+    "logging_steps": 10,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "lora_rank": 16,
+    "lora_target": "all",
+    "lr_scheduler_type": "cosine",
+    "model_name_or_path": "/root/autodl-tmp/models/Qwen3-VL-8B-Instruct",
+    "num_train_epochs": 2.0,
+    "output_dir": "/root/autodl-tmp/v013/adapter",
+    "overwrite_output_dir": false,
+    "per_device_train_batch_size": 4,
+    "report_to": "none",
+    "save_strategy": "no",
+    "seed": 17,
+    "stage": "sft",
+    "template": "qwen3_vl_nothink",
+    "warmup_ratio": 0.03
+  },
+  "sanity_windows": {
+    "count": 300,
+    "partition": "development",
+    "seed": 17
+  },
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_version": "1.0",
+  "scored_windows": 900,
+  "shared_logs_with_training": 0,
+  "training": {
+    "eventful_windows": 1978,
+    "logs": 13,
+    "partition": "l0",
+    "per_class_targets": {
+      "pedestrian_ego_near_zone_entry": {
+        "negative": 3136,
+        "positive": 294,
+        "uncertain": 526
+      },
+      "pedestrian_vehicle_center_proximity_hold": {
+        "negative": 3401,
+        "positive": 317,
+        "uncertain": 238
+      },
+      "vehicle_relative_corridor_entry": {
+        "negative": 3137,
+        "positive": 450,
+        "uncertain": 369
+      }
+    },
+    "seed": 17,
+    "target_rule": "positive->positive, negative->negative, ignore->uncertain",
+    "train_json_sha256": "ef51188ee5e2839d284b656d7dce2c0e46e6c1f0edb0cfc4dc5b7348b25509b9",
+    "windows": 3956
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "agreed_positive_pairs": 9,
+  "artifact": "vlm_label_quality",
+  "benchmark": "private Strem Oracle labels for the same frozen window IDs",
+  "budget": 900,
+  "downstream_gate": {
+    "passed": false,
+    "rule": "the downstream arm runs only at 15 or more agreed positive pairs"
+  },
+  "macro_f1": 0.1795,
+  "macro_f1_rule": "mean over classes with at least one scored window",
+  "method": "disagreement_v010",
+  "per_class": {
+    "pedestrian_ego_near_zone_entry": {
+      "ambiguous_oracle_windows": {
+        "ignore": {
+          "invalid": 0,
+          "negative": 10,
+          "positive": 2,
+          "uncertain": 33
+        }
+      },
+      "evidence_out_of_range_windows": 0,
+      "f1": 0.222222,
+      "false_negatives": 2,
+      "false_positives": 5,
+      "oracle_decided_windows": 855,
+      "oracle_label_states": {
+        "ignore": 45,
+        "negative": 821,
+        "positive": 34
+      },
+      "precision": 0.166667,
+      "recall": 0.333333,
+      "recall_including_abstentions": 0.029412,
+      "recall_rule": "tp over VLM-decided oracle positives only",
+      "scored_windows": 598,
+      "true_negatives": 590,
+      "true_positives": 1,
+      "undecidable_rate_on_decided": 0.300585,
+      "vlm_verdicts": {
+        "invalid": 0,
+        "negative": 602,
+        "positive": 8,
+        "uncertain": 290
+      },
+      "windows": 900
+    },
+    "pedestrian_vehicle_center_proximity_hold": {
+      "ambiguous_oracle_windows": {
+        "ignore": {
+          "invalid": 0,
+          "negative": 22,
+          "positive": 0,
+          "uncertain": 10
+        }
+      },
+      "evidence_out_of_range_windows": 0,
+      "f1": 0.2,
+      "false_negatives": 24,
+      "false_positives": 0,
+      "oracle_decided_windows": 868,
+      "oracle_label_states": {
+        "ignore": 32,
+        "negative": 821,
+        "positive": 47
+      },
+      "precision": 1.0,
+      "recall": 0.111111,
+      "recall_including_abstentions": 0.06383,
+      "recall_rule": "tp over VLM-decided oracle positives only",
+      "scored_windows": 721,
+      "true_negatives": 694,
+      "true_positives": 3,
+      "undecidable_rate_on_decided": 0.169355,
+      "vlm_verdicts": {
+        "invalid": 0,
+        "negative": 740,
+        "positive": 3,
+        "uncertain": 157
+      },
+      "windows": 900
+    },
+    "vehicle_relative_corridor_entry": {
+      "ambiguous_oracle_windows": {
+        "ignore": {
+          "invalid": 0,
+          "negative": 27,
+          "positive": 0,
+          "uncertain": 11
+        }
+      },
+      "evidence_out_of_range_windows": 0,
+      "f1": 0.116279,
+      "false_negatives": 33,
+      "false_positives": 43,
+      "oracle_decided_windows": 862,
+      "oracle_label_states": {
+        "ignore": 38,
+        "negative": 810,
+        "positive": 52
+      },
+      "precision": 0.104167,
+      "recall": 0.131579,
+      "recall_including_abstentions": 0.096154,
+      "recall_rule": "tp over VLM-decided oracle positives only",
+      "scored_windows": 645,
+      "true_negatives": 564,
+      "true_positives": 5,
+      "undecidable_rate_on_decided": 0.25174,
+      "vlm_verdicts": {
+        "invalid": 0,
+        "negative": 624,
+        "positive": 48,
+        "uncertain": 228
+      },
+      "windows": 900
+    }
+  },
+  "protocol": "v0.13",
+  "scenario_ids": [
+    "pedestrian_ego_near_zone_entry",
+    "pedestrian_vehicle_center_proximity_hold",
+    "vehicle_relative_corridor_entry"
+  ],
+  "schema_valid_rate": 1.0,
+  "schema_version": "1.0"
+}

@@ -1,0 +1,24 @@
+{
+  "arm": "B",
+  "artifact": "v013_raw_replies",
+  "decoding": {
+    "max_tokens": 2000,
+    "structured_output": "frozen v0.11 json schema",
+    "temperature": 0.0
+  },
+  "elapsed_seconds": 193.116,
+  "gpu": "NVIDIA A800 80GB PCIe",
+  "lora_path": null,
+  "model_path": "/root/autodl-tmp/models/Qwen3-VL-8B-Instruct",
+  "prompt_sha256": "d418e9bb5942e9751d04c642c3a92a9cd23c7175bb09a4e7981b1d36061b90fe",
+  "protocol": "v0.13",
+  "replies_sha256": "5e12cb38d622f4a17b2207a660e4ce9a6c49acf4b2cd269e0a2af0814dcbfdec",
+  "requests": "scored_900.jsonl",
+  "runtime_env": {
+    "VLLM_USE_FLASHINFER_SAMPLER": "0"
+  },
+  "schema_version": "1.0",
+  "torch_version": "2.13.0+cu130",
+  "vllm_version": "0.31.0",
+  "windows": 900
+}
