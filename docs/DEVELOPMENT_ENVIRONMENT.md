@@ -25,7 +25,10 @@ Specification: Frozen for `v0.8-three-class-loop`
   LR baselines did not: L-BFGS converged in different iteration counts, and
   Development AP moved by up to `0.0021` (LastFrame corridor `0.3534` against
   `0.3513`). The committed LR numbers are Procyon's; an LR comparison across
-  platforms carries that tolerance.
+  platforms carries that tolerance. GRU *training* also reproduces: the
+  Base-small, Oracle-900 and remote-VLM-900 arms retrained on the laptop matched
+  Procyon on all twelve seeds with identical best epochs and at most `2.3e-5`
+  Development AP apart (`results/v013-downstream/platform_check.json`).
 
 ## Rented GPU Host (v0.13, 2026-10-11)
 

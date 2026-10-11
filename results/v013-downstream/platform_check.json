@@ -1,0 +1,24 @@
+{
+  "arms": {
+    "base_small": {
+      "max_abs_ap_difference": 1.9483202669867694e-05,
+      "seeds": 12,
+      "seeds_with_different_best_epoch": 0
+    },
+    "oracle_900": {
+      "max_abs_ap_difference": 2.2388631963105032e-05,
+      "seeds": 12,
+      "seeds_with_different_best_epoch": 0
+    },
+    "remote_vlm_900": {
+      "max_abs_ap_difference": 6.191982335090884e-06,
+      "seeds": 12,
+      "seeds_with_different_best_epoch": 0
+    }
+  },
+  "artifact": "v013_downstream_platform_check",
+  "laptop": "macOS arm64",
+  "question": "do the three reference arms retrained on the macOS laptop reproduce their Procyon reports",
+  "reference": "Procyon originals (results/ or the offline backup)",
+  "schema_version": "1.0"
+}

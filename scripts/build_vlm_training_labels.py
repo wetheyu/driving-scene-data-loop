@@ -27,6 +27,12 @@ def main() -> None:
     parser.add_argument("--ranking", type=Path, required=True)
     parser.add_argument("--budget", type=int, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--protocol",
+        choices=("v0.11", "v0.13"),
+        default="v0.11",
+        help="Which labeler produced the replies; the training arm checks it.",
+    )
     args = parser.parse_args()
 
     ranking_rows = [
@@ -45,6 +51,7 @@ def main() -> None:
         ranking_rows=ranking_rows,
         scenario_ids=tuple(sorted(SCENARIO_DESCRIPTIONS)),
         method=methods.pop(),
+        protocol=args.protocol,
         output_dir=args.output_dir,
     )
     print(json.dumps(profile, allow_nan=False, sort_keys=True))

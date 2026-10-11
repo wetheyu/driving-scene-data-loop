@@ -287,8 +287,11 @@ Declared and executed 2026-10-11. `Qwen3-VL-8B-Instruct` labelled the v0.11
 3,956 L0 windows (`0.437`), against the remote VLM's `0.494`. The pre-registered
 criterion does not pass: `C − A = −0.056 [−0.125, +0.021]`. The adapter beats
 the remote VLM on corridor entry (F1 `0.70` against `0.50`) and over-calls both
-pedestrian classes. About CNY 15 of GPU time. Downstream retraining with these
-labels stays Planned. Full record: Findings section 17, `results/v013/`.
+pedestrian classes. About CNY 15 of GPU time. A downstream arm declared
+afterwards retrained the student on C's labels (Development-level): its corridor
+gain is statistically indistinguishable from the Oracle arm's (`+0.037 ± 0.022`)
+and 3.0σ above the remote-VLM arm's. Full record: Findings section 17,
+`results/v013/`, `results/v013-downstream/`.
 
 ## Optional Only After Completion
 

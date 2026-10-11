@@ -1093,6 +1093,15 @@ plausible because C over-calls that class. Development under-reads
 between-arm contrasts (D3), so a within-2σ reading means "comparable", not
 "equal". One run, no retries, nothing tuned after the first number exists.
 
+### Observed execution (2026-10-11)
+
+All four arms trained on the macOS laptop in a few minutes. The three
+reference arms reproduced Procyon on every seed (identical best epochs, at most
+`2.3e-5` AP apart). Corridor: `C − Oracle = +0.037 ± 0.022` (1.7σ), within 2σ —
+**C's labels substitute for the Oracle's at this resolution**; `C − Base =
++0.166` (5.1σ), `C − A = +0.056` (3.0σ). Near-zone falls below Base (−3.7σ), as
+expected. Findings section 17; `results/v013-downstream/`.
+
 ## Metrics
 
 Primary:

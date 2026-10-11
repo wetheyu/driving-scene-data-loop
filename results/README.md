@@ -33,6 +33,7 @@ data. Each directory name is the private run that produced the file, under
 | `d5-wide-*/gru_report.json` | D5: the v0.11 Base, Oracle, and VLM arms retrained with a hidden-128 student (`wide-fast-12seed`) |
 | `cases-v1/case_review.json` | the six window-level cases of Findings 17–18: percentile ranks under each arm, selector picks, labeler cell sizes, and the Test2-wide window-level summary |
 | `v013/*.json` | protocol v0.13: the host bundle manifest, the toolchain and weight hashes, both open-weight arms' run manifests and label reports, the C sanity gate, the LoRA training log, and the paired-bootstrap comparison against v0.11 |
+| `v013-downstream/*.json` | the v0.13 downstream arm: C's training-label profile, its GRU report, the seed-paired contrasts against Base, Oracle and remote-VLM arms (all four trained on the laptop), and the laptop-versus-Procyon agreement of the three reference arms |
 | `v012-diagnostics/*.json` | the D1-D5 scoping diagnostics: ensemble-size ablation with its sanity gate, the label-noise dose-response that places the VLM arm on a curve, the lc50 cross-operating-point contrasts, and the clean-query similarity ablation with its bank, selection, and reveal aggregates |
 
 ## What these files are not

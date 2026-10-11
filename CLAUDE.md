@@ -42,6 +42,7 @@ before touching a stage you have not worked on. Key points that shape every edit
 | v0.11 remote-VLM labels | done; Macro-F1 `0.494`, 86% of the Oracle gain (Development) | Findings §15 |
 | D1–D5 scoping diagnostics | done; Development-level | Findings §16 |
 | v0.13 open-weight VLM, zero-shot and LoRA | done; LoRA Macro-F1 `0.437` vs remote `0.494`, criterion not met | Findings §17 |
+| v0.13 downstream arm on the LoRA labels | done; corridor gain ≈ Oracle's (`+0.037 ± 0.022`, Development), above the remote VLM's (3.0σ) | Findings §17 |
 | bad-case review | done; six windows, every layer, checked against frames | Findings §17–18 |
 
 Both held-out sets are spent (`frozen_test` for v0.8, Test2 for v0.10) and are

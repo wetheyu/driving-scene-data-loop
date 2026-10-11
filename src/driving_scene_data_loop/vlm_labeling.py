@@ -378,6 +378,7 @@ def write_label_files(
     ranking_rows: list[JsonObject],
     scenario_ids: tuple[str, ...],
     method: str,
+    protocol: str,
     output_dir: Path,
 ) -> JsonObject:
     """Write the VLM labels in the reveal file shape the training arms already read.
@@ -425,7 +426,7 @@ def write_label_files(
     profile: JsonObject = {
         "schema_version": "1.0",
         "artifact": LABEL_ARTIFACT,
-        "protocol": "v0.11",
+        "protocol": protocol,
         "label_source": "vlm",
         "method": method,
         "scenario_ids": list(scenario_ids),

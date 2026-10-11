@@ -29,6 +29,7 @@ class OracleArm:
     budget: int
     pre_registered: bool = True
     label_source: str = "oracle"
+    label_protocol: str | None = None
 
 
 # An arm must be trained on the label source it declares. Training the VLM arm
@@ -88,6 +89,15 @@ VLM_ARMS = (
         "disagreement_v010",
         900,
         label_source="vlm",
+        label_protocol="v0.11",
+    ),
+    # Protocol v0.13 downstream: the same arm on the LoRA-adapted labeler's labels.
+    OracleArm(
+        "v010-disagreement-900-vlm-lora",
+        "disagreement_v010",
+        900,
+        label_source="vlm",
+        label_protocol="v0.13",
     ),
 )
 
@@ -144,6 +154,12 @@ def load_feedback_windows(
         raise FeedbackRetrainingError(
             f"{arm.name} declares {arm.label_source} labels but was given "
             f"{profile.get('artifact')!r}"
+        )
+    # Both VLM arms read the same artifact type; the protocol says whose labels.
+    if arm.label_protocol is not None and profile.get("protocol") != arm.label_protocol:
+        raise FeedbackRetrainingError(
+            f"{arm.name} declares {arm.label_protocol} labels but was given "
+            f"{profile.get('protocol')!r}"
         )
     base = load_baseline_windows(private_windows_path, frame_index_path)
     reveal_scenarios = tuple(cast(list[str], profile["scenario_ids"]))

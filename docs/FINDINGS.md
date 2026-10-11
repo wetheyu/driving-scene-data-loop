@@ -886,15 +886,59 @@ took 175 s, about `CNY 0.0003` per window against v0.11's `$0.026`, roughly
 including set-up and both arms, cost about `CNY 15` of GPU time against a
 declared ceiling of `CNY 150`.
 
+### Downstream: C's labels retrain the student as well as the Oracle's on corridor
+
+Declared after scoring as its own stage (Evaluation Plan, *Protocol v0.13
+downstream*), before any training on C's labels. The arm repeats
+`v010-disagreement-900-vlm` exactly — 900 IDs, `L0-small`, `narrow-fast-12seed`,
+`pos_weight` from L0-small — with only the added labels taken from C; only C's
+own `uncertain` verdicts are masked and the Oracle is never consulted. Procyon
+is gone, so all four arms were trained on the macOS laptop; the three
+reference arms reproduced their Procyon reports on every seed with identical
+best epochs and at most `2.3e-5` AP difference
+(`results/v013-downstream/platform_check.json`).
+
+| Development, 12 seed-paired | corridor AP | Macro AP |
+| --- | ---: | ---: |
+| C − Base | `+0.166 ± 0.032` (5.1σ) | `+0.038 ± 0.010` (4.0σ) |
+| Oracle − Base | `+0.129 ± 0.025` (5.2σ) | `+0.030 ± 0.009` (3.3σ) |
+| A − Base (remote VLM, v0.11) | `+0.110 ± 0.027` (4.2σ) | `+0.026 ± 0.009` (3.0σ) |
+| **C − Oracle** | **`+0.037 ± 0.022` (1.7σ)** | `+0.008 ± 0.008` (1.1σ) |
+| C − A | `+0.056 ± 0.018` (3.0σ) | `+0.013 ± 0.009` (1.5σ) |
+
+Read by the declared rule: on corridor `C − Oracle` lies within 2σ, so C's
+labels substitute for the Oracle's at this instrument's resolution. The point
+estimate sits above the Oracle arm (gain ratio 129% on corridor, 128% on
+Macro), but within the noise; it is not a claim that C's labels beat the
+Oracle's. Against the remote VLM's labels C buys more corridor gain by 3.0σ,
+the same ordering as label quality on that class (F1 `0.70` against `0.50`).
+Mean corridor AP: Base-small `0.368`, Oracle arm `0.496`, A arm `0.478`, C arm
+`0.534`.
+
+The expectation stated before the runs held per class. Near-zone entry falls
+below Base (`C − Base = −0.049 ± 0.013`, −3.7σ; the Oracle arm also drops,
+−0.031, −2.6σ), where C called 181 Oracle negatives positive. Proximity hold
+barely moves (`−0.002`, −0.7σ).
+
+Against the Oracle on corridor, C's 92 positive targets fall on 44 Oracle
+positives, 17 Oracle-`ignore` windows (the event exists but its bounded match
+does not complete in the five frames) and 31 Oracle negatives; the Oracle arm
+trains on 52 positives with its 38 `ignore` windows masked. A plausible,
+untested reading is that C's extra positives on event-bearing `ignore` windows
+carry real corridor signal the Oracle arm never sees. D5 showed a wider student
+is more sensitive to VLM label errors; this arm used only the hidden-48 student.
+
 ### What this does and does not license
 
 It licenses: one LoRA adapter on one open-weight VLM, judged on label quality on
 one adversarial 900-window slice, does not beat the remote VLM overall; it is
 much better than the same model zero-shot; and its gains and losses split by
-class along the same learnability line as the GRU's. It does not license any
-downstream claim — no student was retrained on C's labels, which stays
-Planned — nor any statement about other recipes, other models, or random
-windows. One recipe was run once; nothing was tuned after scoring opened.
+class along the same learnability line as the GRU's. On Development, its labels
+retrain the hidden-48 student to a corridor gain statistically
+indistinguishable from the Oracle's and larger than the remote VLM's. It does
+not license any held-out claim, any statement about wider students, other
+recipes, other models, or random windows. One recipe was run once; nothing was
+tuned after scoring opened.
 
 ## 18. Six windows through the loop
 
@@ -981,7 +1025,8 @@ cases 3 and 5 is *plausible*, not confirmed.
 
 Sections 1–12, 15, and 16 are Development and selection observations on one
 dataset, one representation, and one downstream model; section 17 is a
-label-quality reading on already-revealed Pool2 windows, and section 18 reviews
+label-quality reading on already-revealed Pool2 windows plus a Development-level
+retraining on those labels, and section 18 reviews
 single windows after every score froze; the only held-out readings are sections
 13 (v0.8) and 14 (v0.10).
 The unbiased-sample estimates rest on 1,710 windows with 67 to 86 positives per

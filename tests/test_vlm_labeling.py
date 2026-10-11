@@ -177,6 +177,7 @@ def test_label_file_masks_only_the_vlm_uncertain(tmp_path: Path) -> None:
         ranking_rows=_ranking_rows(),
         scenario_ids=SCENARIOS,
         method="disagreement_v010",
+        protocol="v0.11",
         output_dir=tmp_path / "vlm",
     )
 
@@ -185,6 +186,7 @@ def test_label_file_masks_only_the_vlm_uncertain(tmp_path: Path) -> None:
         for line in (tmp_path / "vlm" / "revealed_labels.jsonl").read_text().splitlines()
     ]
     assert profile["artifact"] == "vlm_labeled_windows"
+    assert profile["protocol"] == "v0.11"
     assert rows[0]["labels"] == [1, None, 0]
     assert rows[0]["loss_mask"] == [True, False, True]
     assert rows[1]["labels"] == [None, 0, 1]
@@ -342,3 +344,29 @@ def _write_jsonl(path: Path, rows: list[dict[str, object]]) -> None:
 
 def test_public_field_set_is_what_the_builder_enforces() -> None:
     assert set(_public_window()) == set(PUBLIC_U_FIELDS)
+
+
+def test_lora_arm_refuses_the_remote_vlm_labels(tmp_path: Path) -> None:
+    arm = get_oracle_arm("v010-disagreement-900-vlm-lora")
+    assert (arm.method, arm.budget, arm.label_source) == ("disagreement_v010", 900, "vlm")
+
+    remote_profile = tmp_path / "label_profile.json"
+    remote_profile.write_text(
+        json.dumps(
+            {
+                "artifact": "vlm_labeled_windows",
+                "protocol": "v0.11",
+                "scenario_ids": list(SCENARIOS),
+            }
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(FeedbackRetrainingError, match="declares v0.13 labels"):
+        load_feedback_windows(
+            private_windows_path=tmp_path / "windows.jsonl",
+            public_pool_windows_path=tmp_path / "public.jsonl",
+            revealed_labels_path=tmp_path / "revealed_labels.jsonl",
+            reveal_profile_path=remote_profile,
+            frame_index_path=tmp_path / "frame_index.jsonl",
+            arm=arm,
+        )
