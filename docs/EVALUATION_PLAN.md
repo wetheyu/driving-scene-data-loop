@@ -1158,6 +1158,37 @@ records it with the confound that C was adapted on ten L0 logs the student
 never sees. Cascade: `agree` reaches machine Macro-F1 `0.686` with a review rate
 of `0.372`; Findings §17.
 
+## D7 — a seed-log labeler, to separate label content from distillation (declared 2026-10-12, before any D7 step ran)
+
+Question: in D6 the LoRA labels (arm C) retrained the hidden-128 student
+`+0.058 ± 0.006` above the Oracle arm on corridor. C was adapted on all
+thirteen L0 logs; the student's seed set is three of them. Is the excess label
+content, or supervision from the ten logs the student never sees, distilled
+through C's labels? Method: adapt a second LoRA (arm C′) with the frozen v0.13
+recipe, prompt, schema, image size, and host toolchain, changing only the
+training set: the eventful and an equal number of all-negative windows of the
+three `L0-small` logs (418 + 418 windows, seed 17), built by the unchanged bundle
+code from `lc_windows_25.jsonl`. C′ is gated like C (300 Development windows, no
+label read, schema-valid ≥ 95% and both verdicts in every class) and labels the
+same 900 windows once. Its label quality is scored with the v0.11 metrics beside
+A and C. Downstream, arm `v010-disagreement-900-vlm-lora-seedlogs` trains on
+C′'s labels with both students (`narrow-fast-12seed`, `wide-fast-12seed`) on the
+laptop, beside the existing laptop runs of D6 and the v0.13 downstream arm.
+
+**Reading, fixed now** (corridor, hidden 128, where the excess appeared):
+
+| Result | Reading |
+| --- | --- |
+| `C′ − Oracle` above `+2σ` | the excess survives without the ten extra logs: it is carried by what the labeler writes, not by distillation |
+| `C′ − Oracle` within 2σ and `C − C′` above `+2σ` | the ten extra logs explain the D6 excess |
+| `C′ − Oracle` below `−2σ` | a labeler adapted on seed logs alone is worse than the Oracle here; the excess needed the extra logs |
+
+By construction C′ also sees fewer training windows than C (836 against
+3,956); "fewer logs" and "less adaptation data" are the same change here, and
+the reading says so. Hidden-48 contrasts are reported beside it.
+Development-level; no held-out set, no reveal, no prompt edit, one run. Spend
+ceiling CNY 50 of GPU time.
+
 ## Metrics
 
 Primary:

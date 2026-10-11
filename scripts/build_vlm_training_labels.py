@@ -29,7 +29,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
         "--protocol",
-        choices=("v0.11", "v0.13"),
+        choices=("v0.11", "v0.13", "d7-seedlogs"),
         default="v0.11",
         help="Which labeler produced the replies; the training arm checks it.",
     )

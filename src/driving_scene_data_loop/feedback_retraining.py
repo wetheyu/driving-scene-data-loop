@@ -99,6 +99,14 @@ VLM_ARMS = (
         label_source="vlm",
         label_protocol="v0.13",
     ),
+    # Diagnostic D7: the same arm on a labeler adapted on the three seed logs only.
+    OracleArm(
+        "v010-disagreement-900-vlm-lora-seedlogs",
+        "disagreement_v010",
+        900,
+        label_source="vlm",
+        label_protocol="d7-seedlogs",
+    ),
 )
 
 
