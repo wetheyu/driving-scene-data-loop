@@ -31,6 +31,7 @@ data. Each directory name is the private run that produced the file, under
 | `vlm-labels-v1/*.json` | protocol v0.11: the frozen VLM run identity and metered cost, the 900-window label quality against the Oracle, and the training-label profile |
 | `n12-v010-disagreement-900-vlm/gru_report.json` | the controlled downstream arm trained on VLM labels instead of Oracle labels over the identical 900 IDs |
 | `d5-wide-*/gru_report.json` | D5: the v0.11 Base, Oracle, and VLM arms retrained with a hidden-128 student (`wide-fast-12seed`) |
+| `cases-v1/case_review.json` | the six window-level cases of Findings 17–18: percentile ranks under each arm, selector picks, labeler cell sizes, and the Test2-wide window-level summary |
 | `v013/*.json` | protocol v0.13: the host bundle manifest, the toolchain and weight hashes, both open-weight arms' run manifests and label reports, the C sanity gate, the LoRA training log, and the paired-bootstrap comparison against v0.11 |
 | `v012-diagnostics/*.json` | the D1-D5 scoping diagnostics: ensemble-size ablation with its sanity gate, the label-noise dose-response that places the VLM arm on a curve, the lc50 cross-operating-point contrasts, and the clean-query similarity ablation with its bank, selection, and reveal aggregates |
 
@@ -38,6 +39,9 @@ data. Each directory name is the private run that produced the file, under
 
 They are aggregate reports, not data. They contain no image, no nuScenes table
 row, no `window_id`, no scene or instance token, no embedding, and no label.
+The one exception is `cases-v1/case_review.json`, which names six public
+nuScenes scenes by their published scene name and window start, so the cases in
+Findings section 18 can be looked up in the public release.
 They cannot be used to reconstruct the dataset, and they are not a substitute
 for nuScenes, which each user must obtain under its own licence.
 

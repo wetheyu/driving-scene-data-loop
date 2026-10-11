@@ -3,8 +3,9 @@
 Specification: Frozen for `v0.8-three-class-loop`
 
 Observed model status: the three-class Base model exists and its three-class
-automatic FN bank is complete. Individual visual root-cause review remains a
-later task. At class level,
+automatic FN bank is complete. The individual review is done: six windows, one
+or more per layer, each checked against its frames, are Findings sections
+17–18. At class level,
 pedestrian-vehicle proximity hold fell below the Gate B diagnostic margin and
 is the first representation/model limitation to preserve and test with added
 data.
@@ -239,3 +240,13 @@ what label source supplied, and what changed after retraining. Small fixtures
 may demonstrate failure handling, but they are not described as observed model
 failures. Do not build a fault-injection subsystem or collect shallow cases
 solely to satisfy a quota.
+
+Met on 2026-10-11 by six cases in Findings sections 17–18: data/label
+(case 3, an Oracle `ignore` boundary), Base false negative (case 4, cross
+traffic), selector (case 6, a hard-negative first pick), VLM labeling (cases 1
+and 2), and retraining (cases 4 and 5: a lift, a tie, and a regression).
+Cases 1–3 were drawn from their cells with seed 17 and case 6 is the selector's
+own first corridor pick; cases 4 and 5 were taken from sorted lists (largest
+lift, lowest rank), which makes them illustrative rather than representative,
+and Findings says so beside them. Every window was read against its five
+frames before being written up.

@@ -1127,7 +1127,8 @@ is simple: do not run Frozen Test scoring until every prediction file is final.
 Keep the remaining manual review bounded: a small stratified
 TaskDesign gallery plus at least five final explanatory cases, including one VLM
 label error or uncertainty case. Strem labels simulate an Oracle; manual review
-audits their quality and is not described as full human annotation.
+audits their quality and is not described as full human annotation. The final
+cases are Findings sections 17–18 (six windows, every layer).
 
 ## Release Check
 

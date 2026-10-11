@@ -23,7 +23,8 @@ All eight results below exist:
    disagreement 900 by protocol v0.11), is measured against the Oracle, and
    supplies one controlled VLM retraining comparison.
 8. Held-out Test metrics, four compact tables, and at least five deep cases are
-   documented.
+   documented. (The cases were the last item to land: six windows covering
+   every layer, Findings sections 17–18, written 2026-10-11.)
 
 Extra selectors, UI, databases, Agent, SFT, distributed platforms, and
 production engineering do not block completion.

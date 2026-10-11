@@ -896,12 +896,94 @@ downstream claim — no student was retrained on C's labels, which stays
 Planned — nor any statement about other recipes, other models, or random
 windows. One recipe was run once; nothing was tuned after scoring opened.
 
+## 18. Six windows through the loop
+
+Every number above is an aggregate. This section follows single windows, one
+for each layer the bad-case contract names — data and label, Base miss,
+selector, labeler, retraining — so the aggregates can be checked against what
+the frames show. Cases 1–3 are the labeler cases of section 17; cases 4–6 come
+from the v0.10 loop. Test2 windows are reviewed after its one opening and the
+review informs no reported result. A window's standing is its **percentile**
+among Test2 windows with a decided label for the class, ranked by the twelve-seed
+mean probability (1.0 is first): ranking is what AP measures, and it needs no
+threshold. Numbers: `results/cases-v1/case_review.json`.
+
+| # | Layer | Scene, start | What it shows |
+| ---: | --- | --- | --- |
+| 1 | labeler | `scene-1099`, 13 | the adapted VLM reads a night-time corridor entry the remote VLM abstained on |
+| 2 | labeler | `scene-0241`, 7 | the adapted VLM fires on a visible pedestrian, not on the metric entry |
+| 3 | data and label | `scene-0006`, 8 | an Oracle `ignore`: the event exists, its bounded match does not fit the window |
+| 4 | Base miss | `scene-0977`, 20 | cross traffic the seed model ranks low; added data lifts it |
+| 5 | retraining | `scene-0414`, 18; `scene-0417`, 2 | curve-induced entries no arm learns; one moves down |
+| 6 | selector | `scene-1101`, 12 | the disagreement selector's first corridor pick is a hard negative |
+
+### 4. A cross-traffic positive the seed model ranks low
+
+The ego vehicle waits at a red light; a dark sedan crosses from left to right in
+front of it. By the frozen definition this is a corridor entry: the same vehicle
+moves from `abs(y) ≥ 3 m` to `abs(y) ≤ 1.5 m` within 2 s while 0–30 m ahead. It
+is not a lane change, and the scenario definition in the Project Scope says the
+label never claims one. The Base-small ensemble ranks it at the `0.29` percentile, below most
+negatives. After 900 added windows it stands at `0.63` with random data and
+`0.72` with disagreement-selected data (`0.68` probability-ranked), and its
+neighbours in the same scene at starts 19 and 26 move the same way. Most of the
+lift comes from adding data at all; selection adds a little more.
+
+That is the shape of the whole v0.10 effect at window level. Of the 117 Test2
+corridor positives, the disagreement arm ranks 69 above the random-arm mean,
+and the median percentile moves `0.898 → 0.921 → 0.935` from Base-small through
+random to disagreement. The `+0.062` AP of section 14 is a broad shift, not a
+handful of rescued windows. Case 4 was taken from the windows with the largest
+disagreement-over-random lift, so it overstates the typical window; the
+medians are the typical window.
+
+### 5. Curve-induced entries no arm learns
+
+Both windows were taken from the bottom of the disagreement arm's ranking of
+Test2 corridor positives, so they show the failures, not the rate of failure.
+
+A white van drives ahead of the ego vehicle on a curving road (`scene-0414`).
+Its lateral offset in the ego frame crosses the corridor thresholds largely
+because the road bends, so the Oracle calls it positive, while the frames show
+no event — just a van ahead on a curve. Every arm leaves it in the lower half:
+`0.34` under Base-small, `0.29` with random data, `0.40` with disagreement data.
+A near-identical scene (`scene-0417`, a van ahead on a curving residential road)
+moves *down* after retraining, `0.75 → 0.46` with disagreement data. The
+reading — that an ego-frame metric definition includes cases whose visual
+evidence is the road's shape rather than the vehicle's motion — is plausible and
+untested; it is the corridor counterpart of the label-semantics hypothesis in
+the Bad-Case Process.
+
+### 6. The selector's first pick is a hard negative
+
+The disagreement selector's first corridor-query pick (overall rank 3 of 900)
+is a night scene in which a double-decker bus approaches on the right and passes
+the ego vehicle. The twelve Base-small models gave it mean probability `0.33`
+with standard deviation `0.255` — about as split as the pool gets. Revealed:
+negative for all three classes, as were all five of its first corridor picks.
+
+This is the mechanism behind section 14 on one window. At `N=900` disagreement
+bought 52 corridor positives, barely more than random (42–48), while the
+probability-ranked selector bought the most (62) and still failed the held-out
+bar. What the winning selector adds is not positives but the windows on the
+model's own decision boundary, many of them negatives that look like positives.
+
+### What the cases add
+
+The six windows agree with the aggregates and sharpen two of them. The v0.10
+gain is diffuse, and its source is boundary data rather than positive yield.
+And both the adapted VLM's failure (cases 2–3) and the GRU's stubborn misses
+(case 5) sit where the label is a metric fact the image shows weakly — the same
+learnability line sections 11 and 17 drew from aggregates. Cause confidence for
+cases 3 and 5 is *plausible*, not confirmed.
+
 ## Claim boundary
 
 Sections 1–12, 15, and 16 are Development and selection observations on one
 dataset, one representation, and one downstream model; section 17 is a
-label-quality reading on already-revealed Pool2 windows; the only held-out
-readings are sections 13 (v0.8) and 14 (v0.10).
+label-quality reading on already-revealed Pool2 windows, and section 18 reviews
+single windows after every score froze; the only held-out readings are sections
+13 (v0.8) and 14 (v0.10).
 The unbiased-sample estimates rest on 1,710 windows with 67 to 86 positives per
 class, so decile-level rates carry real uncertainty; the round-robin dilution and
 the threshold arithmetic are exact computations and do not. Nothing here shows

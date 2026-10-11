@@ -1,0 +1,130 @@
+{
+  "arms": {
+    "base": "n12-lc25 (Base-small)",
+    "dis": "disagreement-900",
+    "prob": "prob-ranked-900",
+    "rand": "mean of the three random-900 arms"
+  },
+  "artifact": "window_level_case_review",
+  "cases": {
+    "1_vlm_corridor_C_recovers": {
+      "cell_size": 15,
+      "scene": "scene-1099",
+      "start": 13
+    },
+    "2_vlm_near_zone_C_false_positive": {
+      "cell_size": 77,
+      "scene": "scene-0241",
+      "start": 7
+    },
+    "3_vlm_near_zone_ignore_C_positive": {
+      "C_on_near_zone_ignore": {
+        "negative": 7,
+        "positive": 38
+      },
+      "cell_size": 14,
+      "scene": "scene-0006",
+      "start": 8
+    },
+    "4_base_miss_lifted_by_added_data": {
+      "percentiles": {
+        "base": 0.287,
+        "dis": 0.719,
+        "prob": 0.682,
+        "rand": 0.632
+      },
+      "same_scene_neighbours": {
+        "19": {
+          "base": 0.327,
+          "dis": 0.642,
+          "prob": 0.643,
+          "rand": 0.565
+        },
+        "26": {
+          "base": 0.28,
+          "dis": 0.702,
+          "prob": 0.677,
+          "rand": 0.618
+        }
+      },
+      "scene": "scene-0977",
+      "start": 20
+    },
+    "5_retraining_does_not_help": {
+      "moved_down": {
+        "percentiles": {
+          "base": 0.749,
+          "dis": 0.457,
+          "prob": 0.619,
+          "rand": 0.545
+        },
+        "scene": "scene-0417",
+        "start": 2
+      },
+      "still_missed": {
+        "percentiles": {
+          "base": 0.343,
+          "dis": 0.404,
+          "prob": 0.326,
+          "rand": 0.294
+        },
+        "scene": "scene-0414",
+        "start": 18
+      }
+    },
+    "6_selector_first_corridor_pick": {
+      "ensemble_mean": 0.329,
+      "ensemble_std": 0.255,
+      "first_five_corridor_picks_revealed_corridor": [
+        "negative",
+        "negative",
+        "negative",
+        "negative",
+        "negative"
+      ],
+      "overall_rank": 3,
+      "revealed": [
+        "negative",
+        "negative",
+        "negative"
+      ],
+      "scene": "scene-1101",
+      "start": 12
+    }
+  },
+  "evidence_level": "review after Test2's one opening and after v0.13 scoring; informs no reported result",
+  "rank_rule": "percentile of a window's twelve-seed mean probability among Test2 windows with a decided label for the class; 1.0 is ranked first",
+  "schema_version": "1.0",
+  "selector_900_corridor_label_states": {
+    "disagreement": {
+      "ignore": 38,
+      "negative": 810,
+      "positive": 52
+    },
+    "prob_ranked": {
+      "ignore": 46,
+      "negative": 792,
+      "positive": 62
+    },
+    "random201": {
+      "positive": 48
+    },
+    "random202": {
+      "positive": 48
+    },
+    "random203": {
+      "positive": 42
+    },
+    "source": "results/v010/label_profile.json"
+  },
+  "test2_corridor_positives": {
+    "below_median_under_base": 20,
+    "count": 117,
+    "median_percentile": {
+      "base": 0.898,
+      "dis": 0.935,
+      "rand": 0.921
+    },
+    "ranked_higher_by_dis_than_rand": 69
+  }
+}

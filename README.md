@@ -31,8 +31,13 @@ What these claims cover, and nothing more:
   sets were already spent, and it holds on corridor but not on Macro-AP once the
   student is widened to hidden 128 ([Findings §16, D5](docs/FINDINGS.md)).
 
-The scenario specification is frozen at `v0.8-three-class-loop`; v0.10 and
-v0.11 build on it without editing it. The full narrative, in the order the
+Six single windows follow the loop layer by layer — a cross-traffic positive the
+seed model missed, the selector's first pick (a hard negative), labeler errors,
+and a retraining regression — each checked against its frames
+([Findings §18](docs/FINDINGS.md)).
+
+The scenario specification is frozen at `v0.8-three-class-loop`; v0.10,
+v0.11, and v0.13 build on it without editing it. The full narrative, in the order the
 evidence arrived, is [Findings](docs/FINDINGS.md).
 
 ## The Loop
