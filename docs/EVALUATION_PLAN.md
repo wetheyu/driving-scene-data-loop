@@ -1038,11 +1038,60 @@ mode). All four weight files matched the published Hugging Face hashes.
 ### Not in this protocol
 
 - No downstream retraining with C's labels. Both held-out sets are spent, so it
-  could only be Development-level evidence; it stays **Planned**.
+  could only be Development-level evidence. It was declared afterwards as its own
+  stage: *Protocol v0.13 downstream* below.
 - No held-out set is reopened, no prompt is edited, and no arm is rerun after
   scoring opens.
 - The adapter never overrides a Strem label. A disagreement is reported as a
   disagreement.
+
+## Protocol v0.13 downstream — retraining on the adapted labeler's labels
+
+Declared 2026-10-11, after v0.13 scoring and before any training run on arm C's
+labels. Development-level by construction: both held-out sets are spent.
+
+> v0.11 showed that labels at Macro-F1 `0.494` retrain the student to 86% of the
+> Oracle arm's corridor gain. Arm C of v0.13 labels the same 900 windows at
+> Macro-F1 `0.437`, with a different error profile: corridor precision and recall
+> both higher than the remote VLM's (`0.59 / 0.86` against `0.47 / 0.53`), and
+> heavy over-calling on the two pedestrian classes (252 near-zone `positive`
+> verdicts against the remote VLM's 47). How much of the Oracle gain do C's
+> labels buy, per class?
+
+**Arm.** `v010-disagreement-900-vlm-lora`: the exact 900 window IDs, `L0-small`
+seed set, `narrow-fast-12seed` recipe, `pos_weight` source and every
+hyperparameter of `v010-disagreement-900-vlm`; only the added batch's labels
+change, built by `build_vlm_training_labels` from C's parsed 900-window labels
+with the same mask rule (only C's own `uncertain` or unusable verdicts are
+masked; the Oracle is not consulted). The label profile records protocol
+`v0.13`, and the arm loader refuses a label file from any other protocol, so the
+arm cannot silently train on the remote VLM's labels.
+
+**Platform.** Every committed GRU run was trained on Procyon, which is gone.
+All four arms of the comparison — Base-small (`lc_windows_25.jsonl`, no
+feedback), `v010-disagreement-900` (Oracle labels), `v010-disagreement-900-vlm`
+(remote-VLM labels) and the new arm — are therefore trained on this laptop from
+the backed-up inputs, and every contrast is computed within the laptop runs.
+Agreement of the three reference arms with their committed Procyon reports is
+reported beside the result, not used to choose it.
+
+**Reading, fixed now.** Development seed-paired contrasts, corridor (the
+pre-registered class) and Macro AP:
+`C − Base`, `Oracle − Base`, `C − Oracle`, `C − A` (A = the remote-VLM arm),
+and the gain ratio `(C − Base) / (Oracle − Base)`.
+
+| Result on corridor | Reading |
+| --- | --- |
+| `C − Oracle` within 2σ of zero | C's labels substitute for the Oracle at this instrument's resolution |
+| `C − Oracle` below `−2σ`, `C − Base` above `+2σ` | lossy but net-positive |
+| `C − Base` within 2σ of zero or below | C's labels buy nothing measurable |
+
+`C − A` is reported with the same 2σ convention and no decision attached.
+Expectation stated before the runs, from label quality alone: corridor at least
+as good as the remote-VLM arm, and a near-zone regression below Base is
+plausible because C over-calls that class. Development under-reads
+between-arm contrasts (D3), so a within-2σ reading means "comparable", not
+"equal". One run, no retries, nothing tuned after the first number exists.
 
 ## Metrics
 
